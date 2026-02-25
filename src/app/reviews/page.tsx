@@ -1,142 +1,244 @@
 "use client";
 
 import React, { useState } from "react";
-import PageWrapper from "@/components/PageWrapper";
 import styles from "./reviews.module.css";
+import PageWrapper from "@/components/PageWrapper";
+import { Star, CheckCircle, SealCheck, Info } from "@phosphor-icons/react";
 
-// ─── Collage cards ─────────────────────────────────────────
-const COLLAGE = [
-    { stars: "★★★★★", text: "The guide picked a restaurant not on any app. Best meal of my life.", author: "RIYA S · TOKYO", rot: -2, left: "55%", top: "8%", scale: 0.92 },
-    { stars: "★★★★★", text: "No surprises. Every detail exactly as described.", author: "ALEX M · LISBON", rot: 2, left: "68%", top: "22%", scale: 1.00 },
-    { stars: "★★★★☆", text: "The tuk-tuk warning saved us ₹800 on Day 1.", author: "PREET K · BANGKOK", rot: -3, left: "75%", top: "48%", scale: 0.88 },
-    { stars: "★★★★★", text: "Felt safer knowing someone vetted every hotel.", author: "SARA J · CAIRO", rot: 1, left: "60%", top: "65%", scale: 0.95 },
-    { stars: "★★★★★", text: "The field reports are entirely different from TripAdvisor.", author: "NIKHIL R · ROME", rot: -1, left: "52%", top: "80%", scale: 0.90 },
-    { stars: "★★★★★", text: "I've traveled 18 countries. This is how it should always work.", author: "MAYA P · KYOTO", rot: 3, left: "82%", top: "12%", scale: 0.85 },
-    { stars: "★★★★☆", text: "Booking confirmed in 3 minutes. Arrived, it was exactly as shown.", author: "ISHAN T · BALI", rot: -2, left: "78%", top: "74%", scale: 0.93 },
-    { stars: "★★★★★", text: "My guide met me at arrivals. Made for extraordinary first hour.", author: "LAYLA F · MARRAKECH", rot: 1, left: "88%", top: "42%", scale: 0.87 },
+// --- Types ---
+interface Review {
+    id: number;
+    name: string;
+    property: string;
+    stars: number;
+    text: string;
+    avatarClass: string;
+    category: "Hotels" | "Restaurants" | "Guides" | "Transport";
+}
+
+// --- Data ---
+const COLLAGE_REVIEWS = [
+    { id: 1, property: "Park Hyatt Tokyo", text: "Truly verified.", stars: 5 },
+    { id: 2, property: "Rue Cler Bistro", text: "Sophie was right!", stars: 5 },
+    { id: 3, property: "Andaman Ferry", text: "Felt safe.", stars: 4 },
+    { id: 4, property: "Singapore Airlines", text: "Top notch.", stars: 5 },
+    { id: 5, property: "Riad Yima", text: "Solo female friendly.", stars: 5 },
+    { id: 6, property: "Grab Bangkok", text: "Use Grab!", stars: 5 },
+    { id: 7, property: "Hotel Arts", text: "Matched photos.", stars: 5 },
+    { id: 8, property: "JR Pass", text: "Crowd score helped.", stars: 5 },
+    { id: 9, property: "Taj Mahal", text: "Guide was expert.", stars: 5 },
+    { id: 10, property: "Uber London", text: "Vetted driver.", stars: 5 },
+    { id: 11, property: "Swiss Rail", text: "On time, verified.", stars: 5 },
+    { id: 12, property: "Eiffel Tower", text: "Skip-the-line worked.", stars: 5 }
 ];
 
-const REVIEWS = [
-    { name: "Riya S.", property: "KONBU RYOKAN · KYOTO, JAPAN", stars: "★★★★★", text: "Every detail of this ryokan was exactly as the guide described — the tatami fragrance, the wooden bath, the silence. Nothing was exaggerated. I can't imagine booking anything else without this level of vetting.", verified: true },
-    { name: "Arjun M.", property: "GRAB RIDE · BANGKOK, THAILAND", stars: "★★★★★", text: "The app recommendation was spot on. Surge-free, driver spoke basic English, and the safety rating was visible before booking. Confidence score: 9.2. They weren't lying.", verified: true },
-    { name: "Preet K.", property: "PRIYA S. (GUIDE) · JAIPUR", stars: "★★★★★", text: "She took us to a textile workshop no tourist ever visits, fed us authentic thali at her cousin's dhaba, and negotiated at the market like a seasoned auntie. Absolutely irreplaceable.", verified: true },
-    { name: "Sara J.", property: "MENA HOUSE · CAIRO, EGYPT", stars: "★★★★☆", text: "The caution flag for heat was accurate — we planned around it. The hotel itself was impeccable. Having a pre-verified driver from the guide network meant no airport hassle at all.", verified: true },
-    { name: "Alex M.", property: "LUX PENSÃO · LISBON, PORTUGAL", stars: "★★★★★", text: "I landed with zero plans, opened the app, found a vetted guide within 2 hours. She reshaped my entire week. The review system actually works because you can't fake a booking.", verified: true },
-    { name: "Ishan T.", property: "GILI AIR FERRY · BALI", stars: "★★★★☆", text: "The ferry was exactly on time. The 'scam boats' warning in the safety section kept us from paying triple at the dock. Booked a verified operator. Night and day difference.", verified: true },
+const MATURITY_LEVELS = [
+    {
+        icon: "🌱",
+        name: "Emerging",
+        range: "0–25 REVIEWS",
+        desc: "New property. Treat scores as indicative only."
+    },
+    {
+        icon: "🌿",
+        name: "Developing",
+        range: "25–100 REVIEWS",
+        desc: "Building track record. Reliable for major categories."
+    },
+    {
+        icon: "🌳",
+        name: "Established",
+        range: "100–500 REVIEWS",
+        desc: "Strong confidence. Scores are highly reliable."
+    },
+    {
+        icon: "🏆",
+        name: "Verified",
+        range: "500+ REVIEWS",
+        desc: "Maximum confidence. Scores are definitive."
+    }
 ];
 
-const COMPARISON_ROWS = [
-    { feature: "Booking verification", ps: true, ta: false, gg: false },
-    { feature: "Photo EXIF verification", ps: true, ta: false, gg: false },
-    { feature: "Guide cross-validation", ps: true, ta: false, gg: false },
-    { feature: "8-dimensional scoring", ps: true, ta: false, gg: false },
-    { feature: "Anti-gaming system", ps: true, ta: "partial", gg: "partial" },
-    { feature: "Review expiry (18mo)", ps: true, ta: false, gg: false },
+const MAIN_REVIEWS: Review[] = [
+    {
+        id: 1,
+        name: "Priya K.",
+        property: "PARK HYATT TOKYO",
+        stars: 5,
+        category: "Hotels",
+        avatarClass: styles.avatarA,
+        text: "The passport recommendation was spot on. Room was quieter than expected, concierge spoke Hindi — I never felt lost once. The safety briefing about Shinjuku at night saved me from a very bad situation."
+    },
+    {
+        id: 2,
+        name: "Rahul M.",
+        property: "RUE CLER BISTRO, PARIS",
+        stars: 5,
+        category: "Restaurants",
+        avatarClass: styles.avatarB,
+        text: "My guide Sophie spotted a tourist trap menu from 20 metres away. Saved ₹800 on lunch."
+    },
+    {
+        id: 3,
+        name: "Ananya S.",
+        property: "ANDAMAN FERRY SERVICE",
+        stars: 4,
+        category: "Transport",
+        avatarClass: styles.avatarC,
+        text: "The sea condition widget said medium risk — they weren't wrong. Sat at lower deck rear as advised. Much calmer than the upper deck passengers who were pale for 2 hours."
+    },
+    {
+        id: 4,
+        name: "Vikram P.",
+        property: "SINGAPORE AIRLINES",
+        stars: 5,
+        category: "Transport",
+        avatarClass: styles.avatarD,
+        text: "Confidence Score 96/100. Makes sense now."
+    },
+    {
+        id: 5,
+        name: "Meera R.",
+        property: "RIAD YIMA, MARRAKECH",
+        stars: 5,
+        category: "Hotels",
+        avatarClass: styles.avatarE,
+        text: "Traveled solo as a woman. The Solo Female Safety score of 91 gave me confidence. Every recommendation in my Passport was accurate — including the warning about fake guides at Djemaa el-Fna. I was prepared. I felt safe."
+    },
+    {
+        id: 6,
+        name: "Aditya N.",
+        property: "GRAB CAB, BANGKOK",
+        stars: 5,
+        category: "Transport",
+        avatarClass: styles.avatarF,
+        text: "App directory said use Grab, avoid Bolt here. Tried Bolt anyway. Got scammed. Should have listened to the Passport."
+    },
+    {
+        id: 7,
+        name: "Sunita V.",
+        property: "HOTEL ARTS BARCELONA",
+        stars: 5,
+        category: "Hotels",
+        avatarClass: styles.avatarA,
+        text: "Guide verified badge is real. Checked in and everything matched the photo score exactly."
+    },
+    {
+        id: 8,
+        name: "Karthik L.",
+        property: "JR PASS, JAPAN",
+        stars: 5,
+        category: "Transport",
+        avatarClass: styles.avatarB,
+        text: "Crowd score said 9am Shinkansen would be packed. Took 10am instead — had an entire row to myself all the way to Kyoto."
+    }
 ];
 
-const MATURITY = [
-    { icon: "🌱", name: "Emerging", range: "0–25 reviews", desc: "Building a verified track record. Data from guide validation." },
-    { icon: "🌿", name: "Developing", range: "25–100 reviews", desc: "Sufficient data to form reliable recommendations." },
-    { icon: "🌳", name: "Established", range: "100–500 reviews", desc: "Robust dataset. Scores are statistically significant." },
-    { icon: "🏆", name: "Verified", range: "500+ reviews", desc: "Gold standard. Highest confidence. Fully trusted data." },
-];
-
-type CategoryFilter = "All" | "Hotels" | "Restaurants" | "Guides" | "Transport";
-
+// --- Main Component ---
 export default function ReviewsPage() {
-    const [search, setSearch] = useState("");
-    const [category, setCategory] = useState<CategoryFilter>("All");
+    const [activeCategory, setActiveCategory] = useState("All");
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const filteredReviews = MAIN_REVIEWS.filter(r => {
+        const matchesCat = activeCategory === "All" || r.category === activeCategory;
+        const matchesSearch = r.property.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            r.text.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCat && matchesSearch;
+    });
 
     return (
         <PageWrapper>
             <div className={styles.reviewsPage}>
 
-                {/* ══ HERO ══ */}
+                {/* HERO SECTION */}
                 <section className={styles.hero}>
                     <div className={styles.backgroundText}>100%</div>
+                    <div className={styles.leftOverlay} />
 
-                    {/* Collage */}
                     <div className={styles.reviewCollage}>
-                        {COLLAGE.map((c, i) => (
-                            <div
-                                key={i}
-                                className={styles.collageCard}
-                                style={{
-                                    left: c.left,
-                                    top: c.top,
-                                    transform: `rotate(${c.rot}deg) scale(${c.scale})`,
-                                }}
-                            >
-                                <div className={styles.collageStars}>{c.stars}</div>
-                                <div className={styles.collageText}>&ldquo;{c.text}&rdquo;</div>
-                                <span className={styles.collageAuthor}>{c.author}</span>
-                                <div className={styles.verifiedStamp}>✓ BOOKING VERIFIED</div>
+                        {COLLAGE_REVIEWS.map((r, i) => (
+                            <div key={r.id} className={`${styles.collageCard} ${styles['card' + (i + 1)]}`}>
+                                <span className={styles.cardTitle}>{r.property}</span>
+                                <span className={styles.cardReview}>&quot;{r.text}&quot;</span>
+                                <div className={styles.cardStars}>
+                                    {Array.from({ length: r.stars }).map((_, st) => <Star key={st} weight="fill" />)}
+                                </div>
+                                <span className={styles.verifiedStamp}>✅ VERIFIED BOOKING</span>
                             </div>
                         ))}
                     </div>
 
-                    <div className={styles.leftOverlay} />
-
                     <div className={styles.heroContent}>
-                        <span className={styles.eyebrow}>Verified Reviews</span>
+                        <span className={styles.eyebrow}>PROOF OF TRUST</span>
                         <h1 className={styles.heading}>
-                            Every review.
+                            <span className={styles.headingLine}>Every review.</span>
                             <span className={styles.headingAccent}>Verified.</span>
                         </h1>
-                        <span className={styles.subtext}>287,000 reviews · 100% from real bookings</span>
-                        <div className={styles.statPills}>
-                            <span className={styles.statPill}>287K Reviews</span>
-                            <span className={`${styles.statPill} ${styles.statPillGreen}`}>100% Booking-Verified</span>
-                            <span className={`${styles.statPill} ${styles.statPillGreen}`}>0 Fake Reviews</span>
+                        <p className={styles.subtext}>
+                            287,000 REVIEWS · 100% FROM REAL BOOKINGS
+                        </p>
+                        <div className={styles.heroPills}>
+                            <div className={styles.heroPill}>287K Reviews</div>
+                            <div className={styles.heroPill}>100% Booking-Verified</div>
+                            <div className={styles.heroPill}>0 Fake Reviews</div>
                         </div>
                     </div>
                 </section>
 
-                {/* ══ COMPARISON TABLE ══ */}
-                <section className={styles.comparisonSection}>
-                    <h2 className={styles.sectionTitle}>How we&apos;re different.</h2>
-                    <div className={styles.tableWrap}>
-                        <table className={styles.comparisonTable}>
-                            <thead>
-                                <tr>
-                                    <th className={`${styles.compHeader}`} style={{ textAlign: "left", paddingLeft: 24 }}>Feature</th>
-                                    <th className={`${styles.compHeader} ${styles.compHeaderHighlight}`}>Pragati Setu</th>
-                                    <th className={styles.compHeader}>TripAdvisor</th>
-                                    <th className={styles.compHeader}>Google</th>
+                {/* SECTION 2 — COMPARISON */}
+                <section className={styles.differenceSection}>
+                    <h2 className={styles.sectionTitle}>
+                        How it&apos;s <span className={styles.sectionAccent}>different.</span>
+                    </h2>
+                    <p className={styles.sectionSubtitle}>Transparency is our core currency.</p>
+
+                    <table className={styles.compTable}>
+                        <thead className={styles.compHead}>
+                            <tr>
+                                <th className={`${styles.compHeadCell} styles.compHeadFeature`}>Feature</th>
+                                <th className={`${styles.compHeadCell} ${styles.compHeadPragati}`}>Pragati Setu</th>
+                                <th className={styles.compHeadCell}>TripAdvisor</th>
+                                <th className={styles.compHeadCell}>Google</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {[
+                                { f: "Booking verification", p: "yes", t: "no", g: "no" },
+                                { f: "Photo EXIF check", p: "yes", t: "no", g: "no" },
+                                { f: "Guide cross-validation", p: "yes", t: "no", g: "no" },
+                                { f: "8-dimensional scoring", p: "yes", t: "no", g: "no" },
+                                { f: "Anti-gaming system", p: "yes", t: "partial", g: "partial" },
+                                { f: "Review expiry (18 months)", p: "yes", t: "no", g: "no" },
+                                { f: "Response verification", p: "yes", t: "no", g: "partial" },
+                                { f: "Scam incident cross-check", p: "yes", t: "no", g: "no" }
+                            ].map((row, i) => (
+                                <tr key={i} className={styles.compRow}>
+                                    <td className={`${styles.compCell} ${styles.compCellFeature}`}>{row.f}</td>
+                                    <td className={`${styles.compCell} ${styles.compCellPragati}`}>
+                                        <span className={styles.checkYes}>✅</span>
+                                    </td>
+                                    <td className={styles.compCell}>
+                                        {row.t === "no" ? <span className={styles.checkNo}>✕</span> : <span className={styles.checkPartial}>Partial</span>}
+                                    </td>
+                                    <td className={styles.compCell}>
+                                        {row.g === "no" ? <span className={styles.checkNo}>✕</span> : <span className={styles.checkPartial}>Partial</span>}
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {COMPARISON_ROWS.map(r => (
-                                    <tr key={r.feature} className={styles.compRow}>
-                                        <td className={`${styles.compCell} ${styles.compCellFeature}`} style={{ paddingLeft: 24 }}>{r.feature}</td>
-                                        <td className={`${styles.compCell} ${styles.compCellHighlight}`}>
-                                            <span className={styles.checkYes}>✅</span>
-                                        </td>
-                                        <td className={styles.compCell}>
-                                            {r.ta === true ? <span className={styles.checkYes}>✅</span>
-                                                : r.ta === "partial" ? <span className={styles.checkPartial}>Partial</span>
-                                                    : <span className={styles.checkNo}>✗</span>}
-                                        </td>
-                                        <td className={styles.compCell}>
-                                            {r.gg === true ? <span className={styles.checkYes}>✅</span>
-                                                : r.gg === "partial" ? <span className={styles.checkPartial}>Partial</span>
-                                                    : <span className={styles.checkNo}>✗</span>}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                            ))}
+                        </tbody>
+                    </table>
                 </section>
 
-                {/* ══ MATURITY TIERS ══ */}
-                <section className={styles.maturitySection}>
-                    <h2 className={styles.sectionTitle}>Trust grows with data.</h2>
+                {/* SECTION 3 — TRUST SCORE */}
+                <section className={styles.trustSection}>
+                    <h2 className={styles.sectionTitle}>The Review Trust Score.</h2>
+                    <p className={styles.sectionSubtitle}>Not all reviews are equal. Ours tell you exactly how reliable each score is.</p>
+
                     <div className={styles.maturityGrid}>
-                        {MATURITY.map(m => (
-                            <div key={m.name} className={styles.maturityCard}>
-                                <span className={styles.maturityIcon}>{m.icon}</span>
-                                <div className={styles.maturityName}>{m.name}</div>
+                        {MATURITY_LEVELS.map((m, i) => (
+                            <div key={i} className={styles.maturityCard}>
+                                <div className={styles.maturityIcon}>{m.icon}</div>
+                                <h3 className={styles.maturityName}>{m.name}</h3>
                                 <span className={styles.maturityRange}>{m.range}</span>
                                 <p className={styles.maturityDesc}>{m.desc}</p>
                             </div>
@@ -144,40 +246,48 @@ export default function ReviewsPage() {
                     </div>
                 </section>
 
-                {/* ══ BROWSE REVIEWS ══ */}
+                {/* SECTION 4 — BROWSE */}
                 <section className={styles.browseSection}>
-                    <h2 className={styles.sectionTitle}>Browse reviews.</h2>
+                    <h2 className={styles.sectionTitle}>Browse real reviews.</h2>
 
                     <div className={styles.filterBar}>
                         <input
-                            className={styles.filterInput}
-                            placeholder="🔍  Search destination, property…"
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
+                            type="text"
+                            placeholder="Search destination..."
+                            className={styles.searchInput}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                         />
-                        <select
-                            className={styles.filterSelect}
-                            value={category}
-                            onChange={e => setCategory(e.target.value as CategoryFilter)}
-                        >
-                            {(["All", "Hotels", "Restaurants", "Guides", "Transport"] as CategoryFilter[]).map(c =>
-                                <option key={c} value={c}>{c}</option>
-                            )}
-                        </select>
+                        {["All", "Hotels", "Restaurants", "Guides", "Transport"].map(c => (
+                            <button
+                                key={c}
+                                className={`${styles.filterPill} ${activeCategory === c ? styles.filterPillActive : ""}`}
+                                onClick={() => setActiveCategory(c)}
+                            >
+                                {c}
+                            </button>
+                        ))}
                     </div>
 
-                    <div className={styles.reviewsMasonry}>
-                        {REVIEWS.map(r => (
-                            <div key={r.name} className={styles.reviewCard}>
-                                <div className={styles.reviewHeader}>
-                                    <span className={styles.reviewerName}>{r.name}</span>
-                                    <span className={styles.reviewStars}>{r.stars}</span>
+                    <div className={styles.masonryGrid}>
+                        {filteredReviews.map((r) => (
+                            <div key={r.id} className={styles.reviewCard}>
+                                <div className={styles.reviewerRow}>
+                                    <div className={`${styles.reviewerAvatar} ${r.avatarClass}`} />
+                                    <div className={styles.reviewerInfo}>
+                                        <span className={styles.reviewerName}>{r.name}</span>
+                                        <span className={styles.reviewerProperty}>{r.property}</span>
+                                    </div>
                                 </div>
-                                <span className={styles.reviewProperty}>{r.property}</span>
-                                <p className={styles.reviewText}>&ldquo;{r.text}&rdquo;</p>
-                                {r.verified && (
-                                    <div className={styles.verifiedBadge}>✓ Booking Verified</div>
-                                )}
+                                <div className={styles.reviewStars}>
+                                    {Array.from({ length: 5 }).map((_, i) => (
+                                        <Star key={i} weight={i < r.stars ? "fill" : "regular"} />
+                                    ))}
+                                </div>
+                                <p className={styles.reviewText}>&quot;{r.text}&quot;</p>
+                                <div className={styles.verifiedBadge}>
+                                    <SealCheck size={14} weight="fill" /> Verified Booking
+                                </div>
                             </div>
                         ))}
                     </div>

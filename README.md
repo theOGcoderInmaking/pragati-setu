@@ -8,12 +8,10 @@
 ## 🚀 Getting Started
 
 ```bash
-npm run dev      # Development server (http://localhost:3002)
+npm run dev      # Development server (http://localhost:3000)
 npm run build    # Production build
 npm run lint     # Lint check
 ```
-
-> **Note:** Port 3000 may conflict with other services. The dev server runs on **http://localhost:3002** by default.
 
 ---
 
@@ -23,6 +21,8 @@ npm run lint     # Lint check
 |---|---|
 | Framework | Next.js 14 (App Router) |
 | Language | TypeScript |
+| State Management | Zustand |
+| Authentication | NextAuth (Next-Auth v5 Beta) |
 | Styling | Tailwind CSS + Custom CSS Vars |
 | Animations | Framer Motion |
 | 3D Graphics | Three.js |
@@ -37,22 +37,24 @@ npm run lint     # Lint check
 | Token | Value | Usage |
 |---|---|---|
 | `--bg-void` | `#060A12` | Primary background |
-| `--bg-elevated` | `#0D1520` | Sections, cards |
-| `--bg-deeper` | `#04070D` | Guarantee section |
 | `--saffron` | `#D4590A` | Primary accent, CTAs |
-| `--teal-light` | `#12A8AE` | Secondary accent |
+| `--saffron-bright` | `#F07030` | Hover states |
+| `--teal` | `#0B6E72` | Secondary accent |
 | `--gold` | `#B8922A` | Tertiary accent |
-| `--text-primary` | `rgba(255,255,255,0.95)` | Body text |
-| `--text-secondary` | `rgba(255,255,255,0.55)` | Supporting text |
-| `--score-high` | `#2EC97A` | High confidence scores |
+| `--text-primary` | `#F2EDE4` | Body text |
+| `--text-secondary` | `#A0AEC0` | Supporting text |
+| `--score-high` | `#48BB78` | High confidence scores |
+| `--score-mid` | `#ECC94B` | Medium confidence scores |
+| `--score-low` | `#F56565` | Low confidence scores |
 
 ### Typography
 - **Display / Serif:** Cormorant Garamond — headlines, large callouts
 - **Mono:** JetBrains Mono — data labels, tags, status indicators
-- **Sans:** Sora — body copy, UI labels
+- **Sans / UI:** Sora — body copy, UI labels
 
 ### Components
-- **`glass-card`** — glassmorphism card with `backdrop-filter: blur(12px)`, `bg-white/5`, border `white/10`
+- **`glass-card`** — glassmorphism card with `backdrop-blur-xl`, `bg-white/[0.03]`, border `white/[0.08]`
+- **`shimmer-btn`** — Animated primary button with gradient shimmer effect
 
 ---
 
@@ -61,74 +63,100 @@ npm run lint     # Lint check
 ```
 src/
 ├── app/
-│   ├── page.tsx              # Homepage (all 15 sections)
-│   ├── login/
-│   │   └── page.tsx          # Auth: Login page (no nav)
-│   ├── layout.tsx            # Root layout + fonts
-│   └── globals.css           # Design tokens, base styles
+│   ├── booking/              # Multi-tier booking modules
+│   │   ├── flights/          # Flight discovery & tracking
+│   │   ├── hotels/           # Premium stay discovery
+│   │   ├── cabs/             # Local transportation
+│   │   ├── buses/            # Luxury coaches
+│   │   ├── trains/           # Heritage rail
+│   │   └── ferries/          # Island transit
+│   ├── dashboard/            # User Hub
+│   │   ├── active-trip/      # Real-time traveler tracking
+│   │   ├── bookings/         # Reservation archives
+│   │   └── passports/        # Decision Passport collection
+│   ├── register/             # 3-step immersive onboarding flow
+│   ├── login/                # Immersive 3D-tilt login page
+│   ├── guides/               # Local guide directories
+│   ├── reviews/              # Traveler reviews and testimonials
+│   ├── safety/               # Global safety data and map
+│   ├── layout.tsx            # Root layout + Fonts + Context
+│   └── page.tsx              # Homepage (Awareness + Feature + Conversion)
 │
 ├── components/
-│   ├── hero/
-│   │   └── Hero.tsx          # Section 1: Atmospheric hero
-│   │
-│   ├── sections/
-│   │   ├── ProblemSection.tsx          # §2  Word-reveal scroll animation
-│   │   ├── PlanningModesSection.tsx    # §3  Split-screen mode selector
-│   │   ├── PassportPreviewSection.tsx  # §4  Three.js passport + gauges
-│   │   ├── ConfidenceScoresSection.tsx # §5  Arc layout, 3D tilt cards
-│   │   ├── BookingUniverseSection.tsx  # §6  Honeycomb booking grid
-│   │   ├── GuaranteeSection.tsx        # §7  Shield, counters, guarantee
-│   │   ├── SafetyMapSection.tsx        # §8  SVG world map, city dots
-│   │   ├── LocalGuidesSection.tsx      # §9  Horizontal drag-scroll guides
-│   │   ├── HowItWorksSection.tsx       # §10 Animated vertical timeline
-│   │   ├── PackagePhilosophySection.tsx# §11 5-card staggered package selector
-│   │   ├── SocialProofSection.tsx      # §12 CSS masonry social cards
-│   │   ├── PricingTeaserSection.tsx    # §13 3-tier pricing cards
-│   │   ├── BlogPreviewSection.tsx      # §14 Editorial grid blog preview
-│   │   └── FinalCTASection.tsx         # §15 Full-viewport saffron CTA
-│   │
-│   └── ui/
-│       ├── Navbar.tsx        # Scroll-aware glass nav + mega dropdown
-│       └── GlassCard.tsx     # Reusable glassmorphism card
+│   ├── hero/                 # Hero & 3D Globe components
+│   ├── layout/               # Navbar, Footer
+│   ├── ui/                   # Shared UI (GlassCard, DecisionPassport)
+│   └── sections/             # Modular Homepage Sections
+│       ├── awareness/        # Problem, How It Works
+│       ├── conversion/       # Pricing, Blog, Final CTA, Philosophy
+│       ├── features/         # 3D Passport, Confidence Scores, Map, Booking Grid
+│       └── trust/            # Guarantee, Guides, Social Proof
 ```
 
 ---
 
-## 📄 Pages
+## 📄 Pages & Routes
 
-| Route | File | Description |
+### Core Pages
+| Route | Description | Status |
 |---|---|---|
-| `/` | `app/page.tsx` | Homepage — 15 sections |
-| `/login` | `app/login/page.tsx` | Auth login — no nav, immersive bg, 3D tilt card |
+| `/` | Homepage — Comprehensive awareness to conversion funnel | Production-ready |
+| `/login` | Immersive auth entry with 3D tilt effects | UI Complete |
+| `/register` | 3-step onboarding (Profile, Style, Safety) | UI Complete |
+| `/safety` | Global safety intelligence map | Interactive UI |
+
+### ✈️ Booking Hub (`/booking`)
+The booking hub provides tailored interfaces for 6 distinct travel categories, each designed with bespoke luxury aesthetics.
+
+| Sub-Route | Feature | Status |
+|---|---|---|
+| `/booking/flights` | Accountable flight vetting & carbon tracking | UI Prototype |
+| `/booking/hotels` | Premium stay discovery with safety audits | UI Prototype |
+| `/booking/cabs` | Verified local transportation booking | UI Prototype |
+| `/booking/buses` | Inter-city luxury coach reservations | UI Prototype |
+| `/booking/trains` | Heritage & Express rail booking interface | UI Prototype |
+| `/booking/ferries` | Coastal and island transit coordination | UI Prototype |
+
+### 🛠️ User Dashboard (`/dashboard`)
+A centralized hub for the modern traveler to manage their "Decision Passports" and active itineraries.
+
+| Sub-Route | Description | Status |
+|---|---|---|
+| `/dashboard` | Hub overview & quick stats | Core UI Ready |
+| `/dashboard/active-trip` | Real-time tracking of the current journey | Core UI Ready |
+| `/dashboard/bookings` | Historical and upcoming reservation ledger | Core UI Ready |
+| `/dashboard/passports` | Collection of verified Decision Passports | Core UI Ready |
 
 ---
 
 ## 🪪 Homepage Sections
 
-| # | Section | Key Features |
-|---|---|---|
-| 1 | **Hero** | Particle field, Three.js globe, floating confidence cards |
-| 2 | **Problem Statement** | Word-by-word scroll reveal animation |
-| 3 | **Two Planning Modes** | Interactive split-screen, fanning package cards |
-| 4 | **Decision Passport Preview** | Three.js 3D booklet, animated circular gauges |
-| 5 | **Five Confidence Scores** | Arc depth layout, 3D cursor-tilt, counting scores |
-| 6 | **Booking Universe** | Honeycomb grid, icon glow effects |
-| 7 | **The Guarantee** | CSS wireframe shield, animated stat counters |
-| 8 | **Safety Map** | SVG world map, pulsing city dots, hover tooltips |
-| 9 | **Local Guides Strip** | Drag-to-scroll, field report alerts, star ratings |
-| 10 | **How It Works** | Scroll-driven gradient timeline, step mockups |
-| 11 | **Package Philosophy** | 5 staggered cards, budget allocation bars |
-| 12 | **Social Proof** | CSS masonry, rotated "shared passport" cards |
-| 13 | **Pricing Teaser** | 3 floating glass tiers (₹149 / ₹999 / ₹4,999/yr) |
-| 14 | **Blog Preview** | Editorial 2⁄3 + 1⁄3 grid layout |
-| 15 | **Final CTA** | Full-viewport saffron, देवनागरी watermark, grain overlay |
+| Category | Section | Key Features |
+|---|---|---|---|
+| **Awareness** | Hero | 3D Space-grade Globe, Floating confidence metrics |
+| | Problem | Word-by-word scroll-reveal narrative |
+| | How It Works | Vertical gradient timeline with step mockups |
+| **Features** | Planning Modes | Interactive split-screen, fanning package cards |
+| | 3D Passport | Three.js interactive booklet, circular gauges |
+| | Confidence Scores | Arc depth layout, 3D tilt cards, counting scores |
+| | Booking Universe | Honeycomb glass grid, icon glow effects |
+| | Safety Map | SVG world map, pulsing city dots, hover tooltips |
+| **Trust** | The Guarantee | CSS wireframe shield, animated stat counters |
+| | Local Guides | Horizontal drag-scroll guides, field report alerts |
+| | Social Proof | CSS masonry, shared passport cards |
+| **Conversion**| Philosophy | Staggered cards, budget allocation bars |
+| | Pricing Teaser | 3 floating glass tiers with animated price points |
+| | Blog Preview | Editorial grid layout |
+| | Final CTA | Saffron full-viewport, देवनागरी watermark |
 
 ---
 
 ## ✅ Build Status
 
-Last verified build: **`npm run build` → Exit code 0** — zero lint errors, zero type errors.
-Routes: `/` (179 kB) · `/login` (17.8 kB)
+Current status: **Ready for Integration**
+- **UI Architecture**: Stable (Tailwind + CSS Variables)
+- **Animations**: Verified (Framer Motion)
+- **3D Layer**: Optimized (Three.js)
 
 ---
 
@@ -137,11 +165,11 @@ Routes: `/` (179 kB) · `/login` (17.8 kB)
 ```json
 {
   "next": "14.2.14",
-  "react": "^18",
-  "framer-motion": "^11",
-  "three": "^0.162",
-  "@phosphor-icons/react": "^2.1",
-  "typescript": "^5"
+  "next-auth": "5.0.0-beta.30",
+  "zustand": "5.0.11",
+  "framer-motion": "11.18.2",
+  "three": "0.183.1",
+  "@phosphor-icons/react": "2.1.10"
 }
 ```
 
@@ -149,9 +177,12 @@ Routes: `/` (179 kB) · `/login` (17.8 kB)
 
 ## 🗺️ Roadmap
 
-- [ ] Explore / Destinations page
-- [ ] Decision Passport detail page
-- [ ] Authentication (Supabase)
-- [ ] Guide profile pages
-- [ ] Booking flow integration
-- [ ] Mobile responsive polish pass
+- [x] Immersive 3D Landing Page
+- [x] Reorganized Component Architecture
+- [x] Multi-step Registration Flow
+- [x] User Dashboard Core
+- [x] Booking Hub Infrastructure
+- [ ] Real Auth Integration (Supabase/NextAuth Backend)
+- [ ] Dynamic Field Report Data
+- [ ] Personalized Passport Detail Pages
+- [ ] Mobile-first Responsive Pass

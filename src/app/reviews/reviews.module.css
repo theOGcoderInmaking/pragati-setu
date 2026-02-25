@@ -1,14 +1,11 @@
-/* ═══════════════════════════════════════════════════════════
-   REVIEWS & TRUST — CSS MODULE
-   ═══════════════════════════════════════════════════════════ */
-
 .reviewsPage {
     background-color: #060A12;
     min-height: 100vh;
     position: relative;
+    overflow-x: hidden;
 }
 
-/* ── HERO ─────────────────────────────────────────────────── */
+/* HERO SECTION */
 .hero {
     min-height: 100vh;
     background-color: #060A12;
@@ -20,91 +17,165 @@
 
 .backgroundText {
     position: absolute;
-    right: -2%;
+    right: -3%;
     top: 50%;
     transform: translateY(-50%);
     font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(200px, 25vw, 380px);
+    font-size: clamp(180px, 22vw, 360px);
     font-weight: 900;
-    color: rgba(255, 255, 255, 0.025);
+    color: rgba(255, 255, 255, 0.022);
     pointer-events: none;
     z-index: 0;
     user-select: none;
-    white-space: nowrap;
     line-height: 1;
+    letter-spacing: -10px;
 }
 
-/* Collage */
 .reviewCollage {
     position: absolute;
     inset: 0;
     z-index: 1;
+    pointer-events: none;
 }
 
 .collageCard {
     position: absolute;
-    background: rgba(14, 22, 38, 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(14, 22, 38, 0.80);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
     border: 1px solid rgba(255, 255, 255, 0.10);
     border-radius: 12px;
-    padding: 14px;
+    padding: 14px 16px;
     width: 190px;
     pointer-events: auto;
+    cursor: pointer;
     transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
+.card1 {
+    top: 8%;
+    left: 5%;
+    transform: rotate(-2.5deg);
+}
+
+.card2 {
+    top: 12%;
+    left: 28%;
+    transform: rotate(1.5deg);
+}
+
+.card3 {
+    top: 5%;
+    right: 8%;
+    transform: rotate(-1deg);
+}
+
+.card4 {
+    top: 30%;
+    left: 2%;
+    transform: rotate(2deg);
+}
+
+.card5 {
+    top: 28%;
+    right: 5%;
+    transform: rotate(-2deg);
+}
+
+.card6 {
+    top: 52%;
+    left: 8%;
+    transform: rotate(1deg);
+}
+
+.card7 {
+    top: 55%;
+    right: 3%;
+    transform: rotate(2.5deg);
+}
+
+.card8 {
+    top: 70%;
+    left: 22%;
+    transform: rotate(-1.5deg);
+}
+
+.card9 {
+    top: 72%;
+    right: 15%;
+    transform: rotate(1deg);
+}
+
+.card10 {
+    bottom: 8%;
+    left: 5%;
+    transform: rotate(-2deg);
+}
+
+.card11 {
+    bottom: 5%;
+    right: 8%;
+    transform: rotate(1.5deg);
+}
+
+.card12 {
+    top: 40%;
+    left: 40%;
+    transform: rotate(-1deg);
+}
+
 .collageCard:hover {
-    transform: rotate(0deg) scale(1.05) !important;
-    z-index: 10;
+    transform: rotate(0deg) scale(1.06) !important;
+    z-index: 20;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.40);
+    border-color: rgba(212, 89, 10, 0.30);
 }
 
-.collageStars {
-    color: #D4590A;
-    font-size: 11px;
-    letter-spacing: 2px;
-    margin-bottom: 6px;
+.cardTitle {
+    font-family: 'Sora', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #F2EDE4;
+    margin-bottom: 4px;
+    display: block;
 }
 
-.collageText {
+.cardReview {
     font-family: 'Sora', sans-serif;
     font-size: 11px;
-    color: #9A8F82;
     font-style: italic;
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    color: #9A8F82;
+    margin-bottom: 8px;
+    display: block;
+    line-height: 1.4;
 }
 
-.collageAuthor {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    color: #7AB3B5;
-    letter-spacing: 1px;
-    margin-top: 6px;
+.cardStars {
+    color: #B8922A;
+    font-size: 10px;
+    margin-bottom: 8px;
     display: block;
 }
 
 .verifiedStamp {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 8px;
+    font-size: 7px;
     letter-spacing: 1px;
     color: #2EC97A;
-    margin-top: 6px;
+    text-transform: uppercase;
+    display: block;
 }
 
 .leftOverlay {
     position: absolute;
     top: 0;
     left: 0;
-    width: 45%;
+    width: 48%;
     height: 100%;
-    background: linear-gradient(90deg, rgba(6, 10, 18, 0.92) 0%, rgba(6, 10, 18, 0.70) 65%, transparent 100%);
+    background: linear-gradient(90deg,
+            rgba(6, 10, 18, 0.94) 0%,
+            rgba(6, 10, 18, 0.72) 65%,
+            transparent 100%);
     pointer-events: none;
     z-index: 2;
 }
@@ -122,23 +193,28 @@
     letter-spacing: 3px;
     text-transform: uppercase;
     color: #D4590A;
-    margin-bottom: 24px;
+    margin-bottom: 28px;
     display: block;
 }
 
 .heading {
     font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(52px, 6vw, 80px);
     font-weight: 900;
-    color: #F2EDE4;
     letter-spacing: -2px;
-    line-height: 0.9;
-    margin: 0;
+    line-height: 0.90;
+    margin-bottom: 24px;
+}
+
+.headingLine {
+    font-size: clamp(60px, 7vw, 88px);
+    color: #F2EDE4;
+    display: block;
 }
 
 .headingAccent {
-    font-style: italic;
+    font-size: clamp(60px, 7vw, 88px);
     color: #D4590A;
+    font-style: italic;
     display: block;
 }
 
@@ -147,38 +223,31 @@
     font-size: 11px;
     letter-spacing: 2px;
     color: #7AB3B5;
-    margin-top: 24px;
-    display: block;
+    margin-bottom: 36px;
+    line-height: 1.8;
 }
 
-.statPills {
+.heroPills {
     display: flex;
     gap: 12px;
-    margin-top: 32px;
     flex-wrap: wrap;
 }
 
-.statPill {
-    background: rgba(14, 22, 38, 0.75);
+.heroPill {
+    background: rgba(14, 22, 38, 0.70);
     backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.10);
     border-radius: 100px;
-    padding: 8px 18px;
+    padding: 10px 20px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
     letter-spacing: 1px;
     color: #F2EDE4;
+    white-space: nowrap;
 }
 
-.statPillGreen {
-    border-color: rgba(46, 201, 122, 0.25);
-    color: #2EC97A;
-    background: rgba(46, 201, 122, 0.08);
-}
-
-/* ── COMPARISON TABLE ──────────────────────────────────────── */
-.comparisonSection {
+/* SECTION 2 — COMPARISON */
+.differenceSection {
     padding: 80px;
     max-width: 1280px;
     margin: 0 auto;
@@ -186,52 +255,74 @@
 
 .sectionTitle {
     font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(32px, 3.5vw, 44px);
+    font-size: 48px;
     font-weight: 900;
     color: #F2EDE4;
-    letter-spacing: -1px;
-    margin-bottom: 32px;
+    letter-spacing: -1.5px;
+    margin-bottom: 8px;
 }
 
-.tableWrap {
-    background: rgba(14, 22, 38, 0.55);
+.sectionAccent {
+    color: #D4590A;
+    font-style: italic;
+}
+
+.sectionSubtitle {
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    color: #9A8F82;
+    margin-bottom: 48px;
+}
+
+.compTable {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(14, 22, 38, 0.50);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
     overflow: hidden;
 }
 
-.comparisonTable {
-    width: 100%;
-    border-collapse: collapse;
+.compHead {
+    background: rgba(14, 22, 38, 0.80);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.compHeader {
+.compHeadCell {
+    padding: 16px 20px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
     letter-spacing: 2px;
     color: #7AB3B5;
     text-align: center;
-    padding: 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     text-transform: uppercase;
 }
 
-.compHeaderHighlight {
-    background: rgba(212, 89, 10, 0.08);
-    border-top: 2px solid #D4590A;
+.compHeadFeature {
+    text-align: left;
+}
+
+.compHeadPragati {
     color: #D4590A;
+    background: rgba(212, 89, 10, 0.06);
+    border-top: 2px solid #D4590A;
 }
 
 .compRow {
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    transition: background 0.2s;
 }
 
 .compRow:hover {
-    background: rgba(255, 255, 255, 0.01);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.compRow:last-child {
+    border-bottom: none;
 }
 
 .compCell {
-    padding: 14px 16px;
+    padding: 16px 20px;
     font-family: 'Sora', sans-serif;
     font-size: 14px;
     color: #9A8F82;
@@ -244,17 +335,18 @@
     font-weight: 500;
 }
 
-.compCellHighlight {
+.compCellPragati {
     background: rgba(212, 89, 10, 0.04);
 }
 
 .checkYes {
     color: #2EC97A;
     font-size: 18px;
+    font-weight: 700;
 }
 
 .checkNo {
-    color: rgba(232, 69, 60, 0.5);
+    color: rgba(232, 69, 60, 0.45);
     font-size: 18px;
 }
 
@@ -264,9 +356,9 @@
     font-family: 'Sora', sans-serif;
 }
 
-/* ── MATURITY TIERS ────────────────────────────────────────── */
-.maturitySection {
-    padding: 0 80px 80px;
+/* SECTION 3 — TRUST SCORE */
+.trustSection {
+    padding: 80px;
     max-width: 1280px;
     margin: 0 auto;
 }
@@ -275,41 +367,52 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
+    margin-top: 40px;
 }
 
 .maturityCard {
     background: rgba(14, 22, 38, 0.55);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
-    padding: 24px;
-    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    padding: 28px 24px;
+    transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.maturityCard:hover {
-    transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.14);
+.maturityCard:nth-child(1) {
+    opacity: 0.65;
 }
 
 .maturityCard:nth-child(2) {
-    opacity: 0.75;
+    opacity: 0.80;
 }
 
 .maturityCard:nth-child(3) {
-    opacity: 0.88;
+    opacity: 0.92;
+}
+
+.maturityCard:nth-child(4) {
+    opacity: 1;
+    border-color: rgba(184, 146, 42, 0.30);
+    box-shadow: 0 0 0 1px rgba(184, 146, 42, 0.10);
+}
+
+.maturityCard:hover {
+    opacity: 1;
+    transform: translateY(-4px);
 }
 
 .maturityIcon {
     font-size: 28px;
-    margin-bottom: 10px;
-    display: block;
+    margin-bottom: 16px;
+    color: #F2EDE4;
 }
 
 .maturityName {
-    font-family: 'Sora', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 700;
     color: #F2EDE4;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
 }
 
 .maturityRange {
@@ -317,21 +420,20 @@
     font-size: 9px;
     letter-spacing: 2px;
     color: #7AB3B5;
-    text-transform: uppercase;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     display: block;
 }
 
 .maturityDesc {
     font-family: 'Sora', sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     color: #9A8F82;
     line-height: 1.5;
 }
 
-/* ── BROWSE REVIEWS ─────────────────────────────────────────── */
+/* SECTION 4 — BROWSE */
 .browseSection {
-    padding: 0 80px 80px;
+    padding: 80px;
     max-width: 1280px;
     margin: 0 auto;
 }
@@ -339,73 +441,115 @@
 .filterBar {
     display: flex;
     gap: 12px;
-    margin-bottom: 32px;
+    margin-bottom: 40px;
     flex-wrap: wrap;
     align-items: center;
 }
 
-.filterInput {
-    flex: 1;
-    min-width: 200px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+.searchInput {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.10);
     border-radius: 8px;
-    padding: 12px 16px;
-    color: #F2EDE4;
+    padding: 10px 16px;
+    width: 280px;
     font-family: 'Sora', sans-serif;
-    font-size: 14px;
+    font-size: 13px;
+    color: #F2EDE4;
     outline: none;
-    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    transition: all 0.2s;
 }
 
-.filterInput::placeholder {
-    color: #4A4540;
+.searchInput:focus {
+    border-color: rgba(212, 89, 10, 0.40);
+    background: rgba(255, 255, 255, 0.06);
 }
 
-.filterInput:focus {
-    border-color: #D4590A;
-    box-shadow: 0 0 0 3px rgba(212, 89, 10, 0.12);
-}
-
-.filterSelect {
-    background: rgba(255, 255, 255, 0.05);
+.filterPill {
+    padding: 10px 18px;
+    background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
-    padding: 12px 16px;
-    color: #F2EDE4;
+    border-radius: 100px;
     font-family: 'Sora', sans-serif;
-    font-size: 14px;
-    outline: none;
+    font-size: 12px;
+    color: #9A8F82;
     cursor: pointer;
+    transition: all 0.2s;
 }
 
-.reviewsMasonry {
-    column-count: 3;
+.filterPillActive {
+    background: rgba(212, 89, 10, 0.12);
+    border-color: rgba(212, 89, 10, 0.35);
+    color: #D4590A;
+}
+
+.filterPill:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #F2EDE4;
+}
+
+.masonryGrid {
+    columns: 3;
     column-gap: 20px;
 }
 
 .reviewCard {
+    break-inside: avoid;
     background: rgba(14, 22, 38, 0.65);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.10);
     border-radius: 16px;
     padding: 24px;
-    break-inside: avoid;
     margin-bottom: 20px;
     transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .reviewCard:hover {
-    border-color: rgba(255, 255, 255, 0.15);
-    transform: translateY(-2px);
+    border-color: rgba(212, 89, 10, 0.25);
+    transform: translateY(-3px);
 }
 
-.reviewHeader {
+.reviewerRow {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 8px;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.reviewerAvatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.avatarA {
+    background: linear-gradient(135deg, #D4590A, #0B6E72);
+}
+
+.avatarB {
+    background: linear-gradient(135deg, #B8922A, #D4590A);
+}
+
+.avatarC {
+    background: linear-gradient(135deg, #0B6E72, #B8922A);
+}
+
+.avatarD {
+    background: linear-gradient(135deg, #12A8AE, #D4590A);
+}
+
+.avatarE {
+    background: linear-gradient(135deg, #D4590A, #B8922A);
+}
+
+.avatarF {
+    background: linear-gradient(135deg, #B8922A, #0B6E72);
+}
+
+.reviewerInfo {
+    display: flex;
+    flex-direction: column;
 }
 
 .reviewerName {
@@ -413,21 +557,22 @@
     font-size: 14px;
     font-weight: 600;
     color: #F2EDE4;
+    display: block;
+}
+
+.reviewerProperty {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: #7AB3B5;
+    text-transform: uppercase;
 }
 
 .reviewStars {
-    color: #D4590A;
+    color: #B8922A;
     font-size: 12px;
-    letter-spacing: 2px;
-}
-
-.reviewProperty {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
+    margin-bottom: 10px;
     letter-spacing: 1px;
-    color: #7AB3B5;
-    margin-bottom: 12px;
-    display: block;
 }
 
 .reviewText {
@@ -436,15 +581,28 @@
     color: #9A8F82;
     line-height: 1.6;
     font-style: italic;
+    margin-bottom: 14px;
 }
 
 .verifiedBadge {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 8px;
     letter-spacing: 1px;
     color: #2EC97A;
-    margin-top: 12px;
+    text-transform: uppercase;
+}
+
+@media (max-width: 1024px) {
+    .masonryGrid {
+        columns: 2;
+    }
+}
+
+@media (max-width: 640px) {
+    .masonryGrid {
+        columns: 1;
+    }
 }

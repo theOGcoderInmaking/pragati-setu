@@ -17,11 +17,11 @@ const FinalCTASection: React.FC = () => (
             }}
         />
 
-        {/* Devanagari watermark background */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none">
+        {/* Devanagari watermark — bottom-anchored, small enough never to hit the heading */}
+        <div className="absolute bottom-8 left-0 right-0 flex justify-center pointer-events-none overflow-hidden select-none">
             <span
-                className="font-display font-black text-white/07 text-center leading-tight"
-                style={{ fontSize: "clamp(60px, 10vw, 160px)", whiteSpace: "nowrap" }}
+                className="font-display font-black text-white/[0.05] text-center leading-tight"
+                style={{ fontSize: "clamp(20px, 3vw, 44px)", letterSpacing: "0.08em", whiteSpace: "nowrap" }}
             >
                 प्रगति सेतु
             </span>
@@ -64,10 +64,19 @@ const FinalCTASection: React.FC = () => (
                 className="flex flex-col items-center gap-5"
             >
                 <motion.button
-                    whileHover={{ y: -3, boxShadow: "0 20px 60px rgba(0,0,0,0.35)" }}
-                    whileTap={{ y: 0 }}
+                    whileHover={{
+                        y: -3,
+                        boxShadow: "0 4px 0 rgba(0,0,0,0.18), 0 12px 32px rgba(0,0,0,0.30), 0 28px 60px rgba(0,0,0,0.22)",
+                    }}
+                    whileTap={{ y: 0, boxShadow: "0 2px 0 rgba(0,0,0,0.18), 0 4px 12px rgba(0,0,0,0.20)" }}
                     className="flex items-center gap-3 bg-white text-saffron font-sans font-bold text-base px-14 py-5 rounded-[4px] transition-all group"
-                    style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.20)" }}
+                    style={{
+                        /* Layered shadows simulate elevation on flat-colour bg:
+                           1. tight contact shadow (depth)
+                           2. mid diffuse (lift)
+                           3. wide ambient (presence)  */
+                        boxShadow: "0 2px 0 rgba(0,0,0,0.14), 0 8px 24px rgba(0,0,0,0.22), 0 20px 48px rgba(0,0,0,0.16)",
+                    }}
                 >
                     Create My Decision Passport
                     <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
