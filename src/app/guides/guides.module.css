@@ -1,0 +1,503 @@
+/* ═══════════════════════════════════════════════════════════
+   LOCAL GUIDES — CSS MODULE
+   ═══════════════════════════════════════════════════════════ */
+
+.guidesPage {
+    background-color: #060A12;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* ── HERO ─────────────────────────────────────────────────── */
+.hero {
+    min-height: 100vh;
+    background-color: #060A12;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-start;
+}
+
+.warmGlow {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: linear-gradient(0deg, rgba(212, 89, 10, 0.10) 0%, rgba(212, 89, 10, 0.04) 40%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.warmGlowRight {
+    position: absolute;
+    top: 20%;
+    right: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(184, 146, 42, 0.06) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.heroContent {
+    position: relative;
+    z-index: 1;
+    padding: 160px 80px 80px;
+    max-width: 600px;
+}
+
+.eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #D4590A;
+    margin-bottom: 24px;
+    display: block;
+}
+
+.heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(52px, 6vw, 80px);
+    font-weight: 900;
+    color: #F2EDE4;
+    letter-spacing: -2px;
+    line-height: 0.92;
+    margin: 0;
+}
+
+.headingLine {
+    display: block;
+}
+
+.headingAccent {
+    font-style: italic;
+    color: #D4590A;
+}
+
+.subtext {
+    font-family: 'Sora', sans-serif;
+    font-size: 18px;
+    font-weight: 300;
+    color: #9A8F82;
+    margin-top: 24px;
+    line-height: 1.6;
+}
+
+.statsRow {
+    display: flex;
+    gap: 16px;
+    margin: 32px 0;
+    flex-wrap: wrap;
+}
+
+.statPill {
+    background: rgba(14, 22, 38, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 100px;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.statNum {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #F2EDE4;
+    line-height: 1;
+}
+
+.statLabel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: #9A8F82;
+    margin-top: 2px;
+}
+
+.ctaRow {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btnPrimary {
+    background: #D4590A;
+    color: white;
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.btnPrimary:hover {
+    background: #F07030;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(212, 89, 10, 0.40);
+}
+
+.btnGhost {
+    background: transparent;
+    color: #9A8F82;
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    padding: 14px 28px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.btnGhost:hover {
+    color: #F2EDE4;
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Guide circle previews */
+.guidePreviews {
+    position: absolute;
+    top: 50%;
+    right: 80px;
+    transform: translateY(-50%);
+    z-index: 1;
+    width: 340px;
+    height: 380px;
+}
+
+.guideCircleWrap {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    animation: circleEntrance 0.6s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+@keyframes circleEntrance {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.guideCircle {
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.10);
+    background: linear-gradient(135deg, rgba(212, 89, 10, 0.30), rgba(11, 110, 114, 0.30));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    overflow: hidden;
+}
+
+.circleCaption {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: #9A8F82;
+    text-align: center;
+}
+
+/* ── GUIDE CARDS SECTION ───────────────────────────────────── */
+.guideSection {
+    padding: 80px;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.sectionTitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 4vw, 52px);
+    font-weight: 900;
+    color: #F2EDE4;
+    letter-spacing: -1px;
+    margin-bottom: 32px;
+}
+
+.guideScroll {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 16px;
+    scrollbar-width: none;
+}
+
+.guideScroll::-webkit-scrollbar {
+    display: none;
+}
+
+.guideCard {
+    min-width: 280px;
+    background: rgba(14, 22, 38, 0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 16px;
+    padding: 28px;
+    flex-shrink: 0;
+    transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.guideCard:hover {
+    border-color: rgba(212, 89, 10, 0.25);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.30);
+}
+
+.avatarWrap {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 14px;
+}
+
+.avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(212, 89, 10, 0.60), rgba(11, 110, 114, 0.60));
+    border: 2px solid rgba(212, 89, 10, 0.30);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.cityBadge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    font-size: 18px;
+    background: rgba(6, 10, 18, 0.80);
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.guideName {
+    font-family: 'Sora', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #F2EDE4;
+    margin-bottom: 4px;
+}
+
+.guideCity {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #7AB3B5;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.pillRow {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.langPill {
+    font-family: 'Sora', sans-serif;
+    font-size: 11px;
+    color: #9A8F82;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 100px;
+    padding: 2px 10px;
+}
+
+.specialtyPill {
+    font-family: 'Sora', sans-serif;
+    font-size: 11px;
+    color: #7AB3B5;
+    background: rgba(11, 110, 114, 0.08);
+    border: 1px solid rgba(18, 168, 174, 0.15);
+    border-radius: 100px;
+    padding: 2px 10px;
+}
+
+.fieldReport {
+    font-family: 'Sora', sans-serif;
+    font-size: 12px;
+    font-style: italic;
+    color: #12A8AE;
+    line-height: 1.5;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.starsRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.stars {
+    color: #D4590A;
+    font-size: 12px;
+    letter-spacing: 2px;
+}
+
+.reviewCount {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: #9A8F82;
+}
+
+.tierPills {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.tierPill {
+    font-family: 'Sora', sans-serif;
+    font-size: 11px;
+    color: #9A8F82;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 100px;
+    padding: 3px 10px;
+}
+
+.availRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.availDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #2EC97A;
+}
+
+.availText {
+    font-family: 'Sora', sans-serif;
+    font-size: 12px;
+    color: #9A8F82;
+}
+
+.btnBook {
+    width: 100%;
+    background: #D4590A;
+    color: white;
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.btnBook:hover {
+    background: #F07030;
+    box-shadow: 0 6px 20px rgba(212, 89, 10, 0.35);
+}
+
+/* ── TIER SECTION ──────────────────────────────────────────── */
+.tierSection {
+    padding: 0 80px 80px;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.tierTitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(32px, 3.5vw, 44px);
+    font-weight: 900;
+    color: #F2EDE4;
+    letter-spacing: -1px;
+    margin-bottom: 28px;
+}
+
+.tierGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.tierCard {
+    background: rgba(14, 22, 38, 0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 16px;
+    padding: 32px;
+    transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.tierCard:hover {
+    transform: translateY(-4px);
+}
+
+.tierCardHighlight {
+    border-color: rgba(212, 89, 10, 0.30);
+    box-shadow: 0 0 0 1px rgba(212, 89, 10, 0.10);
+}
+
+.tierIcon {
+    font-size: 32px;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.tierName {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #F2EDE4;
+    margin-bottom: 8px;
+}
+
+.tierDesc {
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    color: #9A8F82;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.tierPrice {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    color: #D4590A;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.tierBest {
+    font-family: 'Sora', sans-serif;
+    font-size: 12px;
+    color: #7AB3B5;
+    font-style: italic;
+}
