@@ -1,0 +1,227 @@
+.activePage {
+    background-color: #060A12;
+    min-height: 100vh;
+    padding: 48px;
+}
+
+.pageTitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 40px;
+    font-weight: 900;
+    color: #F2EDE4;
+    letter-spacing: -1px;
+    margin: 0;
+}
+
+.pageSub {
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    color: #9A8F82;
+    margin-top: 6px;
+    font-weight: 300;
+}
+
+.liveBar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 32px;
+    margin-top: 12px;
+}
+
+.liveDot {
+    width: 8px;
+    height: 8px;
+    background: #E8453C;
+    border-radius: 50%;
+    animation: livePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}
+
+.liveText {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: #E8453C;
+    text-transform: uppercase;
+}
+
+.tripGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 32px;
+}
+
+.tripCard {
+    background: rgba(14, 22, 38, 0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.tripCardTeal {
+    border-left: 3px solid #12A8AE;
+    background: rgba(11, 110, 114, 0.08);
+}
+
+.cardLabel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: #7AB3B5;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.todayTitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 900;
+    color: #F2EDE4;
+    letter-spacing: -0.5px;
+    margin-bottom: 16px;
+}
+
+.scheduleItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.scheduleTime {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #7AB3B5;
+    width: 44px;
+    flex-shrink: 0;
+}
+
+.scheduleDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #D4590A;
+    flex-shrink: 0;
+}
+
+.scheduleText {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    color: #9A8F82;
+}
+
+.scheduleTextActive {
+    color: #F2EDE4;
+}
+
+.weatherBlock {
+    margin-top: 16px;
+}
+
+.weatherCity {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: #7AB3B5;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.weatherMain {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.weatherTemp {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 40px;
+    font-weight: 700;
+    color: #F2EDE4;
+}
+
+.weatherDesc {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    color: #9A8F82;
+}
+
+.safetyStatus {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 10px 16px;
+    background: rgba(46, 201, 122, 0.08);
+    border: 1px solid rgba(46, 201, 122, 0.20);
+    border-radius: 8px;
+}
+
+.safetyText {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    color: #2EC97A;
+}
+
+.btnLive {
+    background: rgba(11, 110, 114, 0.25);
+    color: #12A8AE;
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 20px;
+    border: 1px solid rgba(18, 168, 174, 0.35);
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+    width: 100%;
+}
+
+.btnLive:hover {
+    background: rgba(11, 110, 114, 0.40);
+}
+
+.emergencySection {
+    margin-top: 20px;
+}
+
+.emergencyBtn {
+    width: 100%;
+    background: rgba(232, 69, 60, 0.10);
+    border: 1px solid rgba(232, 69, 60, 0.25);
+    color: #E8453C;
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.25s;
+}
+
+.emergencyBtn:hover {
+    background: rgba(232, 69, 60, 0.18);
+}
