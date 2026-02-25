@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import PageWrapper from "@/components/PageWrapper";
 import {
     ArrowLeft,
     Eye,
@@ -323,430 +324,431 @@ export default function RegisterPage() {
     const strengthColor = ["bg-score-low", "bg-score-mid", "bg-teal", "bg-score-high"][Math.max(0, passwordStrength - 1)] || "bg-score-low";
 
     return (
-        <div className="relative w-full min-h-screen overflow-hidden flex flex-col items-center justify-center font-sans selection:bg-saffron/30">
-            <AnimatePresence>
-                <motion.div
-                    key={step}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 1.5, ease: "easeInOut" }}
-                    style={{ background: backgrounds[step] || backgrounds[0] }}
-                    className="absolute inset-0 z-0"
-                />
-            </AnimatePresence>
+        <PageWrapper>
+            <div className="relative w-full min-h-screen bg-[#060A12] text-text-primary font-sans overflow-x-hidden flex flex-col items-center justify-center selection:bg-saffron/30">
+                <AnimatePresence>
+                    <motion.div
+                        key={step}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 1.5, ease: "easeInOut" }}
+                        style={{ background: backgrounds[step] || backgrounds[0] }}
+                        className="absolute inset-0 z-0"
+                    />
+                </AnimatePresence>
 
-            <div className="login-orbs" aria-hidden="true">
-                <div className="login-orb login-orb-1" />
-                <div className="login-orb login-orb-2" />
-                <div className="login-orb login-orb-3" />
-            </div>
-
-            {mounted && (
-                <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
-                    {particles.map((p) => (
-                        <motion.div
-                            key={p.id}
-                            className="absolute rounded-full bg-white"
-                            style={{
-                                left: `${p.x}%`,
-                                top: `${p.y}%`,
-                                width: p.size,
-                                height: p.size,
-                                opacity: p.opacity,
-                            }}
-                            animate={{
-                                y: [0, -28, 0],
-                                x: [0, p.driftX, 0],
-                                opacity: [p.opacity, p.opacity * 2.5, p.opacity],
-                            }}
-                            transition={{
-                                duration: p.duration,
-                                delay: p.delay,
-                                repeat: Infinity,
-                                ease: "easeInOut",
-                            }}
-                        />
-                    ))}
+                <div className="login-orbs" aria-hidden="true">
+                    <div className="login-orb login-orb-1" />
+                    <div className="login-orb login-orb-2" />
+                    <div className="login-orb login-orb-3" />
                 </div>
-            )}
 
-            <BurstCanvas active={burst} />
+                {mounted && (
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
+                        {particles.map((p) => (
+                            <motion.div
+                                key={p.id}
+                                className="absolute rounded-full bg-white"
+                                style={{
+                                    left: `${p.x}%`,
+                                    top: `${p.y}%`,
+                                    width: p.size,
+                                    height: p.size,
+                                    opacity: p.opacity,
+                                }}
+                                animate={{
+                                    y: [0, -28, 0],
+                                    x: [0, p.driftX, 0],
+                                    opacity: [p.opacity, p.opacity * 2.5, p.opacity],
+                                }}
+                                transition={{
+                                    duration: p.duration,
+                                    delay: p.delay,
+                                    repeat: Infinity,
+                                    ease: "easeInOut",
+                                }}
+                            />
+                        ))}
+                    </div>
+                )}
 
-            <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="absolute top-6 left-6 z-20"
-            >
-                <Link href="/" className="login-back-link flex items-center gap-2 font-sans text-[13px] transition-colors" style={{ color: "var(--text-secondary)" }}>
-                    <ArrowLeft size={14} className="login-back-arrow transition-transform" />
-                    Back to Pragati Setu
-                </Link>
-            </motion.div>
-
-            <div className="relative z-10 w-full max-w-[560px] flex flex-col items-center px-6">
-                {!isSuccess && <ProgressIndicator currentStep={step} completedSteps={completedSteps} />}
+                <BurstCanvas active={burst} />
 
                 <motion.div
-                    layout
-                    className="w-full relative rounded-[24px] overflow-hidden"
-                    style={{
-                        background: "rgba(14,22,38,0.70)",
-                        backdropFilter: "blur(32px) saturate(200%)",
-                        WebkitBackdropFilter: "blur(32px) saturate(200%)",
-                        border: "1px solid rgba(255,255,255,0.10)",
-                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.20), 0 32px 80px rgba(0,0,0,0.60)",
-                    }}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="absolute top-6 left-6 z-20"
                 >
-                    <AnimatePresence mode="wait">
-                        {isSuccess ? (
-                            <motion.div
-                                key="success"
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="p-12 text-center py-20"
-                            >
-                                <span className="text-4xl text-saffron block mb-6">✦</span>
-                                <h1 className="font-display text-4xl italic text-text-primary mb-4">Your journey begins now.</h1>
-                                <p className="font-sans text-base text-text-secondary mb-12">Welcome to Pragati Setu, {formData.fullName.split(" ")[0] || "Traveler"}.</p>
-                                <button
-                                    onClick={() => router.push("/")}
-                                    className="shimmer-btn relative w-full h-[52px] bg-saffron rounded-lg font-semibold text-white transition-all hover:bg-saffron-bright"
+                    <Link href="/" className="login-back-link flex items-center gap-2 font-sans text-[13px] transition-colors" style={{ color: "var(--text-secondary)" }}>
+                        <ArrowLeft size={14} className="login-back-arrow transition-transform" />
+                        Back to Pragati Setu
+                    </Link>
+                </motion.div>
+
+                <div className="relative z-10 w-full max-w-[560px] flex flex-col items-center px-6">
+                    {!isSuccess && <ProgressIndicator currentStep={step} completedSteps={completedSteps} />}
+
+                    <motion.div
+                        layout
+                        className="w-full relative rounded-[24px] overflow-hidden"
+                        style={{
+                            background: "rgba(14,22,38,0.70)",
+                            backdropFilter: "blur(32px) saturate(200%)",
+                            WebkitBackdropFilter: "blur(32px) saturate(200%)",
+                            border: "1px solid rgba(255,255,255,0.10)",
+                            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.20), 0 32px 80px rgba(0,0,0,0.60)",
+                        }}
+                    >
+                        <AnimatePresence mode="wait">
+                            {isSuccess ? (
+                                <motion.div
+                                    key="success"
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="p-12 text-center py-20"
                                 >
-                                    Plan My First Trip →
-                                </button>
-                            </motion.div>
-                        ) : (
-                            <motion.div
-                                key={step}
-                                initial={{ opacity: 0, x: 30 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -30 }}
-                                transition={{
-                                    opacity: { duration: 0.3 },
-                                    x: { duration: 0.3 },
-                                    // Start entering before exit finishes for 0.15s overlap
-                                    delay: 0.15
-                                }}
-                                className="p-12"
-                            >
-                                {step === 0 && (
-                                    <div className="flex flex-col">
-                                        <h1 className="font-display text-4xl italic text-text-primary mb-2">Who are you?</h1>
-                                        <p className="text-text-secondary text-sm mb-9">Let&apos;s start with the basics.</p>
+                                    <span className="text-4xl text-saffron block mb-6">✦</span>
+                                    <h1 className="font-display text-4xl italic text-text-primary mb-4">Your journey begins now.</h1>
+                                    <p className="font-sans text-base text-text-secondary mb-12">Welcome to Pragati Setu, {formData.fullName.split(" ")[0] || "Traveler"}.</p>
+                                    <button
+                                        onClick={() => router.push("/")}
+                                        className="shimmer-btn relative w-full h-[52px] bg-saffron rounded-lg font-semibold text-white transition-all hover:bg-saffron-bright"
+                                    >
+                                        Plan My First Trip →
+                                    </button>
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    key={step}
+                                    initial={{ opacity: 0, x: 30 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -30 }}
+                                    transition={{
+                                        opacity: { duration: 0.3 },
+                                        x: { duration: 0.3 },
+                                        // Start entering before exit finishes for 0.15s overlap
+                                        delay: 0.15
+                                    }}
+                                    className="p-12"
+                                >
+                                    {step === 0 && (
+                                        <div className="flex flex-col">
+                                            <h1 className="font-display text-4xl italic text-text-primary mb-2">Who are you?</h1>
+                                            <p className="text-text-secondary text-sm mb-9">Let&apos;s start with the basics.</p>
 
-                                        <div className="space-y-5">
-                                            {[
-                                                { label: "Full Name", type: "text", field: "fullName", placeholder: "John Doe" },
-                                                { label: "Email", type: "email", field: "email", placeholder: "your@email.com" },
-                                                { label: "Password", type: "password", field: "password", placeholder: "••••••••" },
-                                                { label: "Confirm Password", type: "password", field: "confirmPassword", placeholder: "••••••••" }
-                                            ].map((item, idx) => (
-                                                <motion.div
-                                                    key={item.label}
-                                                    initial={{ opacity: 0, y: 10 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    transition={{ delay: 0.2 + (idx * 0.08) }}
-                                                    className="space-y-1.5"
-                                                >
-                                                    <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary">{item.label}</label>
-                                                    <div className="relative">
-                                                        <input
-                                                            type={item.type === "password" ? (item.field === "password" ? (showPw ? "text" : "password") : (showConfirmPw ? "text" : "password")) : item.type}
-                                                            className="glass-input w-full h-12 px-4 text-sm"
-                                                            placeholder={item.placeholder}
-                                                            value={(formData as any)[item.field]}
-                                                            onChange={e => setFormData({ ...formData, [item.field]: e.target.value })}
-                                                        />
-                                                        {item.type === "password" && (
-                                                            <button
-                                                                onClick={() => item.field === "password" ? setShowPw(!showPw) : setShowConfirmPw(!showConfirmPw)}
-                                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary transition-colors"
-                                                            >
-                                                                {(item.field === "password" ? showPw : showConfirmPw) ? <EyeSlash size={18} /> : <Eye size={18} />}
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                    {item.field === "password" && formData.password && (
-                                                        <div className="mt-2 flex items-center gap-3">
-                                                            <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden flex">
-                                                                {[1, 2, 3, 4].map(i => (
-                                                                    <div key={i} className={`flex-1 ${passwordStrength >= i ? strengthColor : "bg-transparent"} transition-all duration-500`} />
-                                                                ))}
-                                                            </div>
-                                                            <span className="font-mono text-[9px] uppercase tracking-[1px] text-text-secondary shrink-0">{strengthText}</span>
-                                                        </div>
-                                                    )}
-                                                </motion.div>
-                                            ))}
-                                        </div>
-
-                                        <button
-                                            onClick={nextStep}
-                                            disabled={!formData.fullName || !formData.email || !formData.password || formData.password !== formData.confirmPassword}
-                                            className="shimmer-btn relative w-full h-[52px] bg-saffron rounded-lg font-semibold text-white mt-9 transition-all hover:bg-saffron-bright disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
-                                            Continue
-                                        </button>
-
-                                        <p className="mt-6 text-center text-[13px] text-text-secondary">
-                                            Already have an account? <Link href="/login" className="text-saffron hover:underline">Sign in →</Link>
-                                        </p>
-                                    </div>
-                                )}
-
-                                {step === 1 && (
-                                    <div className="flex flex-col">
-                                        <h1 className="font-display text-4xl text-text-primary mb-2">Your traveler profile.</h1>
-                                        <p className="text-text-secondary text-sm mb-9">This makes every Passport smarter for you.</p>
-
-                                        <div className="space-y-6">
-                                            <div className="space-y-1.5">
-                                                <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary">Home City</label>
-                                                <div className="relative">
-                                                    <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" />
-                                                    <input
-                                                        type="text"
-                                                        className="glass-input w-full h-12 pl-11 pr-4 text-sm"
-                                                        placeholder="e.g. New Delhi, India"
-                                                        value={formData.homeCity}
-                                                        onChange={e => setFormData({ ...formData, homeCity: e.target.value })}
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-1.5">
-                                                <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary">Nationality</label>
-                                                <NationalityDropdown
-                                                    value={formData.nationality}
-                                                    onChange={(v) => setFormData({ ...formData, nationality: v })}
-                                                />
-                                            </div>
-
-                                            <div className="space-y-4">
-                                                <div className="flex justify-between items-end">
-                                                    <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary">HOW OFTEN DO YOU TRAVEL?</label>
-                                                    <span className="text-saffron text-xs font-medium">{FREQUENCY_LABELS[formData.frequency]}</span>
-                                                </div>
-                                                <div className="relative pt-12 pb-2">
-                                                    {/* Floating Label */}
+                                            <div className="space-y-5">
+                                                {[
+                                                    { label: "Full Name", type: "text", field: "fullName", placeholder: "John Doe" },
+                                                    { label: "Email", type: "email", field: "email", placeholder: "your@email.com" },
+                                                    { label: "Password", type: "password", field: "password", placeholder: "••••••••" },
+                                                    { label: "Confirm Password", type: "password", field: "confirmPassword", placeholder: "••••••••" }
+                                                ].map((item, idx) => (
                                                     <motion.div
-                                                        animate={{ left: `${(formData.frequency / 4) * 100}%` }}
-                                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                                        className="absolute top-0 -translate-x-1/2 bg-saffron px-2 py-1 rounded text-[10px] font-bold text-white shadow-lg pointer-events-none after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent after:border-t-saffron"
+                                                        key={item.label}
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ delay: 0.2 + (idx * 0.08) }}
+                                                        className="space-y-1.5"
                                                     >
-                                                        {FREQUENCY_LABELS[formData.frequency]}
+                                                        <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary">{item.label}</label>
+                                                        <div className="relative">
+                                                            <input
+                                                                type={item.type === "password" ? (item.field === "password" ? (showPw ? "text" : "password") : (showConfirmPw ? "text" : "password")) : item.type}
+                                                                className="glass-input w-full h-12 px-4 text-sm"
+                                                                placeholder={item.placeholder}
+                                                                value={(formData as any)[item.field]}
+                                                                onChange={e => setFormData({ ...formData, [item.field]: e.target.value })}
+                                                            />
+                                                            {item.type === "password" && (
+                                                                <button
+                                                                    onClick={() => item.field === "password" ? setShowPw(!showPw) : setShowConfirmPw(!showConfirmPw)}
+                                                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary transition-colors"
+                                                                >
+                                                                    {(item.field === "password" ? showPw : showConfirmPw) ? <EyeSlash size={18} /> : <Eye size={18} />}
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                        {item.field === "password" && formData.password && (
+                                                            <div className="mt-2 flex items-center gap-3">
+                                                                <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden flex">
+                                                                    {[1, 2, 3, 4].map(i => (
+                                                                        <div key={i} className={`flex-1 ${passwordStrength >= i ? strengthColor : "bg-transparent"} transition-all duration-500`} />
+                                                                    ))}
+                                                                </div>
+                                                                <span className="font-mono text-[9px] uppercase tracking-[1px] text-text-secondary shrink-0">{strengthText}</span>
+                                                            </div>
+                                                        )}
                                                     </motion.div>
-
-                                                    <input
-                                                        type="range" min="0" max="4"
-                                                        className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer outline-none slider-thumb"
-                                                        value={formData.frequency}
-                                                        onChange={e => setFormData({ ...formData, frequency: parseInt(e.target.value) })}
-                                                        style={{
-                                                            background: `linear-gradient(to right, var(--saffron) ${(formData.frequency / 4) * 100}%, rgba(255,255,255,0.1) ${(formData.frequency / 4) * 100}%)`
-                                                        }}
-                                                    />
-                                                    <div className="flex justify-between mt-3 px-1">
-                                                        <span className="text-[10px] text-text-dim">First trip</span>
-                                                        <span className="text-[10px] text-text-dim">Every month</span>
-                                                    </div>
-                                                </div>
+                                                ))}
                                             </div>
 
-                                            <div className="space-y-4 pt-2">
-                                                <div className="flex justify-between items-end">
-                                                    <div>
-                                                        <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary block mb-0.5">WHAT MOVES YOU?</label>
-                                                        <span className="text-text-secondary text-[12px]">Choose up to 2</span>
-                                                    </div>
-                                                </div>
-                                                <motion.div
-                                                    animate={shake ? { x: [0, -6, 6, -4, 4, 0] } : {}}
-                                                    transition={{ duration: 0.4 }}
-                                                    className="grid grid-cols-2 lg:grid-cols-3 gap-3"
-                                                >
-                                                    {TRAVEL_STYLES.map(style => {
-                                                        const isSelected = formData.styles.includes(style.id);
-                                                        return (
-                                                            <motion.button
-                                                                key={style.id}
-                                                                whileHover={{ scale: 1.04 }}
-                                                                whileTap={{ scale: 0.98 }}
-                                                                onClick={() => toggleStyle(style.id)}
-                                                                className={`h-[100px] w-full lg:w-[140px] rounded-xl flex flex-col items-center justify-center gap-3 transition-all border ${isSelected
-                                                                    ? "border-saffron bg-saffronSubtle"
-                                                                    : "border-white/10 bg-white/[0.03] hover:bg-white/[0.06]"
-                                                                    }`}
-                                                            >
-                                                                <style.icon size={26} className={isSelected ? "text-saffron" : "text-text-secondary"} />
-                                                                <span className={`text-[13px] font-medium ${isSelected ? "text-text-primary" : "text-text-secondary"}`}>{style.label}</span>
-                                                            </motion.button>
-                                                        );
-                                                    })}
-                                                </motion.div>
-                                            </div>
-                                        </div>
+                                            <button
+                                                onClick={nextStep}
+                                                disabled={!formData.fullName || !formData.email || !formData.password || formData.password !== formData.confirmPassword}
+                                                className="shimmer-btn relative w-full h-[52px] bg-saffron rounded-lg font-semibold text-white mt-9 transition-all hover:bg-saffron-bright disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                Continue
+                                            </button>
 
-                                        <div className="flex gap-4 mt-12">
-                                            <button onClick={prevStep} className="h-[52px] px-8 rounded-lg border border-white/10 text-text-primary font-medium hover:bg-white/5 transition-all">Back</button>
-                                            <button onClick={nextStep} className="shimmer-btn relative flex-1 h-[52px] bg-saffron rounded-lg font-semibold text-white transition-all hover:bg-saffron-bright">Continue</button>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {step === 2 && (
-                                    <div className="flex flex-col">
-                                        <h1 className="font-display text-4xl text-text-primary mb-2">Safety preferences.</h1>
-                                        <p className="text-text-secondary text-sm mb-7">Your answers protect every journey.</p>
-
-                                        <div className="bg-teal/5 border border-teal/20 rounded-full px-5 py-3 flex gap-3 mb-9">
-                                            <Info size={18} className="text-teal-light shrink-0 mt-0.5" />
-                                            <p className="text-[12px] text-text-secondary leading-relaxed">
-                                                This information is private and only used to personalize your Confidence Scores.
+                                            <p className="mt-6 text-center text-[13px] text-text-secondary">
+                                                Already have an account? <Link href="/login" className="text-saffron hover:underline">Sign in →</Link>
                                             </p>
                                         </div>
+                                    )}
 
-                                        <div className="space-y-8">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary block">TRAVELING SOLO?</label>
-                                                </div>
-                                                <button
-                                                    onClick={() => setFormData({ ...formData, solo: !formData.solo })}
-                                                    className={`w-12 h-[26px] rounded-full relative transition-all duration-300 ${formData.solo ? "bg-teal shadow-[0_0_12px_rgba(11,168,174,0.3)]" : "bg-white/[0.08]"}`}
-                                                >
-                                                    <motion.div
-                                                        animate={{ x: formData.solo ? 24 : 4 }}
-                                                        className="absolute top-1/2 -translate-y-1/2 w-[18px] h-[18px] bg-white rounded-full shadow-lg"
-                                                    />
-                                                </button>
-                                            </div>
+                                    {step === 1 && (
+                                        <div className="flex flex-col">
+                                            <h1 className="font-display text-4xl text-text-primary mb-2">Your traveler profile.</h1>
+                                            <p className="text-text-secondary text-sm mb-9">This makes every Passport smarter for you.</p>
 
-                                            <AnimatePresence>
-                                                {formData.solo && (
-                                                    <motion.div
-                                                        initial={{ height: 0, opacity: 0 }}
-                                                        animate={{ height: "auto", opacity: 1 }}
-                                                        exit={{ height: 0, opacity: 0 }}
-                                                        className="space-y-6 overflow-hidden"
-                                                    >
-                                                        <div className="flex items-center justify-between">
-                                                            <div>
-                                                                <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary block">SOLO FEMALE TRAVELER?</label>
-                                                            </div>
-                                                            <button
-                                                                onClick={() => setFormData({ ...formData, femaleSolo: !formData.femaleSolo })}
-                                                                className={`w-12 h-[26px] rounded-full relative transition-all duration-300 ${formData.femaleSolo ? "bg-teal shadow-[0_0_12px_rgba(11,168,174,0.3)]" : "bg-white/[0.08]"}`}
-                                                            >
-                                                                <motion.div
-                                                                    animate={{ x: formData.femaleSolo ? 24 : 4 }}
-                                                                    className="absolute top-1/2 -translate-y-1/2 w-[18px] h-[18px] bg-white rounded-full shadow-lg"
-                                                                />
-                                                            </button>
-                                                        </div>
-                                                        {formData.femaleSolo && (
-                                                            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[11px] text-teal-light font-medium italic">
-                                                                Unlocks enhanced safety scoring for specific routes and times.
-                                                            </motion.p>
-                                                        )}
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
-
-                                            <div className="space-y-4">
-                                                <div className="flex justify-between items-end">
-                                                    <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary">RISK COMFORT</label>
-                                                    <span className={`text-xs font-medium ${formData.risk < 2 ? "text-score-high" : (formData.risk > 3 ? "text-score-mid" : "text-text-primary")}`}>
-                                                        {RISK_LABELS[formData.risk]}
-                                                    </span>
-                                                </div>
-                                                <div className="relative pt-12 pb-2">
-                                                    {/* Floating Label */}
-                                                    <motion.div
-                                                        animate={{ left: `${(formData.risk / 4) * 100}%` }}
-                                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                                        className="absolute top-0 -translate-x-1/2 px-2 py-1 rounded text-[10px] font-bold text-white shadow-lg pointer-events-none transition-colors duration-300 after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent"
-                                                        style={{
-                                                            backgroundColor: formData.risk <= 2 ? "#2EC97A" : "#F5A623",
-                                                            borderBottomColor: formData.risk <= 2 ? "#2EC97A" : "#F5A623" // Cheat for the arrow color if using absolute after
-                                                        }}
-                                                    >
-                                                        {RISK_LABELS[formData.risk]}
-                                                        {/* CSS Arrow fix */}
-                                                        <div
-                                                            className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent"
-                                                            style={{ borderTopColor: formData.risk <= 2 ? "#2EC97A" : "#F5A623" }}
+                                            <div className="space-y-6">
+                                                <div className="space-y-1.5">
+                                                    <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary">Home City</label>
+                                                    <div className="relative">
+                                                        <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" />
+                                                        <input
+                                                            type="text"
+                                                            className="glass-input w-full h-12 pl-11 pr-4 text-sm"
+                                                            placeholder="e.g. New Delhi, India"
+                                                            value={formData.homeCity}
+                                                            onChange={e => setFormData({ ...formData, homeCity: e.target.value })}
                                                         />
-                                                    </motion.div>
+                                                    </div>
+                                                </div>
 
-                                                    <input
-                                                        type="range" min="0" max="4"
-                                                        className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer outline-none slider-thumb-alt"
-                                                        value={formData.risk}
-                                                        onChange={e => setFormData({ ...formData, risk: parseInt(e.target.value) })}
-                                                        style={{
-                                                            background: `linear-gradient(to right, ${formData.risk <= 2 ? "#2EC97A" : "#F5A623"} ${(formData.risk / 4) * 100}%, rgba(255,255,255,0.1) ${(formData.risk / 4) * 100}%)`
-                                                        }}
+                                                <div className="space-y-1.5">
+                                                    <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary">Nationality</label>
+                                                    <NationalityDropdown
+                                                        value={formData.nationality}
+                                                        onChange={(v) => setFormData({ ...formData, nationality: v })}
                                                     />
+                                                </div>
+
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between items-end">
+                                                        <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary">HOW OFTEN DO YOU TRAVEL?</label>
+                                                        <span className="text-saffron text-xs font-medium">{FREQUENCY_LABELS[formData.frequency]}</span>
+                                                    </div>
+                                                    <div className="relative pt-12 pb-2">
+                                                        {/* Floating Label */}
+                                                        <motion.div
+                                                            animate={{ left: `${(formData.frequency / 4) * 100}%` }}
+                                                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                                            className="absolute top-0 -translate-x-1/2 bg-saffron px-2 py-1 rounded text-[10px] font-bold text-white shadow-lg pointer-events-none after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent after:border-t-saffron"
+                                                        >
+                                                            {FREQUENCY_LABELS[formData.frequency]}
+                                                        </motion.div>
+
+                                                        <input
+                                                            type="range" min="0" max="4"
+                                                            className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer outline-none slider-thumb"
+                                                            value={formData.frequency}
+                                                            onChange={e => setFormData({ ...formData, frequency: parseInt(e.target.value) })}
+                                                            style={{
+                                                                background: `linear-gradient(to right, var(--saffron) ${(formData.frequency / 4) * 100}%, rgba(255,255,255,0.1) ${(formData.frequency / 4) * 100}%)`
+                                                            }}
+                                                        />
+                                                        <div className="flex justify-between mt-3 px-1">
+                                                            <span className="text-[10px] text-text-dim">First trip</span>
+                                                            <span className="text-[10px] text-text-dim">Every month</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-4 pt-2">
+                                                    <div className="flex justify-between items-end">
+                                                        <div>
+                                                            <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary block mb-0.5">WHAT MOVES YOU?</label>
+                                                            <span className="text-text-secondary text-[12px]">Choose up to 2</span>
+                                                        </div>
+                                                    </div>
+                                                    <motion.div
+                                                        animate={shake ? { x: [0, -6, 6, -4, 4, 0] } : {}}
+                                                        transition={{ duration: 0.4 }}
+                                                        className="grid grid-cols-2 lg:grid-cols-3 gap-3"
+                                                    >
+                                                        {TRAVEL_STYLES.map(style => {
+                                                            const isSelected = formData.styles.includes(style.id);
+                                                            return (
+                                                                <motion.button
+                                                                    key={style.id}
+                                                                    whileHover={{ scale: 1.04 }}
+                                                                    whileTap={{ scale: 0.98 }}
+                                                                    onClick={() => toggleStyle(style.id)}
+                                                                    className={`h-[100px] w-full lg:w-[140px] rounded-xl flex flex-col items-center justify-center gap-3 transition-all border ${isSelected
+                                                                        ? "border-saffron bg-saffronSubtle"
+                                                                        : "border-white/10 bg-white/[0.03] hover:bg-white/[0.06]"
+                                                                        }`}
+                                                                >
+                                                                    <style.icon size={26} className={isSelected ? "text-saffron" : "text-text-secondary"} />
+                                                                    <span className={`text-[13px] font-medium ${isSelected ? "text-text-primary" : "text-text-secondary"}`}>{style.label}</span>
+                                                                </motion.button>
+                                                            );
+                                                        })}
+                                                    </motion.div>
                                                 </div>
                                             </div>
 
-                                            <div className="space-y-1.5 pt-2">
-                                                <button
-                                                    onClick={() => setShowMedical(!showMedical)}
-                                                    className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[2px] text-text-secondary hover:text-text-primary transition-colors mb-2"
-                                                >
-                                                    <CaretDown size={12} className={`transition-transform duration-300 ${showMedical ? "rotate-180" : ""}`} />
-                                                    Any special considerations? (Optional)
-                                                </button>
+                                            <div className="flex gap-4 mt-12">
+                                                <button onClick={prevStep} className="h-[52px] px-8 rounded-lg border border-white/10 text-text-primary font-medium hover:bg-white/5 transition-all">Back</button>
+                                                <button onClick={nextStep} className="shimmer-btn relative flex-1 h-[52px] bg-saffron rounded-lg font-semibold text-white transition-all hover:bg-saffron-bright">Continue</button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {step === 2 && (
+                                        <div className="flex flex-col">
+                                            <h1 className="font-display text-4xl text-text-primary mb-2">Safety preferences.</h1>
+                                            <p className="text-text-secondary text-sm mb-7">Your answers protect every journey.</p>
+
+                                            <div className="bg-teal/5 border border-teal/20 rounded-full px-5 py-3 flex gap-3 mb-9">
+                                                <Info size={18} className="text-teal-light shrink-0 mt-0.5" />
+                                                <p className="text-[12px] text-text-secondary leading-relaxed">
+                                                    This information is private and only used to personalize your Confidence Scores.
+                                                </p>
+                                            </div>
+
+                                            <div className="space-y-8">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary block">TRAVELING SOLO?</label>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => setFormData({ ...formData, solo: !formData.solo })}
+                                                        className={`w-12 h-[26px] rounded-full relative transition-all duration-300 ${formData.solo ? "bg-teal shadow-[0_0_12px_rgba(11,168,174,0.3)]" : "bg-white/[0.08]"}`}
+                                                    >
+                                                        <motion.div
+                                                            animate={{ x: formData.solo ? 24 : 4 }}
+                                                            className="absolute top-1/2 -translate-y-1/2 w-[18px] h-[18px] bg-white rounded-full shadow-lg"
+                                                        />
+                                                    </button>
+                                                </div>
+
                                                 <AnimatePresence>
-                                                    {showMedical && (
+                                                    {formData.solo && (
                                                         <motion.div
                                                             initial={{ height: 0, opacity: 0 }}
                                                             animate={{ height: "auto", opacity: 1 }}
                                                             exit={{ height: 0, opacity: 0 }}
-                                                            className="overflow-hidden"
+                                                            className="space-y-6 overflow-hidden"
                                                         >
-                                                            <textarea
-                                                                className="glass-input w-full p-4 text-sm min-h-[100px] resize-none"
-                                                                placeholder="Medical conditions, dietary laws, accessibility needs, anything else we should know..."
-                                                                value={formData.specialNeeds}
-                                                                onChange={e => setFormData({ ...formData, specialNeeds: e.target.value })}
-                                                            />
+                                                            <div className="flex items-center justify-between">
+                                                                <div>
+                                                                    <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary block">SOLO FEMALE TRAVELER?</label>
+                                                                </div>
+                                                                <button
+                                                                    onClick={() => setFormData({ ...formData, femaleSolo: !formData.femaleSolo })}
+                                                                    className={`w-12 h-[26px] rounded-full relative transition-all duration-300 ${formData.femaleSolo ? "bg-teal shadow-[0_0_12px_rgba(11,168,174,0.3)]" : "bg-white/[0.08]"}`}
+                                                                >
+                                                                    <motion.div
+                                                                        animate={{ x: formData.femaleSolo ? 24 : 4 }}
+                                                                        className="absolute top-1/2 -translate-y-1/2 w-[18px] h-[18px] bg-white rounded-full shadow-lg"
+                                                                    />
+                                                                </button>
+                                                            </div>
+                                                            {formData.femaleSolo && (
+                                                                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[11px] text-teal-light font-medium italic">
+                                                                    Unlocks enhanced safety scoring for specific routes and times.
+                                                                </motion.p>
+                                                            )}
                                                         </motion.div>
                                                     )}
                                                 </AnimatePresence>
+
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between items-end">
+                                                        <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary">RISK COMFORT</label>
+                                                        <span className={`text-xs font-medium ${formData.risk < 2 ? "text-score-high" : (formData.risk > 3 ? "text-score-mid" : "text-text-primary")}`}>
+                                                            {RISK_LABELS[formData.risk]}
+                                                        </span>
+                                                    </div>
+                                                    <div className="relative pt-12 pb-2">
+                                                        {/* Floating Label */}
+                                                        <motion.div
+                                                            animate={{ left: `${(formData.risk / 4) * 100}%` }}
+                                                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                                            className="absolute top-0 -translate-x-1/2 px-2 py-1 rounded text-[10px] font-bold text-white shadow-lg pointer-events-none transition-colors duration-300 after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent"
+                                                            style={{
+                                                                backgroundColor: formData.risk <= 2 ? "#2EC97A" : "#F5A623",
+                                                                borderBottomColor: formData.risk <= 2 ? "#2EC97A" : "#F5A623" // Cheat for the arrow color if using absolute after
+                                                            }}
+                                                        >
+                                                            {RISK_LABELS[formData.risk]}
+                                                            {/* CSS Arrow fix */}
+                                                            <div
+                                                                className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent"
+                                                                style={{ borderTopColor: formData.risk <= 2 ? "#2EC97A" : "#F5A623" }}
+                                                            />
+                                                        </motion.div>
+
+                                                        <input
+                                                            type="range" min="0" max="4"
+                                                            className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer outline-none slider-thumb-alt"
+                                                            value={formData.risk}
+                                                            onChange={e => setFormData({ ...formData, risk: parseInt(e.target.value) })}
+                                                            style={{
+                                                                background: `linear-gradient(to right, ${formData.risk <= 2 ? "#2EC97A" : "#F5A623"} ${(formData.risk / 4) * 100}%, rgba(255,255,255,0.1) ${(formData.risk / 4) * 100}%)`
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-1.5 pt-2">
+                                                    <button
+                                                        onClick={() => setShowMedical(!showMedical)}
+                                                        className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[2px] text-text-secondary hover:text-text-primary transition-colors mb-2"
+                                                    >
+                                                        <CaretDown size={12} className={`transition-transform duration-300 ${showMedical ? "rotate-180" : ""}`} />
+                                                        Any special considerations? (Optional)
+                                                    </button>
+                                                    <AnimatePresence>
+                                                        {showMedical && (
+                                                            <motion.div
+                                                                initial={{ height: 0, opacity: 0 }}
+                                                                animate={{ height: "auto", opacity: 1 }}
+                                                                exit={{ height: 0, opacity: 0 }}
+                                                                className="overflow-hidden"
+                                                            >
+                                                                <textarea
+                                                                    className="glass-input w-full p-4 text-sm min-h-[100px] resize-none"
+                                                                    placeholder="Medical conditions, dietary laws, accessibility needs, anything else we should know..."
+                                                                    value={formData.specialNeeds}
+                                                                    onChange={e => setFormData({ ...formData, specialNeeds: e.target.value })}
+                                                                />
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </div>
+                                            </div>
+
+                                            <p className="font-display text-[18px] italic text-text-secondary text-center mt-12 px-8 leading-relaxed">
+                                                &quot;Your answers make every Decision Passport more accurate for you.&quot;
+                                            </p>
+
+                                            <div className="flex gap-4 mt-8">
+                                                <button onClick={prevStep} className="h-[52px] px-8 rounded-lg border border-white/10 text-text-primary font-medium hover:bg-white/5 transition-all">Back</button>
+                                                <button
+                                                    onClick={handleSubmit}
+                                                    className="shimmer-btn relative flex-1 h-[52px] bg-saffron rounded-lg font-semibold text-white transition-all hover:bg-saffron-bright group"
+                                                >
+                                                    <span className="relative flex items-center justify-center gap-2">
+                                                        Create My Account
+                                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                            <DrawingCheck isHovered={true} />
+                                                        </div>
+                                                    </span>
+                                                </button>
                                             </div>
                                         </div>
+                                    )}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </motion.div>
+                </div>
 
-                                        <p className="font-display text-[18px] italic text-text-secondary text-center mt-12 px-8 leading-relaxed">
-                                            &quot;Your answers make every Decision Passport more accurate for you.&quot;
-                                        </p>
-
-                                        <div className="flex gap-4 mt-8">
-                                            <button onClick={prevStep} className="h-[52px] px-8 rounded-lg border border-white/10 text-text-primary font-medium hover:bg-white/5 transition-all">Back</button>
-                                            <button
-                                                onClick={handleSubmit}
-                                                className="shimmer-btn relative flex-1 h-[52px] bg-saffron rounded-lg font-semibold text-white transition-all hover:bg-saffron-bright group"
-                                            >
-                                                <span className="relative flex items-center justify-center gap-2">
-                                                    Create My Account
-                                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                        <DrawingCheck isHovered={true} />
-                                                    </div>
-                                                </span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </motion.div>
-            </div>
-
-            <style jsx global>{`
+                <style jsx global>{`
                 .slider-thumb::-webkit-slider-thumb {
                     -webkit-appearance: none;
                     appearance: none;
@@ -770,6 +772,7 @@ export default function RegisterPage() {
                     box-shadow: 0 0 10px rgba(0,0,0,0.2);
                 }
             `}</style>
-        </div>
+            </div>
+        </PageWrapper>
     );
 }

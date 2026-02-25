@@ -1,0 +1,5 @@
+.home {
+    /* Base styles for the homepage structural isolation */
+    width: 100%;
+    overflow-x: hidden;
+}

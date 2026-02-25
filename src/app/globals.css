@@ -1,14 +1,41 @@
+/* ================================================
+   ⚠️  PRAGATI SETU — PROTECTED DESIGN SYSTEM ⚠️
+   
+   THIS FILE IS READ-ONLY
+   DO NOT MODIFY FROM ANY PAGE OR COMPONENT
+   DO NOT IMPORT IN ANY FILE EXCEPT layout.tsx
+   DO NOT ADD page-specific styles HERE
+   
+   Last verified working: 2026-02-25
+   Protected homepage commit: 362d9f1
+   ================================================ */
+
+/* NUCLEAR LOCK — These cannot be overridden 
+   without !important on every rule */
+html,
+body {
+    background-color: #060A12 !important;
+    color: #F2EDE4 !important;
+    font-family: 'Sora', sans-serif !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-    --background: #05080F;
-    --foreground: #FFFFFF;
+    --bg-void: #060A12;
     --saffron: #D4590A;
+    --teal: #0B6E72;
+    --gold: #B8922A;
+    --text-primary: #F2EDE4;
+    --font-display: 'Cormorant Garamond', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-ui: 'Sora', sans-serif;
+
     --saffron-bright: #F07030;
-    --teal: #12A8AE;
-    --text-primary: #FFFFFF;
     --text-secondary: #A0AEC0;
     --text-dim: rgba(255, 255, 255, 0.4);
     --glass-bg: rgba(255, 255, 255, 0.03);
@@ -20,7 +47,6 @@
 
 @layer base {
     body {
-        @apply bg-[#05080F] text-white;
         font-feature-settings: "rlig" 1, "calt" 1;
     }
 }
