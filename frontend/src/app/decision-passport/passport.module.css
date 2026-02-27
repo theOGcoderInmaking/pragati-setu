@@ -1,0 +1,642 @@
+.passportPage {
+    background-color: #060A12;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* HERO SECTION */
+.hero {
+    min-height: 100vh;
+    background-color: #060A12;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 120px 80px 80px;
+    position: relative;
+    overflow: hidden;
+    gap: 60px;
+}
+
+.heroGlow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle,
+            rgba(212, 89, 10, 0.08) 0%,
+            transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.heroLeft {
+    position: relative;
+    z-index: 1;
+    max-width: 500px;
+}
+
+.eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: #D4590A;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    display: block;
+}
+
+.heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(52px, 6vw, 80px);
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 0.90;
+    margin-bottom: 24px;
+}
+
+.headingLine {
+    color: #F2EDE4;
+    display: block;
+}
+
+.headingAccent {
+    color: #D4590A;
+    font-style: italic;
+    display: block;
+}
+
+.subtext {
+    font-family: 'Sora', sans-serif;
+    font-size: 17px;
+    font-weight: 300;
+    color: #9A8F82;
+    line-height: 1.7;
+    max-width: 420px;
+    margin-bottom: 36px;
+}
+
+.heroPills {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+.statPill {
+    background: rgba(14, 22, 38, 0.65);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 100px;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.statNum {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #F2EDE4;
+    line-height: 1;
+}
+
+.statLabel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: #7AB3B5;
+    text-transform: uppercase;
+}
+
+.ctaRow {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.btnPrimary {
+    background: #D4590A;
+    color: #ffffff;
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 16px 32px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.btnPrimary:hover {
+    background: #F07030;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(212, 89, 10, 0.40);
+}
+
+.btnGhost {
+    background: transparent;
+    color: #9A8F82;
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    border: none;
+    border-bottom: 1px solid rgba(154, 143, 130, 0.30);
+    padding: 4px 0;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btnGhost:hover {
+    color: #F2EDE4;
+    border-color: #F2EDE4;
+}
+
+/* PASSPORT VISUAL */
+.passportVisual {
+    position: relative;
+    z-index: 1;
+    width: 420px;
+    height: 540px;
+    flex-shrink: 0;
+}
+
+.passportCover {
+    width: 340px;
+    height: 480px;
+    background: linear-gradient(145deg,
+            #0D1D3A 0%,
+            #08122A 50%,
+            #060E1F 100%);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-shadow:
+        0 32px 80px rgba(0, 0, 0, 0.60),
+        0 8px 24px rgba(0, 0, 0, 0.40),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    animation: passportFloat 6s ease-in-out infinite;
+    z-index: 2;
+}
+
+@keyframes passportFloat {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(-1deg);
+    }
+
+    50% {
+        transform: translateY(-16px) rotate(-1deg);
+    }
+}
+
+.passportCover::before {
+    content: '';
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(184, 146, 42, 0.40),
+            transparent);
+}
+
+.passportCover::after {
+    content: '';
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(184, 146, 42, 0.40),
+            transparent);
+}
+
+.coverLogo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    letter-spacing: 4px;
+    color: rgba(184, 146, 42, 0.70);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+}
+
+.coverTitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: rgba(242, 237, 228, 0.90);
+    text-align: center;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.coverSubtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: rgba(122, 179, 181, 0.70);
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.coverDest {
+    margin-top: 48px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: rgba(212, 89, 10, 0.90);
+    text-align: center;
+    letter-spacing: -0.5px;
+}
+
+.passportInterior {
+    width: 300px;
+    height: 420px;
+    background: rgba(13, 21, 32, 0.95);
+    backdrop-filter: blur(12px);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    position: absolute;
+    top: 30px;
+    right: 0;
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: 8px 8px 48px rgba(0, 0, 0, 0.50);
+    z-index: 1;
+}
+
+.interiorHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 12px;
+}
+
+.interiorDest {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #F2EDE4;
+    letter-spacing: 1px;
+}
+
+.interiorDates {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: #7AB3B5;
+}
+
+.gaugesRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.gauge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+}
+
+.gaugeCircle {
+    width: 44px;
+    height: 44px;
+    position: relative;
+}
+
+.gaugeScore {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    color: #F2EDE4;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.gaugeLabel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 6px;
+    letter-spacing: 1px;
+    color: #7AB3B5;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.compositeRow {
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.compositeText {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: #F2EDE4;
+    display: flex;
+    justify-content: space-between;
+}
+
+.guaranteeBadge {
+    background: rgba(46, 201, 122, 0.10);
+    border: 1px solid rgba(46, 201, 122, 0.30);
+    border-radius: 4px;
+    padding: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: #2EC97A;
+    text-align: center;
+}
+
+/* SECTION 2 — INSIDE THE PASSPORT */
+.insideSection {
+    padding: 100px 80px;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.sectionTitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 52px;
+    font-weight: 900;
+    color: #F2EDE4;
+    letter-spacing: -2px;
+    margin-bottom: 60px;
+    text-align: center;
+}
+
+.featuresGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.featureCard {
+    background: rgba(14, 22, 38, 0.65);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 20px;
+    padding: 40px;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.featureCard:hover {
+    transform: translateY(-8px);
+    border-color: rgba(212, 89, 10, 0.30);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.40);
+}
+
+.featureIcon {
+    font-size: 32px;
+    color: #D4590A;
+    margin-bottom: 24px;
+}
+
+.featureTitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: #F2EDE4;
+    margin-bottom: 12px;
+}
+
+.featureDesc {
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    color: #9A8F82;
+    line-height: 1.6;
+}
+
+/* SECTION 3 — DEEP DIVE ARCs */
+.deepDiveSection {
+    padding: 100px 0;
+    background: rgba(14, 22, 38, 0.30);
+    overflow: hidden;
+}
+
+.arcContainer {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 20px;
+    padding: 80px 0;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.scoreCard {
+    width: 220px;
+    background: rgba(14, 22, 38, 0.70);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    padding: 32px 24px;
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    flex-shrink: 0;
+}
+
+.scoreVal {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 64px;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.scoreLabel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #F2EDE4;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.scoreDesc {
+    font-family: 'Sora', sans-serif;
+    font-size: 12px;
+    color: #9A8F82;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.scoreSource {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: #7AB3B5;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 12px;
+    display: block;
+}
+
+/* SECTION 4 — TIMELINE */
+.timelineSection {
+    padding: 120px 80px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.timeline {
+    position: relative;
+    padding: 40px 0;
+}
+
+.timelineLine {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: linear-gradient(180deg,
+            #D4590A 0%,
+            #12A8AE 50%,
+            #B8922A 100%);
+    transform: translateX(-50%);
+}
+
+.timeStep {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 80px;
+    width: 100%;
+    position: relative;
+}
+
+.timeContent {
+    width: 42%;
+    background: rgba(14, 22, 38, 0.50);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.stepNum {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #D4590A;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.stepTitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #F2EDE4;
+}
+
+.timePoint {
+    width: 12px;
+    height: 12px;
+    background: #060A12;
+    border: 2px solid #D4590A;
+    border-radius: 50%;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+}
+
+.timeStepOdd {
+    flex-direction: row;
+}
+
+.timeStepEven {
+    flex-direction: row-reverse;
+}
+
+/* SECTION 5 — FINAL CTA */
+.ctaCard {
+    max-width: 680px;
+    margin: 0 auto 120px;
+    background: rgba(14, 22, 38, 0.80);
+    backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(212, 89, 10, 0.25);
+    border-radius: 24px;
+    padding: 72px 48px;
+    text-align: center;
+    box-shadow:
+        0 0 0 1px rgba(212, 89, 10, 0.08),
+        0 32px 80px rgba(0, 0, 0, 0.40);
+}
+
+.ctaTitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: #F2EDE4;
+    margin-bottom: 24px;
+    letter-spacing: -1px;
+}
+
+.priceWrapper {
+    margin-bottom: 32px;
+}
+
+.price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 64px;
+    font-weight: 700;
+    color: #D4590A;
+    line-height: 1;
+}
+
+.priceUnit {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #9A8F82;
+    display: block;
+    margin-top: 8px;
+}
+
+.ctaNote {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #7AB3B5;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 24px;
+    display: block;
+}
+
+/* UTILS */
+.fadeUp {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.visible {
+    opacity: 1;
+    transform: translateY(0);
+}

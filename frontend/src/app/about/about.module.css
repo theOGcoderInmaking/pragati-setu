@@ -1,0 +1,324 @@
+.aboutPage {
+    background-color: #060A12;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* HERO — FOUNDER STORY */
+.hero {
+    min-height: 80vh;
+    background-color: #060A12;
+    display: flex;
+    align-items: center;
+    padding: 160px 80px 80px;
+    position: relative;
+    overflow: hidden;
+}
+
+.heroGlow {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: linear-gradient(0deg,
+            rgba(212, 89, 10, 0.07) 0%,
+            transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.heroContent {
+    max-width: 720px;
+    position: relative;
+    z-index: 1;
+}
+
+.eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: #D4590A;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    display: block;
+}
+
+.heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(52px, 7vw, 88px);
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 0.90;
+    color: #F2EDE4;
+    margin-bottom: 32px;
+}
+
+.headingAccent {
+    color: #D4590A;
+    font-style: italic;
+    display: block;
+}
+
+.storyText {
+    font-family: 'Sora', sans-serif;
+    font-size: 18px;
+    font-weight: 300;
+    color: #9A8F82;
+    line-height: 1.8;
+    max-width: 620px;
+}
+
+/* SECTION 2 — MISSION */
+.missionSection {
+    padding: 100px 80px;
+    background: #0D1520;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.missionQuote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(32px, 4vw, 52px);
+    font-style: italic;
+    color: #F2EDE4;
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.2;
+}
+
+.missionAttribution {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #D4590A;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 24px;
+}
+
+/* SECTION 3 — TEAM */
+.teamSection {
+    padding: 100px 80px;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.sectionTitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 40px;
+    font-weight: 700;
+    color: #F2EDE4;
+    margin-bottom: 12px;
+}
+
+.teamGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 48px;
+}
+
+.teamCard {
+    background: rgba(14, 22, 38, 0.65);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 20px;
+    padding: 40px 28px;
+    text-align: center;
+    transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.teamCard:hover {
+    transform: translateY(-6px);
+    border-color: rgba(212, 89, 10, 0.25);
+    background: rgba(14, 22, 38, 0.85);
+}
+
+.teamAvatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    border: 2px solid rgba(255, 255, 255, 0.10);
+}
+
+.avatarA {
+    background: linear-gradient(135deg, #D4590A, #0B6E72);
+}
+
+.avatarB {
+    background: linear-gradient(135deg, #B8922A, #D4590A);
+}
+
+.avatarC {
+    background: linear-gradient(135deg, #0B6E72, #B8922A);
+}
+
+.avatarD {
+    background: linear-gradient(135deg, #12A8AE, #060A12);
+}
+
+.teamName {
+    font-family: 'Sora', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #F2EDE4;
+    margin-bottom: 4px;
+}
+
+.teamRole {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: #D4590A;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.teamBio {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    color: #9A8F82;
+    line-height: 1.6;
+}
+
+/* SECTION 4 — TRANSPARENCY REPORT */
+.reportSection {
+    padding: 80px;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.reportIntro {
+    font-family: 'Sora', sans-serif;
+    font-size: 16px;
+    color: #9A8F82;
+    line-height: 1.7;
+    max-width: 600px;
+    margin-top: 12px;
+    margin-bottom: 48px;
+}
+
+.statGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.statCard {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 32px;
+    text-align: left;
+}
+
+.statValue {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #F2EDE4;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.statLabel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: #7AB3B5;
+    text-transform: uppercase;
+}
+
+.btnDownload {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #12A8AE;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btnDownload:hover {
+    color: #ffffff;
+}
+
+/* SECTION 5 — VALUES */
+.valuesSection {
+    padding: 100px 80px 140px;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.valuesGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-top: 48px;
+}
+
+.valueCard {
+    background: rgba(14, 22, 38, 0.60);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 48px 32px;
+}
+
+.valueIcon {
+    font-size: 24px;
+    margin-bottom: 24px;
+    display: block;
+}
+
+.valueTitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #F2EDE4;
+    margin-bottom: 16px;
+}
+
+.valueText {
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    color: #9A8F82;
+    line-height: 1.6;
+}
+
+@media (max-width: 1024px) {
+    .teamGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .statGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .valuesGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .hero,
+    .missionSection,
+    .teamSection,
+    .reportSection,
+    .valuesSection {
+        padding: 80px 24px;
+    }
+}

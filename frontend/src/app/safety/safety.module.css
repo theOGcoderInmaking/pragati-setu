@@ -1,0 +1,443 @@
+/* ═══════════════════════════════════════════════════════════
+   SAFETY INTELLIGENCE — CSS MODULE
+   Never targets body, html, :root, *.
+   ═══════════════════════════════════════════════════════════ */
+
+.safetyPage {
+    background-color: #060A12;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* ── HERO ─────────────────────────────────────────────────── */
+.hero {
+    min-height: 100vh;
+    background-color: #060A12;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+
+.worldMap {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.8;
+}
+
+.worldMap svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Country SVG paths - state classes applied via JS */
+.pathSafe {
+    fill: rgba(46, 201, 122, 0.20);
+    transition: fill 0.2s;
+}
+
+.pathCaution {
+    fill: rgba(245, 166, 35, 0.18);
+    transition: fill 0.2s;
+}
+
+.pathAlert {
+    fill: rgba(232, 69, 60, 0.20);
+    transition: fill 0.2s;
+}
+
+.pathUnscored {
+    fill: rgba(255, 255, 255, 0.03);
+    transition: fill 0.2s;
+}
+
+.pathSafe:hover {
+    fill: rgba(46, 201, 122, 0.40);
+    cursor: pointer;
+}
+
+.pathCaution:hover {
+    fill: rgba(245, 166, 35, 0.38);
+    cursor: pointer;
+}
+
+.pathAlert:hover {
+    fill: rgba(232, 69, 60, 0.42);
+    cursor: pointer;
+}
+
+.pathUnscored:hover {
+    fill: rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+}
+
+/* Pulsing city dots */
+.cityDot {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #D4590A;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    pointer-events: none;
+}
+
+.cityDot::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #D4590A;
+    animation: cityPulse 2s ease-out infinite;
+}
+
+@keyframes cityPulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(4);
+        opacity: 0;
+    }
+}
+
+/* Tooltip */
+.countryTooltip {
+    position: fixed;
+    background: rgba(14, 22, 38, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 16px 20px;
+    pointer-events: none;
+    z-index: 100;
+    min-width: 200px;
+    transition: opacity 0.15s;
+}
+
+.tooltipHidden {
+    opacity: 0;
+}
+
+.tooltipCountry {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #F2EDE4;
+    margin-bottom: 8px;
+}
+
+.tooltipScore {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.tooltipScoreSafe {
+    color: #2EC97A;
+}
+
+.tooltipScoreCaution {
+    color: #F5A623;
+}
+
+.tooltipScoreAlert {
+    color: #E8453C;
+}
+
+.tooltipRisks {
+    font-family: 'Sora', sans-serif;
+    font-size: 12px;
+    color: #9A8F82;
+    line-height: 1.5;
+}
+
+/* Text overlay */
+.textOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(6, 10, 18, 0.90) 0%, rgba(6, 10, 18, 0.70) 60%, transparent 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Hero content */
+.heroContent {
+    position: relative;
+    z-index: 2;
+    padding: 0 80px;
+    max-width: 560px;
+}
+
+.eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #D4590A;
+    margin-bottom: 24px;
+    display: block;
+}
+
+.heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(52px, 6vw, 80px);
+    font-weight: 900;
+    color: #F2EDE4;
+    letter-spacing: -2px;
+    line-height: 0.9;
+    margin-bottom: 0;
+}
+
+.headingAccent {
+    font-style: italic;
+    color: #D4590A;
+    display: block;
+}
+
+.subtext {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #7AB3B5;
+    margin-top: 24px;
+    display: block;
+}
+
+/* Search */
+.safetySearch {
+    margin-top: 32px;
+    max-width: 400px;
+    position: relative;
+}
+
+.searchInputWrap {
+    position: relative;
+}
+
+.searchInput {
+    width: 100%;
+    background: rgba(14, 22, 38, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 10px;
+    padding: 14px 16px 14px 44px;
+    color: #F2EDE4;
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    box-sizing: border-box;
+}
+
+.searchInput::placeholder {
+    color: #4A4540;
+}
+
+.searchInput:focus {
+    border-color: #D4590A;
+    box-shadow: 0 0 0 3px rgba(212, 89, 10, 0.12);
+}
+
+.searchIcon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9A8F82;
+    font-size: 16px;
+    pointer-events: none;
+}
+
+.searchDropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: rgba(14, 22, 38, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 12px;
+    margin-top: 8px;
+    overflow: hidden;
+    z-index: 100;
+}
+
+.searchResult {
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.searchResult:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.searchResultName {
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    color: #F2EDE4;
+}
+
+.searchResultScore {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* ── CARDS SECTION ─────────────────────────────────────────── */
+.cardsSection {
+    padding: 80px;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.sectionTitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 4vw, 52px);
+    font-weight: 900;
+    color: #F2EDE4;
+    letter-spacing: -1px;
+    margin-bottom: 40px;
+}
+
+.cardsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.safetyCard {
+    background: rgba(14, 22, 38, 0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 16px;
+    padding: 28px;
+    transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.safetyCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.30);
+}
+
+.scoreRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.bigScore {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.scoreSafe {
+    color: #2EC97A;
+}
+
+.scoreCaution {
+    color: #F5A623;
+}
+
+.scoreAlert {
+    color: #E8453C;
+}
+
+.ratingBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 14px;
+    border-radius: 100px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    font-weight: 700;
+}
+
+.ratingSafe {
+    background: rgba(46, 201, 122, 0.15);
+    color: #2EC97A;
+    border: 1px solid rgba(46, 201, 122, 0.25);
+}
+
+.ratingCaution {
+    background: rgba(245, 166, 35, 0.15);
+    color: #F5A623;
+    border: 1px solid rgba(245, 166, 35, 0.25);
+}
+
+.ratingAlert {
+    background: rgba(232, 69, 60, 0.15);
+    color: #E8453C;
+    border: 1px solid rgba(232, 69, 60, 0.25);
+}
+
+.cityName {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #F2EDE4;
+    margin-bottom: 4px;
+}
+
+.countryLabel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: #7AB3B5;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.riskTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.riskTag {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 100px;
+    padding: 4px 12px;
+    font-family: 'Sora', sans-serif;
+    font-size: 11px;
+    color: #9A8F82;
+}
+
+.riskTagAlert {
+    border-color: rgba(232, 69, 60, 0.20);
+    color: #E8453C;
+    background: rgba(232, 69, 60, 0.06);
+}
+
+.riskTagWarn {
+    border-color: rgba(245, 166, 35, 0.20);
+    color: #F5A623;
+    background: rgba(245, 166, 35, 0.06);
+}

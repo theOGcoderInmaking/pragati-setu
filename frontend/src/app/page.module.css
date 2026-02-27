@@ -1,0 +1,23 @@
+.home {
+    /* Base styles for the homepage structural isolation */
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.glassCard {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+}
+
+.watermarkWrap {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.05;
+}

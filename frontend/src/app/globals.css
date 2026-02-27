@@ -1,0 +1,286 @@
+/* ================================================
+   ⚠️  PRAGATI SETU — PROTECTED DESIGN SYSTEM ⚠️
+   
+   THIS FILE IS READ-ONLY
+   DO NOT MODIFY FROM ANY PAGE OR COMPONENT
+   DO NOT IMPORT IN ANY FILE EXCEPT layout.tsx
+   DO NOT ADD page-specific styles HERE
+   
+   Last verified working: 2026-02-25
+   Protected homepage commit: 362d9f1
+   ================================================ */
+
+/* NUCLEAR LOCK — These cannot be overridden 
+   without !important on every rule */
+html,
+body {
+    background-color: #060A12 !important;
+    color: #F2EDE4 !important;
+    font-family: 'Sora', sans-serif !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --bg-void: #060A12;
+    --saffron: #D4590A;
+    --teal: #0B6E72;
+    --gold: #B8922A;
+    --text-primary: #F2EDE4;
+    --font-display: 'Cormorant Garamond', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-ui: 'Sora', sans-serif;
+
+    --saffron-bright: #F07030;
+    --text-secondary: #A0AEC0;
+    --text-dim: rgba(255, 255, 255, 0.4);
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --score-high: #48BB78;
+    --score-mid: #ECC94B;
+    --score-low: #F56565;
+}
+
+@layer base {
+    body {
+        font-feature-settings: "rlig" 1, "calt" 1;
+    }
+}
+
+@layer components {
+    .glass-card {
+        @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl;
+    }
+
+    .glass-input {
+        @apply bg-white/[0.05] border border-white/[0.1] rounded-xl focus:border-saffron/40 transition-all outline-none;
+    }
+
+    .shimmer-btn {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .shimmer-btn::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent);
+        transform: rotate(45deg);
+        animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+        0% {
+            transform: translateX(-100%) rotate(45deg);
+        }
+
+        100% {
+            transform: translateX(100%) rotate(45deg);
+        }
+    }
+
+    .card-hover-effect {
+        @apply transition-all duration-500 hover:scale-[1.02] hover:bg-white/[0.05] hover:border-white/[0.15];
+    }
+}
+
+/* Custom Utilities */
+.text-gradient-saffron {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-saffron to-saffron-bright;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Auth Page Specific Animations */
+@keyframes float {
+    0% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-20px) rotate(2deg);
+    }
+
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+}
+
+.auth-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes pulse-soft {
+
+    0%,
+    100% {
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+}
+
+.auth-pulse {
+    animation: pulse-soft 4s ease-in-out infinite;
+}
+
+/* Sunrise Background Gradients */
+.bg-sunrise-step-1 {
+    background: radial-gradient(circle at 50% 120%, rgba(212, 89, 10, 0.1) 0%, rgba(5, 8, 15, 1) 60%);
+}
+
+.bg-sunrise-step-2 {
+    background: radial-gradient(circle at 50% 110%, rgba(212, 89, 10, 0.2) 0%, rgba(5, 8, 15, 1) 70%);
+}
+
+.bg-sunrise-step-3 {
+    background: radial-gradient(circle at 50% 100%, rgba(212, 89, 10, 0.3) 0%, rgba(5, 8, 15, 1) 80%);
+}
+
+/* Particle Styles */
+.particle-container {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* Form Transitions */
+.step-enter {
+    opacity: 0;
+    transform: translateX(20px);
+}
+
+.step-enter-active {
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 300ms, transform 300ms;
+}
+
+.step-exit {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.step-exit-active {
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 300ms, transform 300ms;
+}
+
+/* Grid Background */
+.bg-grid {
+    background-size: 40px 40px;
+    background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+}
+
+/* Hub Category Transitions */
+.hub-scene-transition {
+    transition: clip-path 1.2s cubic-bezier(0.7, 0, 0.3, 1);
+}
+
+/* Confetti-like success burst */
+.success-burst {
+    animation: burst 0.8s cubic-bezier(0, 0, 0.2, 1) forwards;
+}
+
+@keyframes burst {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* Custom clip-paths for booking hub */
+.clip-region-left {
+    clip-path: polygon(0 0, 33% 0, 43% 100%, 0% 100%);
+}
+
+.clip-region-center {
+    clip-path: polygon(33% 0, 66% 0, 76% 100%, 43% 100%);
+}
+
+.clip-region-right {
+    clip-path: polygon(66% 0, 100% 0, 100% 100%, 76% 100%);
+}
+
+/* Typography Overrides */
+h1,
+h2,
+h3,
+.font-display {
+    font-family: var(--font-cormorant), serif;
+}
+
+.font-sans {
+    font-family: var(--font-sora), sans-serif;
+}
+
+.font-mono {
+    font-family: var(--font-jetbrains), monospace;
+}
+
+/* Button variants */
+.btn-primary {
+    @apply bg-saffron text-white hover:bg-saffron-bright transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-secondary {
+    @apply bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all active:scale-[0.98];
+}
+
+/* Indicator dot */
+.status-dot {
+    @apply w-1.5 h-1.5 rounded-full;
+}
+
+.status-dot-active {
+    @apply bg-score-high;
+    box-shadow: 0 0 8px rgba(72, 187, 120, 0.6);
+}
+
+/* Layered scene parallax container */
+.layered-parallax-container {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    height: 100vh;
+}
