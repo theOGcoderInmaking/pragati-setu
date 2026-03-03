@@ -53,7 +53,23 @@ const StatCounter: React.FC<StatItemProps> = ({ value, label, target }) => {
 
 const StatBar: React.FC = () => {
     return (
-        <div className="absolute bottom-0 left-0 right-0 h-20 sm:h-16 bg-[#060A12]/60 backdrop-blur-md border-t border-white/06 z-30">
+        <div
+            style={{
+                // NOT absolute — sits naturally
+                // below hero content in flow
+                position: "relative",
+                width: "100%",
+                // Fully opaque — no glow bleed
+                background: "#060A12",
+                borderTop: "1px solid rgba(255,255,255,0.06)",
+                // No backdrop blur needed
+                // since background is solid
+                zIndex: 30,
+                marginTop: "auto",
+                paddingTop: "20px",
+                paddingBottom: "20px",
+            }}
+        >
             <div className="max-w-[1280px] mx-auto h-full px-6 flex flex-wrap sm:flex-nowrap items-center justify-around sm:justify-between gap-4">
                 <StatCounter value="190+" label="Countries" target={190} />
                 <StatCounter value="2,400+" label="Verified Guides" target={2400} />

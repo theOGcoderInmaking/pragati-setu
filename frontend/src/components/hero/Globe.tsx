@@ -9,20 +9,20 @@ const Globe: React.FC = () => {
     useEffect(() => {
         if (!containerRef.current) return;
 
-        const width = containerRef.current.clientWidth;
-        const height = containerRef.current.clientHeight;
+        const W = containerRef.current?.offsetWidth ?? 420;
+        const H = containerRef.current?.offsetHeight ?? 420;
 
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-        camera.position.z = 600;
+        const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 1000);
+        camera.position.z = 480;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(width, height);
+        renderer.setSize(W, H);
         renderer.setPixelRatio(window.devicePixelRatio);
         containerRef.current.appendChild(renderer.domElement);
 
         // Globe
-        const globeRadius = 220;
+        const globeRadius = 140;
         const geometry = new THREE.SphereGeometry(globeRadius, 64, 64);
         const material = new THREE.MeshPhongMaterial({
             color: 0x0d1b35,
@@ -98,8 +98,8 @@ const Globe: React.FC = () => {
 
         const handleResize = () => {
             if (!containerRef.current) return;
-            const w = containerRef.current.clientWidth;
-            const h = containerRef.current.clientHeight;
+            const w = containerRef.current.offsetWidth;
+            const h = containerRef.current.offsetHeight;
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
             renderer.setSize(w, h);
