@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { sendWelcomeEmail } from '@/lib/email';
 import bcrypt from 'bcryptjs';
 import { query, queryOne } from '@/lib/db';
 import type { User } from '@/types';
@@ -52,6 +53,11 @@ export async function POST(req: NextRequest) {
             [user.id]
         );
 
+        // Send welcome email (non-blocking)
+        sendWelcomeEmail(email, full_name).catch(
+            err => console.error('Welcome email:', err)
+        );
+
         return NextResponse.json({
             success: true,
             user: {
@@ -62,9 +68,10 @@ export async function POST(req: NextRequest) {
         }, { status: 201 });
 
     } catch (error) {
-        console.error('Register error:', error);
+        console.error('Register error details:', error);
+
         return NextResponse.json(
-            { error: 'Registration failed' },
+            { error: 'Registration failed. Please try again.' },
             { status: 500 }
         );
     }

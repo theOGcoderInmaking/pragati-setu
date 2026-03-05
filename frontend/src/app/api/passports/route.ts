@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { query, queryOne } from '@/lib/db';
+import { query, queryOne, queryOne as queryOneUser } from '@/lib/db';
+import { sendPassportReadyEmail } from '@/lib/email';
 import { calculateConfidenceScores, generateRiskRegister }
     from '@/lib/confidence-engine';
 import type { DecisionPassport } from '@/types';
@@ -156,6 +157,30 @@ export async function POST(req: NextRequest) {
          WHERE id = $2`,
                 [scores.composite, passport.id]
             );
+
+            // Send passport ready email (non-blocking)
+            try {
+                const userRow = await queryOneUser<{
+                    email: string; full_name: string
+                }>(
+                    `SELECT email, full_name FROM users
+                 WHERE id = $1`,
+                    [session.user.id]
+                );
+                if (userRow) {
+                    sendPassportReadyEmail(
+                        userRow.email,
+                        userRow.full_name ?? 'Traveler',
+                        destination_name,
+                        scores.composite,
+                        passport.id
+                    ).catch(err =>
+                        console.error('Passport email:', err)
+                    );
+                }
+            } catch (err) {
+                console.error('Email lookup failed:', err);
+            }
 
         } catch (error) {
             console.error('Score calculation error:', error);
