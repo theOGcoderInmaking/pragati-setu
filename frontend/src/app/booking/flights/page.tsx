@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import PageWrapper from "@/components/PageWrapper";
 import styles from "./flights.module.css";
@@ -28,47 +28,47 @@ const EditIcon = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="non
 const AlertIcon = () => <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm1 14H11v-2h2v2zm0-4H11V7h2v5z" /></svg>;
 const ShieldIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>;
 
-// ─── Mock data ─────────────────────────────────────────────────────────────
-const AIRPORTS = [
-    { code: "BOM", name: "Chhatrapati Shivaji Maharaj Intl", city: "Mumbai", country: "India" },
-    { code: "TYO", name: "Narita / Haneda International", city: "Tokyo", country: "Japan" },
-    { code: "DEL", name: "Indira Gandhi International", city: "Delhi", country: "India" },
-    { code: "LHR", name: "Heathrow Airport", city: "London", country: "UK" },
-    { code: "DXB", name: "Dubai International", city: "Dubai", country: "UAE" },
-    { code: "SIN", name: "Changi Airport", city: "Singapore", country: "Singapore" },
-    { code: "BKK", name: "Suvarnabhumi Airport", city: "Bangkok", country: "Thailand" },
-    { code: "CDG", name: "Charles de Gaulle Airport", city: "Paris", country: "France" },
-];
+// ─── Types ─────────────────────────────────────────────────────────────────
+interface Airport {
+    code: string;
+    name: string;
+    city: string;
+    country: string;
+}
 
-const MOCK_RESULTS = [
-    {
-        id: "ana-1", airline: "All Nippon Airways", code: "ANA", flightNo: "NH 830",
-        departure: "20:00", arrival: "07:30", duration: "8h 0m", stops: "Direct",
-        price: "₹1,24,500", onTime: 94, luggage: "23kg ✓", meal: true,
-        confidence: 96, recommended: true,
-        reason: "Direct routing saves 4hrs vs cheapest option. ANA has highest on-time record for this route. Daytime arrival reduces airport scam exposure.",
-    },
-    {
-        id: "vst-2", airline: "Vistara", code: "VST", flightNo: "UK 115",
-        departure: "14:20", arrival: "23:40", duration: "13h 20m", stops: "1 Stop (SIN)",
-        price: "₹85,200", onTime: 88, luggage: "15kg", meal: true,
-        confidence: 72, recommended: false,
-        warning: "Arrives 23:40 — nighttime risk",
-    },
-    {
-        id: "jal-3", airline: "Japan Airlines", code: "JAL", flightNo: "JL 708",
-        departure: "21:30", arrival: "08:50", duration: "7h 50m", stops: "Direct",
-        price: "₹1,18,900", onTime: 92, luggage: "23kg ✓", meal: true,
-        confidence: 94, recommended: false,
-    },
-    {
-        id: "sq-4", airline: "Singapore Airlines", code: "SQ", flightNo: "SQ 421",
-        departure: "09:00", arrival: "22:15", duration: "10h 15m", stops: "1 Stop (SIN)",
-        price: "₹92,400", onTime: 96, luggage: "30kg ✓", meal: true,
-        confidence: 85, recommended: false,
-        warning: "11h layover in SIN — requires transit hotel",
-    },
-];
+interface FlightResult {
+    id: string;
+    airline: string;
+    code: string;
+    flightNo: string;
+    departure: string;
+    arrival: string;
+    duration: string;
+    stops: string;
+    price: string;
+    rawPrice: number;
+    onTime: number | null;
+    luggage: string;
+    meal: boolean;
+    confidence: number;
+    recommended: boolean;
+    reason?: string;
+    warning?: string;
+}
+
+// ─── Default airports ──────────────────────────────────────────────────────
+const DEFAULT_FROM: Airport = {
+    code: 'BOM',
+    name: 'Chhatrapati Shivaji Maharaj Intl',
+    city: 'Mumbai',
+    country: 'India',
+};
+const DEFAULT_TO: Airport = {
+    code: 'TYO',
+    name: 'Narita International',
+    city: 'Tokyo',
+    country: 'Japan',
+};
 
 // ─── StarField canvas ──────────────────────────────────────────────────────
 function StarField() {
@@ -174,13 +174,21 @@ export default function FlightsPage() {
     const [view, setView] = useState<View>("search");
 
     // Form state
-    const [from, setFrom] = useState(AIRPORTS[0]);
-    const [to, setTo] = useState(AIRPORTS[1]);
+    const [from, setFrom] = useState<Airport>(DEFAULT_FROM);
+    const [to, setTo] = useState<Airport>(DEFAULT_TO);
     const [isOneWay, setIsOneWay] = useState(false);
     const [passengers, setPassengers] = useState(1);
     const [cabinClass, setCabinClass] = useState("Economy");
-    const [departure] = useState("15 Mar");
-    const [returnDate] = useState("23 Mar");
+
+    // Date state — defaults to 30 days from now
+    const today = new Date();
+    const nextMonth = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const formatInputDate = (d: Date) => d.toISOString().split('T')[0];
+
+    const [departureDate, setDepartureDate] = useState(formatInputDate(nextMonth));
+    const [returnDateVal, setReturnDateVal] = useState(
+        formatInputDate(new Date(nextMonth.getTime() + 8 * 24 * 60 * 60 * 1000))
+    );
 
     // Modal state
     type ModalT = "from" | "to" | null;
@@ -194,16 +202,131 @@ export default function FlightsPage() {
     const [safeLayovers, setSafeLayovers] = useState(true);
     const [stopFilter, setStopFilter] = useState<string>("Any");
 
-    const filteredAirports = useMemo(() =>
-        AIRPORTS.filter(a =>
-            a.city.toLowerCase().includes(query.toLowerCase()) ||
-            a.code.toLowerCase().includes(query.toLowerCase())
-        ), [query]);
+    // Live flight + airport search state
+    const [flightResults, setFlightResults] = useState<FlightResult[]>([]);
+    const [searching, setSearching] = useState(false);
+    const [searchError, setSearchError] = useState('');
+    const [airportResults, setAirportResults] = useState<Airport[]>([]);
+    const [airportLoading, setAirportLoading] = useState(false);
+    const airportDebounce = useRef<ReturnType<typeof setTimeout>>();
 
-    const recFlight = MOCK_RESULTS.find(f => f.recommended)!;
-    const otherFlights = MOCK_RESULTS.filter(f => !f.recommended);
+    // ── Live airport search ──────────────────────────────────────────────
+    const searchAirportsLive = async (keyword: string) => {
+        if (keyword.length < 2) {
+            setAirportResults([]);
+            return;
+        }
+        clearTimeout(airportDebounce.current);
+        airportDebounce.current = setTimeout(async () => {
+            setAirportLoading(true);
+            try {
+                const res = await fetch(
+                    `/api/flights/search`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ keyword }),
+                    }
+                );
+                const { data } = await res.json();
+                setAirportResults(data ?? []);
+            } catch {
+                setAirportResults([]);
+            } finally {
+                setAirportLoading(false);
+            }
+        }, 300);
+    };
 
-    // ─── Render ─────────────────────────────────────────────────────────────
+    // ── Live flight search ────────────────────────────────────────────────
+    const handleSearch = async () => {
+        if (!from.code || !to.code) return;
+
+        setSearching(true);
+        setSearchError('');
+        setFlightResults([]);
+
+        try {
+            const params = new URLSearchParams({
+                origin: from.code,
+                destination: to.code,
+                departure: departureDate,
+                adults: String(passengers),
+                class: cabinClass,
+            });
+
+            if (!isOneWay) {
+                params.set('return', returnDateVal);
+            }
+
+            const res = await fetch(`/api/flights/search?${params}`);
+            const { data, error } = await res.json();
+
+            if (error) throw new Error(error);
+
+            if (!data?.length) {
+                setSearchError(
+                    'No flights found for this route. Try different dates or airports.'
+                );
+            } else {
+                setFlightResults(data);
+                setView('results');
+            }
+        } catch (err) {
+            setSearchError(
+                err instanceof Error
+                    ? err.message
+                    : 'Search failed. Please try again.'
+            );
+        } finally {
+            setSearching(false);
+        }
+    };
+
+    // ── Filtered airports for modal ───────────────────────────────────────
+    const filteredAirports =
+        airportResults.length > 0
+            ? airportResults
+            : [DEFAULT_FROM, DEFAULT_TO];
+
+    const recFlight = flightResults.find(f => f.recommended) ?? flightResults[0];
+    const otherFlights = flightResults.filter(f => !f.recommended);
+
+    // ─── Loading spinner ─────────────────────────────────────────────────
+    if (searching) {
+        return (
+            <PageWrapper>
+                <div style={{
+                    minHeight: '100vh',
+                    background: '#060A12',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexDirection: 'column',
+                    gap: '24px',
+                }}>
+                    <div style={{
+                        width: '60px',
+                        height: '60px',
+                        borderRadius: '50%',
+                        border: '3px solid rgba(212,89,10,0.2)',
+                        borderTop: '3px solid #D4590A',
+                        animation: 'spin 1s linear infinite',
+                    }} />
+                    <p style={{
+                        fontFamily: "'Sora', sans-serif",
+                        fontSize: '16px',
+                        color: '#9A8F82',
+                    }}>
+                        Searching flights…
+                    </p>
+                    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                </div>
+            </PageWrapper>
+        );
+    }
+
+    // ─── Results view ─────────────────────────────────────────────────────
     if (view === "results") {
         return (
             <PageWrapper>
@@ -225,7 +348,7 @@ export default function FlightsPage() {
                                 <div className={styles.divider} />
                                 <div>
                                     <span className={styles.routeLabel}>Date</span>
-                                    <span className={styles.routeValue}>{departure}</span>
+                                    <span className={styles.routeValue}>{departureDate}</span>
                                 </div>
                                 <div className={styles.divider} />
                                 <div>
@@ -345,65 +468,68 @@ export default function FlightsPage() {
 
                         {/* Results main */}
                         <main className={styles.resultsMain}>
-                            {/* Recommended card */}
-                            <div className={styles.recommendedCard}>
-                                <span className={styles.recLabel}>🧭 Pragati Setu Recommends</span>
+                            {recFlight && (
+                                /* Recommended card */
+                                <div className={styles.recommendedCard}>
+                                    <span className={styles.recLabel}>🧭 Pragati Setu Recommends</span>
 
-                                <div className={styles.flightHeader}>
-                                    <div className={styles.airlineLogo}>{recFlight.code}</div>
-                                    <div className={styles.airlineInfo}>
-                                        <div className={styles.airlineName}>{recFlight.airline}</div>
-                                        <div className={styles.flightNum}>{recFlight.flightNo} · Dreamliner 787</div>
+                                    <div className={styles.flightHeader}>
+                                        <div className={styles.airlineLogo}>{recFlight.code}</div>
+                                        <div className={styles.airlineInfo}>
+                                            <div className={styles.airlineName}>{recFlight.airline}</div>
+                                            <div className={styles.flightNum}>{recFlight.flightNo}</div>
+                                        </div>
+                                        <div className={styles.priceBlock}>
+                                            <div className={styles.price}>{recFlight.price}</div>
+                                            <div className={styles.priceSub}>per person</div>
+                                        </div>
                                     </div>
-                                    <div className={styles.priceBlock}>
-                                        <div className={styles.price}>{recFlight.price}</div>
-                                        <div className={styles.priceSub}>per person</div>
+
+                                    <div className={styles.timesRow}>
+                                        <div className={styles.timeBlock}>
+                                            <div className={styles.timeVal}>{recFlight.departure}</div>
+                                            <div className={styles.timeSub}>{from.city} ({from.code})</div>
+                                        </div>
+                                        <div className={styles.lineBlock}>
+                                            <span className={styles.duration}>{recFlight.duration}</span>
+                                            <div className={styles.line} />
+                                            <span className={styles.stops}>{recFlight.stops}</span>
+                                        </div>
+                                        <div className={styles.timeBlock}>
+                                            <div className={styles.timeVal}>{recFlight.arrival}</div>
+                                            <div className={styles.timeSub}>{to.city} ({to.code})</div>
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.statsRow}>
+                                        <div className={styles.stat}>🧳 Luggage: <span style={{ color: "#F2EDE4" }}>&nbsp;{recFlight.luggage}</span></div>
+                                        <div className={styles.stat}>🍽 Meal: <span style={{ color: "#F2EDE4" }}>&nbsp;{recFlight.meal ? "Included" : "—"}</span></div>
+                                    </div>
+
+                                    {recFlight.reason && (
+                                        <div className={styles.whyBox}>
+                                            <p className={styles.whyText}>
+                                                &ldquo;Why we recommend this: {recFlight.reason}&rdquo;
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    <div className={styles.actionsRow}>
+                                        <div className={styles.confidencePill}>
+                                            <div className={styles.confidenceDot} />
+                                            <span className={styles.confidenceLabel}>Confidence: {recFlight.confidence}/100</span>
+                                        </div>
+                                        <div className={styles.btnGroup}>
+                                            <button className={styles.ghostBtn}>Add to Passport</button>
+                                            <button className={styles.bookBtn}>Book This Flight →</button>
+                                        </div>
                                     </div>
                                 </div>
-
-                                <div className={styles.timesRow}>
-                                    <div className={styles.timeBlock}>
-                                        <div className={styles.timeVal}>{recFlight.departure}</div>
-                                        <div className={styles.timeSub}>{from.city} ({from.code})</div>
-                                    </div>
-                                    <div className={styles.lineBlock}>
-                                        <span className={styles.duration}>{recFlight.duration}</span>
-                                        <div className={styles.line} />
-                                        <span className={styles.stops}>{recFlight.stops}</span>
-                                    </div>
-                                    <div className={styles.timeBlock}>
-                                        <div className={styles.timeVal}>{recFlight.arrival}</div>
-                                        <div className={styles.timeSub}>{to.city} (NRT) <span style={{ color: "#4A4540", fontSize: 11 }}>+1 Day</span></div>
-                                    </div>
-                                </div>
-
-                                <div className={styles.statsRow}>
-                                    <div className={styles.stat}>⏱ On-time: <span className={styles.statGood}>&nbsp;{recFlight.onTime}%</span></div>
-                                    <div className={styles.stat}>🧳 Luggage: <span style={{ color: "#F2EDE4" }}>&nbsp;{recFlight.luggage}</span></div>
-                                    <div className={styles.stat}>🍽 Meal: <span style={{ color: "#F2EDE4" }}>&nbsp;{recFlight.meal ? "Included" : "—"}</span></div>
-                                </div>
-
-                                <div className={styles.whyBox}>
-                                    <p className={styles.whyText}>
-                                        &ldquo;Why we recommend this: {recFlight.reason}&rdquo;
-                                    </p>
-                                </div>
-
-                                <div className={styles.actionsRow}>
-                                    <div className={styles.confidencePill}>
-                                        <div className={styles.confidenceDot} />
-                                        <span className={styles.confidenceLabel}>Confidence: {recFlight.confidence}/100</span>
-                                    </div>
-                                    <div className={styles.btnGroup}>
-                                        <button className={styles.ghostBtn}>Add to Passport</button>
-                                        <button className={styles.bookBtn}>Book This Flight →</button>
-                                    </div>
-                                </div>
-                            </div>
+                            )}
 
                             {/* All results */}
                             <div className={styles.resultsHeader}>
-                                <span className={styles.resultsCount}>All available flights ({MOCK_RESULTS.length})</span>
+                                <span className={styles.resultsCount}>All available flights ({flightResults.length})</span>
                                 <span className={styles.resultsMeta}>Price per passenger, inclusive of taxes.</span>
                             </div>
 
@@ -426,7 +552,7 @@ export default function FlightsPage() {
                                     <div className={styles.cardRoute}>
                                         <div>
                                             <div className={styles.cardTime}>{flight.departure}</div>
-                                            <div className={styles.cardCityCode}>BOM</div>
+                                            <div className={styles.cardCityCode}>{from.code}</div>
                                         </div>
                                         <div className={styles.cardLine}>
                                             <span className={styles.cardDuration}>{flight.duration}</span>
@@ -437,7 +563,7 @@ export default function FlightsPage() {
                                         </div>
                                         <div>
                                             <div className={styles.cardTime}>{flight.arrival}</div>
-                                            <div className={styles.cardCityCode}>TYO</div>
+                                            <div className={styles.cardCityCode}>{to.code}</div>
                                         </div>
                                     </div>
 
@@ -486,7 +612,7 @@ export default function FlightsPage() {
                         <div className={`${styles.formRow} ${styles.formRow1}`}>
                             <div
                                 className={styles.glassInput}
-                                onClick={() => { setQuery(""); setModal("from"); }}
+                                onClick={() => { setQuery(""); setAirportResults([]); setModal("from"); }}
                             >
                                 <span className={styles.inputLabel}>🛫 From</span>
                                 <div className={styles.inputValue}>{from.code}</div>
@@ -503,7 +629,7 @@ export default function FlightsPage() {
 
                             <div
                                 className={styles.glassInput}
-                                onClick={() => { setQuery(""); setModal("to"); }}
+                                onClick={() => { setQuery(""); setAirportResults([]); setModal("to"); }}
                             >
                                 <span className={styles.inputLabel}>🛬 To</span>
                                 <div className={styles.inputValue}>{to.code}</div>
@@ -515,18 +641,50 @@ export default function FlightsPage() {
                         <div className={`${styles.formRow} ${styles.formRow2}`}>
                             <div className={styles.glassInput}>
                                 <span className={styles.inputLabel}>Departure</span>
-                                <div className={styles.inputValue} style={{ fontSize: 18 }}>{departure}</div>
-                                <div className={styles.inputSubvalue}>Thursday</div>
+                                <input
+                                    type="date"
+                                    value={departureDate}
+                                    min={formatInputDate(new Date())}
+                                    onChange={(e) => setDepartureDate(e.target.value)}
+                                    style={{
+                                        background: 'none', border: 'none',
+                                        color: '#F2EDE4', fontSize: '18px',
+                                        fontFamily: "'Cormorant Garamond', serif",
+                                        fontWeight: 700, cursor: 'pointer',
+                                        outline: 'none', width: '100%',
+                                        colorScheme: 'dark',
+                                    }}
+                                />
+                                <div className={styles.inputSubvalue}>
+                                    {departureDate
+                                        ? new Date(departureDate).toLocaleDateString('en-IN', { weekday: 'long' })
+                                        : 'Select date'}
+                                </div>
                             </div>
                             <div
                                 className={`${styles.glassInput}`}
                                 style={isOneWay ? { opacity: 0.35, filter: "grayscale(1)", cursor: "not-allowed" } : {}}
                             >
                                 <span className={styles.inputLabel}>Return</span>
-                                <div className={styles.inputValue} style={{ fontSize: 18 }}>
-                                    {isOneWay ? "—" : returnDate}
-                                </div>
-                                <div className={styles.inputSubvalue}>{isOneWay ? "One way" : "Thursday"}</div>
+                                {isOneWay ? (
+                                    <div className={styles.inputValue} style={{ fontSize: 18 }}>—</div>
+                                ) : (
+                                    <input
+                                        type="date"
+                                        value={returnDateVal}
+                                        min={departureDate}
+                                        onChange={(e) => setReturnDateVal(e.target.value)}
+                                        style={{
+                                            background: 'none', border: 'none',
+                                            color: '#F2EDE4', fontSize: '18px',
+                                            fontFamily: "'Cormorant Garamond', serif",
+                                            fontWeight: 700, cursor: 'pointer',
+                                            outline: 'none', width: '100%',
+                                            colorScheme: 'dark',
+                                        }}
+                                    />
+                                )}
+                                <div className={styles.inputSubvalue}>{isOneWay ? "One way" : ""}</div>
                             </div>
                             <button
                                 className={`${styles.oneWayToggle} ${isOneWay ? styles.oneWayToggleActive : ""}`}
@@ -580,10 +738,31 @@ export default function FlightsPage() {
                         {/* Search button */}
                         <button
                             className={styles.searchBtn}
-                            onClick={() => setView("results")}
+                            onClick={handleSearch}
+                            disabled={searching}
                         >
-                            🔍 Search Flights — Confidence Scored
+                            {searching
+                                ? '⏳ Searching flights…'
+                                : '🔍 Search Flights — Confidence Scored'
+                            }
                         </button>
+
+                        {/* Error display */}
+                        {searchError && (
+                            <div style={{
+                                padding: '12px 16px',
+                                background: 'rgba(232,69,60,0.08)',
+                                border: '1px solid rgba(232,69,60,0.25)',
+                                borderRadius: '10px',
+                                color: '#E8453C',
+                                fontFamily: "'Sora', sans-serif",
+                                fontSize: '13px',
+                                marginBottom: '16px',
+                                textAlign: 'center',
+                            }}>
+                                {searchError}
+                            </div>
+                        )}
 
                         {/* Trust badges */}
                         <div className={styles.trustRow}>
@@ -614,10 +793,18 @@ export default function FlightsPage() {
                                     type="text"
                                     placeholder="Search city or airport..."
                                     value={query}
-                                    onChange={e => setQuery(e.target.value)}
+                                    onChange={e => {
+                                        setQuery(e.target.value);
+                                        searchAirportsLive(e.target.value);
+                                    }}
                                 />
                             </div>
                             <div className={styles.modalList}>
+                                {airportLoading && (
+                                    <div style={{ padding: '16px', color: '#9A8F82', fontSize: '13px', textAlign: 'center' }}>
+                                        Searching airports…
+                                    </div>
+                                )}
                                 {filteredAirports.map(airport => (
                                     <div
                                         key={airport.code}
@@ -626,6 +813,7 @@ export default function FlightsPage() {
                                             if (modal === "from") setFrom(airport);
                                             else setTo(airport);
                                             setModal(null);
+                                            setAirportResults([]);
                                         }}
                                     >
                                         <div>
