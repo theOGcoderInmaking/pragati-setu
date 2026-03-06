@@ -1,27 +1,34 @@
 "use client";
 
 import React, { useState } from "react";
-
 import PageWrapper from "@/components/PageWrapper";
 import styles from "./hotels.module.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
-// ─── Data ─────────────────────────────────────────────────────────────────
+// ─── Types ─────────────────────────────────────────────────────────────────
+interface HotelResult {
+    id: string;
+    name: string;
+    location: string;
+    stars: number;
+    safety: number;
+    price: string;
+    rawPrice: number;
+    confidence: number;
+    recommended: boolean;
+    tags: string[];
+    expertVerdict: string | null;
+    dimensions: Array<{ l: string; v: number | string }> | null;
+}
+
+// ─── Static data ───────────────────────────────────────────────────────────
 const NEIGHBOURHOODS = [
     { name: "Shinjuku", safety: 91, noise: "High", walk: 9.2, match: "★★★★★", desc: "Entertainment hub with 24hr dining and excellent transport links. High noise after 22:00 on weekends." },
     { name: "Shibuya", safety: 88, noise: "High", walk: 8.8, match: "★★★☆☆", desc: "Fashion and youth culture epicenter. Great for solo explorers. Can get overwhelming during peak hours." },
     { name: "Asakusa", safety: 95, noise: "Low", walk: 7.5, match: "★★★★☆", desc: "Traditional Tokyo at its finest. Quietest neighbourhood. Senso-ji temple steps from most hotels." },
     { name: "Ginza", safety: 96, noise: "Low", walk: 8.1, match: "★★★★☆", desc: "Premium shopping district. Extremely safe, well-lit, concierge-heavy hotels. Higher prices." },
     { name: "Harajuku", safety: 89, noise: "Med", walk: 8.6, match: "★★★★☆", desc: "Unique sub-culture, boutique hotels, Meiji Shrine nearby. Balanced noise levels throughout day." },
-];
-
-
-
-const OTHER_HOTELS = [
-    { name: "Andaz Tokyo Toranomon Hills", stars: 5, location: "TORANOMON", safety: 9.3, onTime: "94%", price: "₹18,200", tags: ["Sky Bar", "Modern", "Top-floor Pool"] },
-    { name: "Gracery Shinjuku", stars: 3, location: "SHINJUKU", safety: 8.7, onTime: "91%", price: "₹5,400", tags: ["Budget Friendly", "Godzilla Statue", "Central"] },
-    { name: "Aman Tokyo", stars: 5, location: "OTEMACHI", safety: 9.8, onTime: "98%", price: "₹42,000", tags: ["Ultra Luxury", "Spa", "Views"] },
 ];
 
 const FILTERS = ["Women-safe certified", "24hr concierge", "Breakfast included", "Air conditioning", "Arrives before dark"];
@@ -51,6 +58,59 @@ export default function HotelsPage() {
     const [guests, setGuests] = useState("2 Guests, 1 Room");
     const [budget, setBudget] = useState(25000);
     const [view, setView] = useState<"search" | "results">("search");
+
+    // Live search state
+    const [hotelResults, setHotelResults] = useState<HotelResult[]>([]);
+    const [searching, setSearching] = useState(false);
+    const [searchError, setSearchError] = useState('');
+
+    // ── Search handler ───────────────────────────────────────────────────
+    const handleSearch = async () => {
+        if (!destination) {
+            setSearchError('Please enter a destination.');
+            return;
+        }
+        if (!checkin || !checkout) {
+            setSearchError('Please select check-in and check-out dates.');
+            return;
+        }
+
+        setSearching(true);
+        setSearchError('');
+        setHotelResults([]);
+
+        try {
+            const adultsCount = guests.includes('1 Guest') ? 1
+                : guests.includes('Family') ? 4 : 2;
+
+            const params = new URLSearchParams({
+                destination,
+                checkin,
+                checkout,
+                adults: String(adultsCount),
+            });
+
+            const res = await fetch(`/api/hotels/search?${params}`);
+            const { data, error } = await res.json();
+
+            if (error) throw new Error(error);
+
+            if (!data?.length) {
+                setSearchError(
+                    'No hotels found. Try a major city like Tokyo, Paris, or Dubai.'
+                );
+            } else {
+                setHotelResults(data);
+                setView('results');
+            }
+        } catch (err) {
+            setSearchError(
+                err instanceof Error ? err.message : 'Search failed. Please try again.'
+            );
+        } finally {
+            setSearching(false);
+        }
+    };
 
     return (
         <PageWrapper>
@@ -136,8 +196,32 @@ export default function HotelsPage() {
                                     <span className={styles.sliderMax}>₹{(budget / 1000).toFixed(0)}k</span>
                                 </div>
                             </div>
-                            <button className={styles.searchButton} onClick={() => setView("results")}>
-                                🔍 Find My Sanctuary — Confidence Scored
+
+                            {searchError && (
+                                <div style={{
+                                    padding: '12px 16px',
+                                    background: 'rgba(232,69,60,0.08)',
+                                    border: '1px solid rgba(232,69,60,0.25)',
+                                    borderRadius: '10px',
+                                    color: '#E8453C',
+                                    fontFamily: "'Sora', sans-serif",
+                                    fontSize: '13px',
+                                    marginBottom: '12px',
+                                    textAlign: 'center',
+                                }}>
+                                    {searchError}
+                                </div>
+                            )}
+
+                            <button
+                                className={styles.searchButton}
+                                onClick={handleSearch}
+                                disabled={searching}
+                            >
+                                {searching
+                                    ? '⏳ Searching hotels…'
+                                    : '🔍 Find My Sanctuary — Confidence Scored'
+                                }
                             </button>
                         </div>
                     </div>
@@ -201,70 +285,74 @@ export default function HotelsPage() {
 
                         {/* Results */}
                         <main className={styles.resultsMain}>
-                            {/* Recommended Card (8-Dimensional Scores) */}
-                            <div className={styles.recommendedCardNew}>
-                                <div className={styles.trustBanner}>
-                                    <div className={styles.trustScore}>9.8</div>
-                                    <div>
-                                        <div className={styles.trustLabel}>PS Intelligence Score</div>
-                                        <div style={{ fontFamily: 'Sora', fontSize: '11px', color: '#2EC97A' }}>Top 1% of Tokyo hotels for solo safety</div>
-                                    </div>
-                                </div>
-
-                                <div className={styles.hotelName}>Park Hyatt Tokyo</div>
-                                <div className={styles.hotelLocation}>Shinjuku, Tokyo · 5-Star Luxury</div>
-
-                                <div className={styles.dimensionGridNew}>
-                                    {[
-                                        { l: 'Cleanliness', v: 9.6 },
-                                        { l: 'Staff Trust', v: 9.8 },
-                                        { l: 'Street Safety', v: 9.4 },
-                                        { l: 'Room Privacy', v: 9.7 },
-                                        { l: 'Noise Level', v: 8.8 },
-                                        { l: 'Concierge', v: 9.5 },
-                                        { l: 'Solo-Female Rating', v: 9.9 },
-                                        { l: 'Scam Risk', v: 'Low' }
-                                    ].map(d => (
-                                        <div key={d.l} className={styles.dimRow}>
-                                            <div className={styles.dimHeader}>
-                                                <span className={styles.dimLabel}>{d.l}</span>
-                                                <span className={styles.dimValue}>{d.v}</span>
-                                            </div>
-                                            <div className={styles.dimBarBg}>
-                                                <div className={styles.dimBarFill} style={{ width: typeof d.v === 'number' ? `${d.v * 10}%` : '100%' }} />
+                            {/* Recommended Card */}
+                            {hotelResults.length > 0 && (() => {
+                                const rec = hotelResults[0];
+                                return (
+                                    <div className={styles.recommendedCardNew}>
+                                        <div className={styles.trustBanner}>
+                                            <div className={styles.trustScore}>{rec.confidence}</div>
+                                            <div>
+                                                <div className={styles.trustLabel}>PS Intelligence Score</div>
+                                                <div style={{ fontFamily: 'Sora', fontSize: '11px', color: '#2EC97A' }}>
+                                                    Top pick for {destination}
+                                                </div>
                                             </div>
                                         </div>
-                                    ))}
-                                </div>
 
-                                <div className={styles.whyBox}>
-                                    <span className={styles.whyLabel}>Expert Verdict</span>
-                                    <p className={styles.whyText}>
-                                        {"The golden standard for international travelers in Tokyo. The Shinjuku Park Tower has its own dedicated security detail. Female guests report 100% comfort levels with the 'knock-before-entering' staff protocols."}
-                                    </p>
-                                </div>
+                                        <div className={styles.hotelName}>{rec.name}</div>
+                                        <div className={styles.hotelLocation}>
+                                            {rec.location} · {'★'.repeat(rec.stars)}
+                                        </div>
 
-                                <div className={styles.priceRow}>
-                                    <div>
-                                        <div className={styles.price}>₹42,000</div>
-                                        <span className={styles.priceUnit}>per night</span>
+                                        {rec.dimensions && (
+                                            <div className={styles.dimensionGridNew}>
+                                                {rec.dimensions.map(d => (
+                                                    <div key={d.l} className={styles.dimRow}>
+                                                        <div className={styles.dimHeader}>
+                                                            <span className={styles.dimLabel}>{d.l}</span>
+                                                            <span className={styles.dimValue}>{d.v}</span>
+                                                        </div>
+                                                        <div className={styles.dimBarBg}>
+                                                            <div
+                                                                className={styles.dimBarFill}
+                                                                style={{ width: typeof d.v === 'number' ? `${d.v * 10}%` : '100%' }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {rec.expertVerdict && (
+                                            <div className={styles.whyBox}>
+                                                <span className={styles.whyLabel}>Expert Verdict</span>
+                                                <p className={styles.whyText}>{rec.expertVerdict}</p>
+                                            </div>
+                                        )}
+
+                                        <div className={styles.priceRow}>
+                                            <div>
+                                                <div className={styles.price}>{rec.price}</div>
+                                                <span className={styles.priceUnit}>per night</span>
+                                            </div>
+                                            <div className={styles.ctaRow}>
+                                                <button className={styles.btnGhost}>Add to Passport</button>
+                                                <button className={styles.btnPrimary}>Book This Sanctuary →</button>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className={styles.ctaRow}>
-                                        <button className={styles.btnGhost}>Add to Passport</button>
-                                        <button className={styles.btnPrimary}>Book This Sanctuary →</button>
-                                    </div>
-                                </div>
-                            </div>
+                                );
+                            })()}
 
                             {/* Standard cards */}
-                            {OTHER_HOTELS.map(h => (
-                                <div key={h.name} className={styles.hotelCard}>
+                            {hotelResults.slice(1).map(h => (
+                                <div key={h.id} className={styles.hotelCard}>
                                     <div className={styles.hotelName}>{h.name}</div>
                                     <div className={styles.hotelLocation}>{h.location}</div>
                                     <div className={styles.hotelMeta}>
-                                        <span className={styles.stars}>{"★".repeat(h.stars)}</span>
+                                        <span className={styles.stars}>{'★'.repeat(h.stars)}</span>
                                         <span className={styles.reviewScore}>Safety {h.safety}/10</span>
-                                        <span className={styles.reviewScore}>On-time {h.onTime}</span>
                                     </div>
                                     <div className={styles.tags}>
                                         {h.tags.map(t => <span key={t} className={styles.tag}>{t}</span>)}

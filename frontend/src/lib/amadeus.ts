@@ -1,10 +1,10 @@
 import Amadeus from 'amadeus';
 
 // Singleton Amadeus client
-// Note: package uses clientId/clientSecret naming
 const amadeus = new Amadeus({
     clientId: process.env.AMADEUS_API_KEY!,
     clientSecret: process.env.AMADEUS_API_SECRET!,
+    hostname: (process.env.AMADEUS_ENV ?? 'test') as 'test' | 'production',
 });
 
 export default amadeus;
@@ -134,4 +134,86 @@ const AIRLINES: Record<string, string> = {
 
 export function getAirlineName(code: string): string {
     return AIRLINES[code] ?? code;
+}
+
+// ── Hotel search by city ────────────────────────
+export async function searchHotelsByCity(
+    cityCode: string
+) {
+    try {
+        const response = await amadeus
+            .referenceData.locations.hotels.byCity
+            .get({ cityCode });
+        return response.data ?? [];
+    } catch (error) {
+        console.error('Hotel city search error:', error);
+        return [];
+    }
+}
+
+// ── Hotel offers/pricing ────────────────────────
+export async function searchHotelOffers({
+    hotelIds,
+    checkInDate,
+    checkOutDate,
+    adults,
+}: {
+    hotelIds: string[];
+    checkInDate: string;
+    checkOutDate: string;
+    adults: number;
+}) {
+    try {
+        const response = await amadeus
+            .shopping.hotelOffersSearch.get({
+                hotelIds: hotelIds.slice(0, 10).join(','),
+                checkInDate,
+                checkOutDate,
+                adults,
+                currency: 'INR',
+                bestRateOnly: true,
+            });
+        return response.data ?? [];
+    } catch (error) {
+        console.error('Hotel offers error:', error);
+        return [];
+    }
+}
+
+// ── City name → IATA code ───────────────────────
+const CITY_CODES: Record<string, string> = {
+    tokyo: 'TYO', delhi: 'DEL', mumbai: 'BOM',
+    bangalore: 'BLR', bengaluru: 'BLR',
+    chennai: 'MAA', kolkata: 'CCU',
+    hyderabad: 'HYD', paris: 'PAR', london: 'LON',
+    dubai: 'DXB', singapore: 'SIN', bangkok: 'BKK',
+    newyork: 'NYC', 'new york': 'NYC', sydney: 'SYD',
+    rome: 'ROM', barcelona: 'BCN', amsterdam: 'AMS',
+    istanbul: 'IST', kualalumpur: 'KUL',
+    'kuala lumpur': 'KUL', bali: 'DPS',
+    hongkong: 'HKG', 'hong kong': 'HKG',
+    seoul: 'SEL', osaka: 'OSA', milan: 'MIL',
+    zurich: 'ZRH', vienna: 'VIE', prague: 'PRG',
+};
+
+export function getCityCode(destination: string): string | null {
+    const key = destination.toLowerCase().trim();
+    if (CITY_CODES[key]) return CITY_CODES[key];
+    for (const [city, code] of Object.entries(CITY_CODES)) {
+        if (key.includes(city) || city.includes(key)) return code;
+    }
+    return null;
+}
+
+// ── Format hotel price ──────────────────────────
+export function formatHotelPrice(
+    amount: string | number,
+    currency: string = 'INR'
+): string {
+    const num = typeof amount === 'string'
+        ? parseFloat(amount) : amount;
+    if (currency === 'INR') {
+        return `₹${Math.round(num).toLocaleString('en-IN')}`;
+    }
+    return `${currency} ${Math.round(num).toLocaleString()}`;
 }

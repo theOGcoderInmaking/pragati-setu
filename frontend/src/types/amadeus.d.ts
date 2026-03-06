@@ -20,11 +20,19 @@ declare module 'amadeus' {
         referenceData: {
             locations: {
                 get(params: Record<string, unknown>): Promise<Response>;
+                hotels: {
+                    byCity: {
+                        get(params: Record<string, unknown>): Promise<Response>;
+                    };
+                };
             };
         };
 
         shopping: {
             flightOffersSearch: {
+                get(params: Record<string, unknown>): Promise<Response>;
+            };
+            hotelOffersSearch: {
                 get(params: Record<string, unknown>): Promise<Response>;
             };
         };
