@@ -484,8 +484,9 @@ export default function LoginPage() {
                                                 <div className="flex justify-end mt-2">
                                                     <button
                                                         type="button"
+                                                        onClick={() => router.push('/forgot-password')}
                                                         className="login-forgot font-sans transition-colors"
-                                                        style={{ fontSize: 12, color: "var(--text-secondary)" }}
+                                                        style={{ fontSize: 12, color: "var(--text-secondary)", background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                                                     >
                                                         Forgot password?
                                                     </button>

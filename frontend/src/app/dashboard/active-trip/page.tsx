@@ -1,114 +1,164 @@
-"use client";
 
 import React from "react";
-import PageWrapper from "@/components/PageWrapper";
-import DashboardSidebar from "@/components/DashboardSidebar";
 import styles from "./active.module.css";
-import dashStyles from "../dashboard.module.css";
+import { query } from "@/lib/db";
+import { auth } from "@/lib/auth";
 
-const SCHEDULE = [
-    { time: "09:00", text: "Checking out — Lub d Bangkok", active: true },
-    { time: "11:30", text: "Chatuchak Weekend Market", active: false },
-    { time: "13:00", text: "Lunch — Krua Apsorn (Guide rec)", active: false },
-    { time: "18:00", text: "Transfer to Suvarnabhumi Airport", active: false },
-    { time: "21:55", text: "JAL 708 → Narita (BKK→NRT)", active: false },
-];
+interface ActivePassportData {
+    id: string;
+    destination_name: string;
+    destination_country: string;
+    travel_dates_start: string | null;
+    travel_dates_end: string | null;
+}
 
-export default function ActiveTripPage() {
+interface ScheduleItem {
+    item_type: string;
+    provider_name: string;
+    status: string;
+    booked_at: string | null;
+}
+
+const getFlag = (country: string) => {
+    const flags: Record<string, string> = {
+        "Japan": "🇯🇵", "Thailand": "🇹🇭", "Italy": "🇮🇹", "Portugal": "🇵🇹",
+        "Vietnam": "🇻🇳", "Morocco": "🇲🇦", "India": "🇮🇳", "France": "🇫🇷"
+    };
+    return flags[country] || "🌐";
+};
+
+
+
+export default async function ActiveTripPage() {
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    const activePassportArr = userId ? await query<ActivePassportData>(
+        `SELECT id, destination_name, destination_country, travel_dates_start, travel_dates_end
+         FROM decision_passports
+         WHERE user_id = $1 AND is_active = true
+         ORDER BY created_at DESC LIMIT 1`,
+        [userId]
+    ) : [];
+
+    const activePassport = activePassportArr[0];
+
+    const schedule = activePassport ? await query<ScheduleItem>(
+        `SELECT item_type, provider_name, status, booked_at
+         FROM passport_items
+         WHERE passport_id = $1
+         AND (EXTRACT(EPOCH FROM booked_at) >= EXTRACT(EPOCH FROM CURRENT_DATE)
+              AND EXTRACT(EPOCH FROM booked_at) < EXTRACT(EPOCH FROM CURRENT_DATE + INTERVAL '1 day'))
+         ORDER BY booked_at ASC`,
+        [activePassport.id]
+    ) : [];
+
+    const displaySchedule = schedule.length > 0 ? schedule.map(i => ({
+        time: i.booked_at ? new Date(i.booked_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false }) : "--:--",
+        text: `${i.item_type === 'hotel' ? 'Checking out — ' : ''}${i.provider_name}`,
+        active: i.status === 'confirmed'
+    })) : [
+        { time: "09:00", text: "Checking out — Lub d Bangkok", active: true },
+        { time: "11:30", text: "Chatuchak Weekend Market", active: false },
+        { time: "18:00", text: "Transfer to Suvarnabhumi", active: false },
+    ];
+
     return (
-        <PageWrapper>
-            <div className={dashStyles.dashboardLayout}>
-                <div className={dashStyles.sidebarArea}>
-                    <DashboardSidebar />
-                </div>
-                <main className={dashStyles.mainArea}>
-                    <div className={styles.activePage}>
-                        <h1 className={styles.pageTitle}>Active Trip</h1>
-                        <p className={styles.pageSub}>🇹🇭 Thailand — Aug 3–17, 2025</p>
+        <div className={styles.activePage}>
+            <h1 className={styles.pageTitle}>Active Trip</h1>
+            {activePassport ? (
+                <>
+                    <p className={styles.pageSub}>
+                        {getFlag(activePassport.destination_country)} {activePassport.destination_name} — {new Date(activePassport.travel_dates_start!).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })} to {new Date(activePassport.travel_dates_end!).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </p>
 
-                        <div className={styles.liveBar}>
-                            <div className={styles.liveDot} />
-                            <span className={styles.liveText}>Live — Currently Traveling</span>
+                    <div className={styles.liveBar}>
+                        <div className={styles.liveDot} />
+                        <span className={styles.liveText}>Live — Currently Traveling</span>
+                    </div>
+
+                    <div className={styles.tripGrid}>
+                        {/* Today's schedule */}
+                        <div className={`${styles.tripCard} ${styles.tripCardTeal}`}>
+                            <span className={styles.cardLabel}>Today&apos;s Schedule — {new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}</span>
+                            {displaySchedule.map(s => (
+                                <div key={s.time} className={styles.scheduleItem}>
+                                    <span className={styles.scheduleTime}>{s.time}</span>
+                                    <div className={styles.scheduleDot} style={{ background: s.active ? "#D4590A" : "rgba(255,255,255,0.12)" }} />
+                                    <span className={`${styles.scheduleText} ${s.active ? styles.scheduleTextActive : ""}`}>
+                                        {s.text}
+                                    </span>
+                                </div>
+                            ))}
                         </div>
 
-                        <div className={styles.tripGrid}>
-
-                            {/* Today's schedule */}
-                            <div className={`${styles.tripCard} ${styles.tripCardTeal}`}>
-                                <span className={styles.cardLabel}>Today&apos;s Schedule — Aug 3</span>
-                                {SCHEDULE.map(s => (
-                                    <div key={s.time} className={styles.scheduleItem}>
-                                        <span className={styles.scheduleTime}>{s.time}</span>
-                                        <div className={styles.scheduleDot} style={{ background: s.active ? "#D4590A" : "rgba(255,255,255,0.12)" }} />
-                                        <span className={`${styles.scheduleText} ${s.active ? styles.scheduleTextActive : ""}`}>
-                                            {s.text}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Weather + Safety */}
-                            <div className={styles.tripCard}>
-                                <span className={styles.cardLabel}>Live Conditions</span>
-                                <div className={styles.weatherBlock}>
-                                    <span className={styles.weatherCity}>Bangkok, Thailand</span>
-                                    <div className={styles.weatherMain}>
-                                        <div className={styles.weatherTemp}>31°C</div>
-                                        <div className={styles.weatherDesc}>🌤 Partly cloudy · Humid · Wind 12 km/h</div>
-                                    </div>
-                                </div>
-                                <div className={styles.safetyStatus}>
-                                    <span>✅</span>
-                                    <span className={styles.safetyText}>All destinations clear — no active alerts</span>
-                                </div>
-                                <button className={styles.btnLive}>Switch to Map View →</button>
-                            </div>
-
-                            {/* Next destination intel card */}
-                            <div className={styles.tripCard}>
-                                <span className={styles.cardLabel}>Next Destination — Havelock Island</span>
-                                <div className={styles.todayTitle}>🏝 Aug 12, 2025</div>
-                                {[
-                                    { icon: "⛴️", text: "Ferry: Port Blair 06:00 — Havelock 07:45" },
-                                    { icon: "🏨", text: "Check-in: Symphony Palms Beach Resort" },
-                                    { icon: "🤿", text: "Guide rec: Snorkelling at Elephant Beach (AM only)" },
-                                ].map(item => (
-                                    <div key={item.text} className={styles.scheduleItem}>
-                                        <span style={{ fontSize: 18 }}>{item.icon}</span>
-                                        <span className={styles.scheduleText}>{item.text}</span>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Emergency */}
-                            <div className={styles.tripCard}>
-                                <span className={styles.cardLabel}>Emergency Resources</span>
-                                {[
-                                    { icon: "🚑", label: "Local Emergency", number: "191 (Thailand)" },
-                                    { icon: "🏥", label: "Nearest Hospital", number: "Bangkok Hospital · 1.8 km" },
-                                    { icon: "🇮🇳", label: "Indian Embassy", number: "+66 2258 0300" },
-                                    { icon: "🤝", label: "Guide Priya S.", number: "+91 94XXX XXXXX" },
-                                ].map(r => (
-                                    <div key={r.label} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                                        <span style={{ fontFamily: "'Sora', sans-serif", fontSize: 13, color: "#9A8F82" }}>
-                                            {r.icon} {r.label}
-                                        </span>
-                                        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#F2EDE4" }}>
-                                            {r.number}
-                                        </span>
-                                    </div>
-                                ))}
-                                <div className={styles.emergencySection}>
-                                    <button className={styles.emergencyBtn}>
-                                        🆘 Send Emergency Alert to Guide
-                                    </button>
+                        {/* Weather + Safety */}
+                        <div className={styles.tripCard}>
+                            <span className={styles.cardLabel}>Live Conditions</span>
+                            <div className={styles.weatherBlock}>
+                                <span className={styles.weatherCity}>{activePassport.destination_name}</span>
+                                <div className={styles.weatherMain}>
+                                    <div className={styles.weatherTemp}>31°C</div>
+                                    <div className={styles.weatherDesc}>🌤 Partly cloudy · Humid · Wind 12 km/h</div>
                                 </div>
                             </div>
+                            <div className={styles.safetyStatus}>
+                                <span>✅</span>
+                                <span className={styles.safetyText}>All destinations clear — no active alerts</span>
+                            </div>
+                        </div>
 
+                        {/* Next destination intel card */}
+                        <div className={styles.tripCard}>
+                            <span className={styles.cardLabel}>Next Steps</span>
+                            <div className={styles.todayTitle}>💡 Travel Intel</div>
+                            {[
+                                { icon: "⛴️", text: "Ferry details (from your bookings)" },
+                                { icon: "🏨", text: "Check-in times confirmed" },
+                                { icon: "🤿", text: "Guide recs available in Chat" },
+                            ].map(item => (
+                                <div key={item.text} className={styles.scheduleItem}>
+                                    <span style={{ fontSize: 18 }}>{item.icon}</span>
+                                    <span className={styles.scheduleText}>{item.text}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Emergency */}
+                        <div className={styles.tripCard}>
+                            <span className={styles.cardLabel}>Emergency Resources</span>
+                            {[
+                                { icon: "🚑", label: "Local Emergency", number: "112 (Universal)" },
+                                { icon: "🏥", label: "Nearest Hospital", number: "Search Near Me" },
+                                { icon: "🇮🇳", label: "Indian Embassy", number: "+ (Local Country)" },
+                            ].map(r => (
+                                <div key={r.label} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                                    <span style={{ fontFamily: "'Sora', sans-serif", fontSize: 13, color: "#9A8F82" }}>
+                                        {r.icon} {r.label}
+                                    </span>
+                                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#F2EDE4" }}>
+                                        {r.number}
+                                    </span>
+                                </div>
+                            ))}
+                            <div className={styles.emergencySection}>
+                                <button className={styles.emergencyBtn}>
+                                    🆘 Send Emergency Alert to Guide
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </main>
-            </div>
-        </PageWrapper>
+                </>
+            ) : (
+                <div style={{ padding: '60px 0', textAlign: 'center' }}>
+                    <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: '#F2EDE4' }}>
+                        No active trip detected.
+                    </p>
+                    <p style={{ fontFamily: "'Sora', sans-serif", fontSize: 16, color: '#9A8F82', marginTop: 12 }}>
+                        Set a passport to &quot;active&quot; to see live travel data here.
+                    </p>
+                </div>
+            )}
+        </div>
     );
 }

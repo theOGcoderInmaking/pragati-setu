@@ -1,4 +1,4 @@
-import { supabaseAdmin } from './supabase';
+import { sql } from './db';
 
 interface ScoreResult {
     score: number;
@@ -39,46 +39,23 @@ export async function calculateConfidenceScores(
     packageType: string = 'balanced'
 ): Promise<ConfidenceResult> {
 
-    // Fetch all data in parallel from Supabase
+    // Fetch all data in parallel from Postgres
     const [
-        citySafety,
-        regional,
-        seasonal,
-        riskHistory,
+        citySafetyRows,
+        regionalRows,
+        seasonalRows,
+        riskHistoryRows,
     ] = await Promise.all([
-        supabaseAdmin
-            .from('city_safety_indices')
-            .select('*')
-            .eq('city_id', cityId)
-            .single(),
-
-        supabaseAdmin
-            .from('regional_safety_indices')
-            .select('*')
-            .limit(1)
-            .single(),
-
-        supabaseAdmin
-            .from('seasonal_risk_factors')
-            .select('*')
-            .eq('target_id', cityId)
-            .eq('target_type', 'CITY')
-            .eq('month', travelMonth)
-            .single(),
-
-        supabaseAdmin
-            .from('risk_history')
-            .select('risk_score, recorded_at')
-            .eq('target_id', cityId)
-            .eq('target_type', 'CITY')
-            .order('recorded_at', { ascending: false })
-            .limit(30),
+        sql`SELECT * FROM city_safety_indices WHERE city_id = ${cityId} LIMIT 1`,
+        sql`SELECT * FROM regional_safety_indices LIMIT 1`,
+        sql`SELECT * FROM seasonal_risk_factors WHERE target_id = ${cityId} AND target_type = 'CITY' AND month = ${travelMonth} LIMIT 1`,
+        sql`SELECT risk_score, recorded_at FROM risk_history WHERE target_id = ${cityId} AND target_type = 'CITY' ORDER BY recorded_at DESC LIMIT 30`
     ]);
 
-    const safety = citySafety.data;
-    const reg = regional.data;
-    const season = seasonal.data;
-    const history = riskHistory.data ?? [];
+    const safety = citySafetyRows[0];
+    const reg = regionalRows[0];
+    const season = seasonalRows[0];
+    const history = riskHistoryRows ?? [];
 
     // WEATHER SCORE
     const weatherBoost = season?.weather_risk_boost ?? 1.0;
@@ -129,9 +106,9 @@ export async function calculateConfidenceScores(
     const scamRaw = toScore(10 - scamDensity);
 
     // Apply trend: if scam rising recently, reduce score
-    const recentScores = history.slice(0, 7).map(h => h.risk_score);
+    const recentScores = history.slice(0, 7).map((h: { risk_score: number }) => h.risk_score);
     const avgRecent = recentScores.length
-        ? recentScores.reduce((a, b) => a + b, 0) / recentScores.length
+        ? recentScores.reduce((a: number, b: number) => a + b, 0) / recentScores.length
         : 5;
     const trendPenalty = avgRecent > 6 ? 10 : avgRecent > 4 ? 5 : 0;
 

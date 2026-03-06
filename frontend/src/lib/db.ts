@@ -4,7 +4,9 @@ if (!process.env.DATABASE_URL) {
     throw new Error('DATABASE_URL is not set');
 }
 
-export const sql = neon(process.env.DATABASE_URL);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const sql = neon(process.env.DATABASE_URL!) as any;
 
 // Type-safe query helper
 export async function query<T>(
@@ -12,11 +14,13 @@ export async function query<T>(
     params?: unknown[]
 ): Promise<T[]> {
     try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const result = await (sql as any)(queryText, params);
+        console.log(`[DB Query] Executing: ${queryText.substring(0, 50)}...`);
+        const result = await sql.query(queryText, params);
         return result as T[];
     } catch (error) {
         console.error('Database query error:', error);
+        console.error('DATABASE_URL length:', process.env.DATABASE_URL?.length);
+        console.error('DATABASE_URL starts with:', process.env.DATABASE_URL?.[0]);
         throw error;
     }
 }

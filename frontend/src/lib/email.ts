@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { render } from '@react-email/render';
 import WelcomeEmail from '@/emails/WelcomeEmail';
 import ResetPasswordEmail from '@/emails/ResetPasswordEmail';
 import PassportReadyEmail from '@/emails/PassportReadyEmail';
@@ -18,11 +19,14 @@ export async function sendWelcomeEmail(
   name: string
 ) {
   try {
+    const html = await render(
+      WelcomeEmail({ name })
+    );
     await resend.emails.send({
       from: FROM,
       to,
       subject: '✦ Welcome to Pragati Setu',
-      react: WelcomeEmail({ name }),
+      html,
     });
   } catch (error) {
     console.error('Welcome email failed:', error);
@@ -37,11 +41,14 @@ export async function sendPasswordResetEmail(
   const resetUrl =
     `${BASE_URL}/reset-password/${token}`;
   try {
+    const html = await render(
+      ResetPasswordEmail({ resetUrl })
+    );
     await resend.emails.send({
       from: FROM,
       to,
       subject: 'Reset your Pragati Setu password',
-      react: ResetPasswordEmail({ resetUrl }),
+      html,
     });
   } catch (error) {
     console.error('Reset email failed:', error);
@@ -59,14 +66,16 @@ export async function sendPassportReadyEmail(
   const passportUrl =
     `${BASE_URL}/dashboard/passports/${passportId}`;
   try {
+    const html = await render(
+      PassportReadyEmail({
+        name, destination, score, passportUrl
+      })
+    );
     await resend.emails.send({
       from: FROM,
       to,
-      subject:
-        `✦ Your ${destination} Passport is ready`,
-      react: PassportReadyEmail({
-        name, destination, score, passportUrl
-      }),
+      subject: `✦ Your ${destination} Passport is ready`,
+      html,
     });
   } catch (error) {
     console.error('Passport email failed:', error);
@@ -82,13 +91,16 @@ export async function sendSafetyAlertEmail(
   severity: string
 ) {
   try {
+    const html = await render(
+      SafetyAlertEmail({
+        name, city, alertTitle, severity
+      })
+    );
     await resend.emails.send({
       from: FROM,
       to,
       subject: `⚠️ Safety alert for ${city}`,
-      react: SafetyAlertEmail({
-        name, city, alertTitle, severity
-      }),
+      html,
     });
   } catch (error) {
     console.error('Safety alert email failed:', error);

@@ -162,9 +162,15 @@
 }
 
 .navBadgeAmber {
-    background: rgba(245, 166, 35, 0.20);
+    background: rgba(245, 166, 35, 0.12);
+    border: 1px solid rgba(245, 166, 35, 0.35);
     color: #F5A623;
-    border: 1px solid rgba(245, 166, 35, 0.30);
+}
+
+.navBadgeRed {
+    background: rgba(232, 69, 60, 0.12);
+    border: 1px solid rgba(232, 69, 60, 0.35);
+    color: #E8453C;
 }
 
 .navBadgeLive {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase';
+import { sql } from '@/lib/db';
 
 export async function GET(
     req: NextRequest,
@@ -7,51 +7,32 @@ export async function GET(
 ) {
     const cityId = parseInt(params.id);
 
-    // Get all safety data in parallel
-    const [
-        safetyResult,
-        regionalResult,
-        incidentResult,
-        seasonalResult,
-        timezoneResult,
-    ] = await Promise.all([
-        supabaseAdmin
-            .from('city_safety_indices')
-            .select('*')
-            .eq('city_id', cityId)
-            .single(),
+    try {
+        // Get all safety data in parallel
+        const [
+            safetyResult,
+            regionalResult,
+            incidentResult,
+            seasonalResult,
+            timezoneResult,
+        ] = await Promise.all([
+            sql`SELECT * FROM city_safety_indices WHERE city_id = ${cityId} LIMIT 1`,
+            sql`SELECT * FROM regional_safety_indices LIMIT 1`,
+            sql`SELECT type, severity, description, radius_km FROM incident_alerts WHERE is_active = true LIMIT 5`,
+            sql`SELECT month, weather_risk_boost, event_risk_boost FROM seasonal_risk_factors WHERE target_id = ${cityId} AND target_type = 'CITY'`,
+            sql`SELECT timezone_name, avg_sunset_hour, winter_sunset_hour, summer_sunset_hour FROM city_timezones WHERE city_id = ${cityId} LIMIT 1`,
+        ]);
 
-        supabaseAdmin
-            .from('regional_safety_indices')
-            .select('*')
-            .limit(1),
-
-        supabaseAdmin
-            .from('incident_alerts')
-            .select('type, severity, description, radius_km')
-            .eq('is_active', true)
-            .limit(5),
-
-        supabaseAdmin
-            .from('seasonal_risk_factors')
-            .select('month, weather_risk_boost, event_risk_boost')
-            .eq('target_id', cityId)
-            .eq('target_type', 'CITY'),
-
-        supabaseAdmin
-            .from('city_timezones')
-            .select('timezone_name, avg_sunset_hour, winter_sunset_hour, summer_sunset_hour')
-            .eq('city_id', cityId)
-            .single(),
-    ]);
-
-    return NextResponse.json({
-        data: {
-            safety: safetyResult.data,
-            regional: regionalResult.data,
-            incidents: incidentResult.data,
-            seasonal: seasonalResult.data,
-            timezone: timezoneResult.data,
-        }
-    });
+        return NextResponse.json({
+            data: {
+                safety: safetyResult[0] || null,
+                regional: regionalResult[0] || null,
+                incidents: incidentResult || [],
+                seasonal: seasonalResult || [],
+                timezone: timezoneResult[0] || null,
+            }
+        });
+    } catch (error: unknown) {
+        return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
+    }
 }

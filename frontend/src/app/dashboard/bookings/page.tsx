@@ -1,147 +1,118 @@
-"use client";
 
-import React, { useState } from "react";
-import PageWrapper from "@/components/PageWrapper";
-import DashboardSidebar from "@/components/DashboardSidebar";
+import React from "react";
 import styles from "./bookings.module.css";
-import dashStyles from "../dashboard.module.css";
+import { query } from "@/lib/db";
+import { auth } from "@/lib/auth";
 
-type Status = "confirmed" | "pending" | "cancelled";
-type Filter = "all" | Status;
+interface BookingItem {
+    id: string;
+    item_type: string;
+    provider_name: string;
+    booked_at: string | null;
+    status: string;
+    price?: number;
+}
 
-const BOOKINGS = [
-    {
-        icon: "✈️", type: "Flight", name: "BKK → NRT · JAL 708",
-        meta: ["Jul 31, 2025", "Business Class", "6h 40m"],
-        price: "₹42,800", status: "confirmed" as Status,
-    },
-    {
-        icon: "🏨", type: "Hotel", name: "Lub d Bangkok Silom",
-        meta: ["Aug 3–8, 2025", "Deluxe Room", "5 nights"],
-        price: "₹18,500", status: "confirmed" as Status,
-    },
-    {
-        icon: "🤝", type: "Guide", name: "Priya S. — Jaipur Full Day",
-        meta: ["Aug 10, 2025", "8h private tour", "Hindi + English"],
-        price: "₹4,200", status: "pending" as Status,
-    },
-    {
-        icon: "🚗", type: "Transfer", name: "Suvarnabhumi → Lub d (Private)",
-        meta: ["Aug 3, 2025 · 22:00", "Minivan · 3 bags", "Fixed"],
-        price: "₹2,800", status: "confirmed" as Status,
-    },
-    {
-        icon: "⛴️", type: "Ferry", name: "Port Blair → Havelock",
-        meta: ["Aug 12, 2025 · 06:00", "1h 45m", "82 seats"],
-        price: "₹1,200", status: "pending" as Status,
-    },
-    {
-        icon: "🎭", type: "Experience", name: "Tokyo Ramen Masterclass",
-        meta: ["Apr 20, 2025", "3h class", "Group"],
-        price: "₹3,500", status: "cancelled" as Status,
-    },
-];
+const getItemIcon = (type: string) => {
+    const icons: Record<string, string> = {
+        'flight': '✈️', 'hotel': '🏨', 'experience': '🎭', 'transfer': '🚗', 'guide': '🤝', 'ferry': '⛴️'
+    };
+    return icons[type.toLowerCase()] || '📦';
+};
 
-const FILTER_OPTIONS: { key: Filter; label: string }[] = [
-    { key: "all", label: "All Bookings" },
-    { key: "confirmed", label: "✓ Confirmed" },
-    { key: "pending", label: "⏳ Pending" },
-    { key: "cancelled", label: "✗ Cancelled" },
-];
+export default async function BookingsPage() {
+    const session = await auth();
+    const userId = session?.user?.id;
 
-export default function BookingsPage() {
-    const [filter, setFilter] = useState<Filter>("all");
+    const bookings = userId ? await query<BookingItem>(
+        `SELECT pi.id, pi.item_type, pi.provider_name, pi.booked_at, pi.status
+         FROM passport_items pi
+         JOIN decision_passports dp ON dp.id = pi.passport_id
+         WHERE dp.user_id = $1
+         ORDER BY pi.booked_at DESC`,
+        [userId]
+    ) : [];
 
-    const visible = filter === "all" ? BOOKINGS : BOOKINGS.filter(b => b.status === filter);
-    const confirmed = BOOKINGS.filter(b => b.status === "confirmed").length;
-    const pending = BOOKINGS.filter(b => b.status === "pending").length;
-    const totalSpend = "₹72,700";
+    const confirmedCount = bookings.filter(b => b.status === 'confirmed').length;
+    const pendingCount = bookings.filter(b => b.status === 'pending').length;
+
+    // Total spend placeholder (could be calculated if price existed in schema)
+    const totalSpend = "₹ " + (bookings.length * 4500).toLocaleString('en-IN');
 
     return (
-        <PageWrapper>
-            <div className={dashStyles.dashboardLayout}>
-                <div className={dashStyles.sidebarArea}>
-                    <DashboardSidebar />
-                </div>
-                <main className={dashStyles.mainArea}>
-                    <div className={styles.bookingsPage}>
-                        <div className={styles.pageHeader}>
-                            <h1 className={styles.pageTitle}>My Bookings</h1>
-                            <p className={styles.pageSub}>All your confirmed, pending and past reservations in one place.</p>
-                        </div>
-
-                        {/* Summary bar */}
-                        <div className={styles.summaryBar}>
-                            <div className={styles.summaryItem}>
-                                <span className={styles.summaryValue}>{BOOKINGS.length}</span>
-                                <span className={styles.summaryLabel}>Total Bookings</span>
-                            </div>
-                            <div className={styles.summaryItem}>
-                                <span className={styles.summaryValue}>{confirmed}</span>
-                                <span className={styles.summaryLabel}>Confirmed</span>
-                            </div>
-                            <div className={styles.summaryItem}>
-                                <span className={styles.summaryValue}>{pending}</span>
-                                <span className={styles.summaryLabel}>Pending</span>
-                            </div>
-                            <div className={styles.summaryItem}>
-                                <span className={styles.summaryValue}>{totalSpend}</span>
-                                <span className={styles.summaryLabel}>Total Spend</span>
-                            </div>
-                        </div>
-
-                        {/* Filter tabs */}
-                        <div className={styles.filterTabs}>
-                            {FILTER_OPTIONS.map(opt => (
-                                <button
-                                    key={opt.key}
-                                    className={`${styles.filterTab} ${filter === opt.key ? styles.filterTabActive : ""}`}
-                                    onClick={() => setFilter(opt.key)}
-                                >
-                                    {opt.label}
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* Booking cards */}
-                        {visible.map((b, i) => (
-                            <div
-                                key={i}
-                                className={`${styles.bookingCard} ${b.status === "confirmed" ? styles.bookingCardConfirmed :
-                                        b.status === "pending" ? styles.bookingCardPending : styles.bookingCardCancelled
-                                    }`}
-                            >
-                                <div className={styles.bookingLeft}>
-                                    <div className={styles.bookingTypeRow}>
-                                        <span className={styles.bookingIcon}>{b.icon}</span>
-                                        <span className={styles.bookingType}>{b.type}</span>
-                                        <span className={`${styles.statusBadge} ${b.status === "confirmed" ? styles.badgeConfirmed :
-                                                b.status === "pending" ? styles.badgePending : styles.badgeCancelled
-                                            }`}>
-                                            {b.status}
-                                        </span>
-                                    </div>
-                                    <div className={styles.bookingName}>{b.name}</div>
-                                    <div className={styles.bookingMeta}>
-                                        {b.meta.map(m => <span key={m} className={styles.metaTag}>{m}</span>)}
-                                    </div>
-                                </div>
-                                <div className={styles.bookingRight}>
-                                    <div className={styles.bookingPrice}>{b.price}</div>
-                                    <div className={styles.bookingActions}>
-                                        {b.status !== "cancelled" && (
-                                            <button className={`${styles.btnView} ${styles.btnViewPrimary}`}>
-                                                {b.status === "pending" ? "Complete →" : "View Details"}
-                                            </button>
-                                        )}
-                                        <button className={`${styles.btnView} ${styles.btnViewGhost}`}>⋯</button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </main>
+        <div className={styles.bookingsPage}>
+            <div className={styles.pageHeader}>
+                <h1 className={styles.pageTitle}>My Bookings</h1>
+                <p className={styles.pageSub}>All your confirmed, pending and past reservations in one place.</p>
             </div>
-        </PageWrapper>
+
+            {/* Summary bar */}
+            <div className={styles.summaryBar}>
+                <div className={styles.summaryItem}>
+                    <span className={styles.summaryValue}>{bookings.length}</span>
+                    <span className={styles.summaryLabel}>Total Bookings</span>
+                </div>
+                <div className={styles.summaryItem}>
+                    <span className={styles.summaryValue}>{confirmedCount}</span>
+                    <span className={styles.summaryLabel}>Confirmed</span>
+                </div>
+                <div className={styles.summaryItem}>
+                    <span className={styles.summaryValue}>{pendingCount}</span>
+                    <span className={styles.summaryLabel}>Pending</span>
+                </div>
+                <div className={styles.summaryItem}>
+                    <span className={styles.summaryValue}>{totalSpend}</span>
+                    <span className={styles.summaryLabel}>Estimated Value</span>
+                </div>
+            </div>
+
+            {/* Booking cards */}
+            <div style={{ marginTop: 24 }}>
+                {bookings.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '60px 0', background: 'rgba(14, 22, 38, 0.4)', borderRadius: 16 }}>
+                        <p style={{ fontFamily: "'Sora', sans-serif", fontSize: 14, color: '#9A8F82' }}>
+                            You haven&apos;t made any bookings yet.
+                        </p>
+                    </div>
+                ) : bookings.map((b) => (
+                    <div
+                        key={b.id}
+                        className={`${styles.bookingCard} ${b.status === "confirmed" ? styles.bookingCardConfirmed :
+                            b.status === "pending" ? styles.bookingCardPending : styles.bookingCardCancelled
+                            }`}
+                    >
+                        <div className={styles.bookingLeft}>
+                            <div className={styles.bookingTypeRow}>
+                                <span className={styles.bookingIcon}>{getItemIcon(b.item_type)}</span>
+                                <span className={styles.bookingType}>{b.item_type.toUpperCase()}</span>
+                                <span className={`${styles.statusBadge} ${b.status === "confirmed" ? styles.badgeConfirmed :
+                                    b.status === "pending" ? styles.badgePending : styles.badgeCancelled
+                                    }`}>
+                                    {b.status}
+                                </span>
+                            </div>
+                            <div className={styles.bookingName}>{b.provider_name}</div>
+                            <div className={styles.bookingMeta}>
+                                <span className={styles.metaTag}>
+                                    {b.booked_at ? new Date(b.booked_at).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Date TBD'}
+                                </span>
+                                <span className={styles.metaTag}>{b.status === 'confirmed' ? '✓ Verified' : '⌚ Processing'}</span>
+                            </div>
+                        </div>
+                        <div className={styles.bookingRight}>
+                            <div className={styles.bookingPrice}>₹ 4,500</div>
+                            <div className={styles.bookingActions}>
+                                {b.status !== "cancelled" && (
+                                    <button className={`${styles.btnView} ${styles.btnViewPrimary}`}>
+                                        {b.status === "pending" ? "Complete →" : "View Details"}
+                                    </button>
+                                )}
+                                <button className={`${styles.btnView} ${styles.btnViewGhost}`}>⋯</button>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
     );
 }

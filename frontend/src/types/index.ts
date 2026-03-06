@@ -137,6 +137,23 @@ export interface Guide {
     is_active: boolean;
 }
 
+export interface GuideSession {
+    id: string;
+    guide_id: string;
+    user_id: string;
+    passport_id: string | null;
+    session_type: 'chat' | 'video' | 'in_person';
+    status: 'scheduled' | 'active' | 'completed' | 'cancelled';
+    scheduled_at: string;
+    notes: string | null;
+    created_at: string;
+    // Joined fields
+    guide_name?: string;
+    guide_avatar?: string;
+    city_name?: string;
+    country_name?: string;
+}
+
 export interface GuideFieldReport {
     id: string;
     guide_id: string;
@@ -167,6 +184,17 @@ export interface Review {
     created_at: string;
 }
 
+export interface PassportItem {
+    id: string;
+    passport_id: string;
+    item_type: 'flight' | 'hotel' | 'train' | 'ferry' | 'bus' | 'cab' | 'experience';
+    provider_name: string;
+    status: 'pending' | 'confirmed' | 'cancelled';
+    booked_at: string | null;
+    details: Record<string, unknown> | null;
+    created_at: string;
+}
+
 export interface ReviewDimensions {
     cleanliness: number | null;
     noise: number | null;
@@ -186,7 +214,10 @@ export interface SafetyAlert {
     alert_type: string;
     title: string;
     description: string | null;
-    severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+    severity: string;
+    severity_val: number;
+    radius_km: number | null;
+    source: string;
     is_active: boolean;
     created_at: string;
     expires_at: string | null;

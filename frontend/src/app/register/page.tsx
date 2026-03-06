@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import PageWrapper from "@/components/PageWrapper";
 import {
@@ -305,9 +306,41 @@ export default function RegisterPage() {
     };
 
     const handleSubmit = async () => {
-        setIsSuccess(true);
-        setBurst(true);
-        setTimeout(() => router.push("/"), 3000);
+        // Added some basic registration logic
+        try {
+            const res = await fetch("/api/auth/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ...formData,
+                    full_name: formData.fullName,
+                }),
+            });
+
+            await res.json();
+
+            if (!res.ok) {
+                // For simplicity, we'll just shake for now, in a real app would show specific error
+                setShake(true);
+                setTimeout(() => setShake(false), 500);
+                return;
+            }
+
+            // After register, sign in immediately
+            await signIn("credentials", {
+                email: formData.email,
+                password: formData.password,
+                redirect: false
+            });
+
+            setIsSuccess(true);
+            setBurst(true);
+            setTimeout(() => router.push("/"), 3000);
+        } catch (error) {
+            console.error("Registration error:", error);
+            setShake(true);
+            setTimeout(() => setShake(false), 500);
+        }
     };
 
     const passwordStrength = useMemo(() => {

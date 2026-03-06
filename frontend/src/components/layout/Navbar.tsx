@@ -14,9 +14,12 @@ import {
     List,
     X,
     Sparkle,
-    ArrowRight
+    ArrowRight,
+    User,
+    SignOut
 } from "@phosphor-icons/react";
 import Link from "next/link";
+import { useSession, signOut } from "next-auth/react";
 
 const BookingDropdown = () => {
     const categories = [
@@ -128,6 +131,7 @@ const Navbar: React.FC = () => {
     const [scrolled, setScrolled] = useState(false);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+    const { data: session } = useSession();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -208,24 +212,50 @@ const Navbar: React.FC = () => {
 
                 {/* Right Actions (Desktop) */}
                 <div className="hidden md:flex items-center gap-4">
-                    <Link href="/login">
-                        <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className="px-5 py-2 text-sm font-sans text-text-primary border border-white/15 rounded-md hover:border-saffron transition-all"
-                        >
-                            Login
-                        </motion.button>
-                    </Link>
-                    <Link href="/register">
-                        <motion.button
-                            whileHover={{ scale: 1.02, y: -1 }}
-                            whileTap={{ scale: 0.98 }}
-                            className="px-6 py-2.5 bg-saffron hover:bg-saffron-bright text-text-primary text-sm font-sans font-semibold rounded-md transition-all shadow-lg hover:shadow-saffron/20"
-                        >
-                            Get Started
-                        </motion.button>
-                    </Link>
+                    {session ? (
+                        <>
+                            <Link href="/dashboard">
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    className="px-5 py-2 text-sm font-sans text-text-primary border border-white/15 rounded-md hover:border-saffron transition-all flex items-center gap-2"
+                                >
+                                    <User size={16} />
+                                    Dashboard
+                                </motion.button>
+                            </Link>
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => signOut()}
+                                className="p-2.5 text-text-secondary hover:text-saffron transition-colors rounded-md border border-white/10 hover:border-saffron/30"
+                                title="Sign Out"
+                            >
+                                <SignOut size={20} />
+                            </motion.button>
+                        </>
+                    ) : (
+                        <>
+                            <Link href="/login">
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    className="px-5 py-2 text-sm font-sans text-text-primary border border-white/15 rounded-md hover:border-saffron transition-all"
+                                >
+                                    Login
+                                </motion.button>
+                            </Link>
+                            <Link href="/register">
+                                <motion.button
+                                    whileHover={{ scale: 1.02, y: -1 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    className="px-6 py-2.5 bg-saffron hover:bg-saffron-bright text-text-primary text-sm font-sans font-semibold rounded-md transition-all shadow-lg hover:shadow-saffron/20"
+                                >
+                                    Get Started
+                                </motion.button>
+                            </Link>
+                        </>
+                    )}
                 </div>
 
                 {/* Mobile Toggle */}
@@ -269,16 +299,36 @@ const Navbar: React.FC = () => {
                                 transition={{ delay: navLinks.length * 0.08 }}
                                 className="flex flex-col gap-4 w-full"
                             >
-                                <Link href="/login" className="w-full" onClick={() => setIsMobileOpen(false)}>
-                                    <button className="w-full py-4 glass-card border-white/10 text-text-primary font-sans font-medium">
-                                        Login
-                                    </button>
-                                </Link>
-                                <Link href="/register" className="w-full" onClick={() => setIsMobileOpen(false)}>
-                                    <button className="w-full py-4 bg-saffron text-text-primary rounded-lg font-sans font-bold shadow-xl shadow-saffron/20">
-                                        Get Started
-                                    </button>
-                                </Link>
+                                {session ? (
+                                    <>
+                                        <Link href="/dashboard" className="w-full" onClick={() => setIsMobileOpen(false)}>
+                                            <button className="w-full py-4 glass-card border-white/10 text-text-primary font-sans font-medium flex items-center justify-center gap-2">
+                                                <User size={20} />
+                                                Dashboard
+                                            </button>
+                                        </Link>
+                                        <button
+                                            onClick={() => signOut()}
+                                            className="w-full py-4 bg-white/5 text-text-secondary rounded-lg font-sans font-medium border border-white/10 flex items-center justify-center gap-2"
+                                        >
+                                            <SignOut size={20} />
+                                            Sign Out
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Link href="/login" className="w-full" onClick={() => setIsMobileOpen(false)}>
+                                            <button className="w-full py-4 glass-card border-white/10 text-text-primary font-sans font-medium">
+                                                Login
+                                            </button>
+                                        </Link>
+                                        <Link href="/register" className="w-full" onClick={() => setIsMobileOpen(false)}>
+                                            <button className="w-full py-4 bg-saffron text-text-primary rounded-lg font-sans font-bold shadow-xl shadow-saffron/20">
+                                                Get Started
+                                            </button>
+                                        </Link>
+                                    </>
+                                )}
                             </motion.div>
                         </div>
                     </motion.div>

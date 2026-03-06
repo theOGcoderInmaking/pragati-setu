@@ -101,8 +101,8 @@ src/
 | Route | Description | Status |
 |---|---|---|
 | `/` | Homepage — Comprehensive awareness to conversion funnel | Production-ready |
-| `/login` | Immersive auth entry with 3D tilt effects | UI Complete |
-| `/register` | 3-step onboarding (Profile, Style, Safety) | UI Complete |
+| `/login` | Immersive auth entry with 3D tilt effects | Production-ready |
+| `/register` | 3-step onboarding (Profile, Style, Safety) | Production-ready |
 | `/safety` | Global safety intelligence map | Interactive UI |
 
 ### ✈️ Booking Hub (`/booking`)
@@ -122,10 +122,12 @@ A centralized hub for the modern traveler to manage their "Decision Passports" a
 
 | Sub-Route | Description | Status |
 |---|---|---|
-| `/dashboard` | Hub overview & quick stats | Core UI Ready |
-| `/dashboard/active-trip` | Real-time tracking of the current journey | Core UI Ready |
-| `/dashboard/bookings` | Historical and upcoming reservation ledger | Core UI Ready |
-| `/dashboard/passports` | Collection of verified Decision Passports | Core UI Ready |
+| `/dashboard` | Hub overview & quick stats | Production-ready (Dynamic) |
+| `/dashboard/active-trip` | Real-time tracking of the current journey | Production-ready |
+| `/dashboard/bookings` | Historical and upcoming reservation ledger | Production-ready |
+| `/dashboard/passports` | Collection of verified Decision Passports | Production-ready |
+| `/dashboard/profile` | User profile management | Core UI Ready |
+| `/dashboard/settings` | App and security settings | Core UI Ready |
 
 ---
 
@@ -182,7 +184,9 @@ Current status: **Ready for Integration**
 - [x] Multi-step Registration Flow
 - [x] User Dashboard Core
 - [x] Booking Hub Infrastructure
-- [ ] Real Auth Integration (Supabase/NextAuth Backend)
-- [ ] Dynamic Field Report Data
+- [x] Real Auth Integration (Supabase/NextAuth Backend)
+- [x] Dynamic Field Report Data
 - [ ] Personalized Passport Detail Pages
 - [ ] Mobile-first Responsive Pass
+- [ ] Real-time Weather Integration
+- [ ] External Booking Provider Integration

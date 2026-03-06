@@ -1,0 +1,246 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id             String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email          String             @unique
+  full_name      String?
+  avatar_url     String?
+  password_hash  String?
+  email_verified Boolean            @default(false)
+  created_at     DateTime           @default(now()) @db.Timestamptz(6)
+  last_login     DateTime?          @db.Timestamptz(6)
+  is_active      Boolean            @default(true)
+  role           String             @default("traveler")
+  passports      DecisionPassport[]
+  sessions       GuideSession[]
+  guides         Guide[]
+  orders         Order[]
+  reviews        Review[]
+  profile        UserProfile?
+
+  @@map("users")
+}
+
+model UserProfile {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id            String   @unique @db.Uuid
+  home_city          String?
+  nationality        String   @default("Indian")
+  travel_frequency   String?
+  is_solo_traveler   Boolean  @default(false)
+  is_female_solo     Boolean  @default(false)
+  risk_comfort_level Int      @default(3)
+  preferred_currency String   @default("INR")
+  languages          String[] @default(["English"])
+  travel_styles      String[]
+  updated_at         DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+  user               User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model DecisionPassport {
+  id                   String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id              String             @db.Uuid
+  destination_city_id  Int?
+  destination_name     String
+  destination_country  String?
+  arrival_airport_id   Int?
+  travel_dates_start   DateTime?          @db.Date
+  travel_dates_end     DateTime?          @db.Date
+  duration_days        Int?
+  travel_party_size    Int                @default(1)
+  package_type         String?
+  status               String             @default("draft")
+  composite_score      Float?
+  guarantee_amount_inr Int                @default(0)
+  order_id             String?
+  is_active            Boolean            @default(true)
+  expires_at           DateTime?          @db.Timestamptz(6)
+  created_at           DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime           @default(now()) @updatedAt @db.Timestamptz(6)
+  confidence_scores    ConfidenceScores?
+  user                 User               @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  items                PassportItem[]
+  risk_register        RiskRegisterItem[]
+
+  @@map("decision_passports")
+}
+
+model ConfidenceScores {
+  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  passport_id     String           @unique @db.Uuid
+  weather_score   Int
+  weather_label   String
+  weather_data    Json
+  safety_score    Int
+  safety_label    String
+  safety_data     Json
+  scam_score      Int
+  scam_label      String
+  scam_data       Json
+  crowd_score     Int
+  crowd_label     String
+  crowd_data      Json
+  budget_score    Int
+  budget_label    String
+  budget_data     Json
+  composite_score Float
+  calculated_at   DateTime         @default(now()) @db.Timestamptz(6)
+  passport        DecisionPassport @relation(fields: [passport_id], references: [id], onDelete: Cascade)
+
+  @@map("confidence_scores")
+}
+
+model RiskRegisterItem {
+  id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  passport_id      String           @db.Uuid
+  risk_title       String
+  risk_description String?
+  severity         String
+  category         String
+  prevention_steps String[]
+  is_acknowledged  Boolean          @default(false)
+  sort_order       Int              @default(0)
+  passport         DecisionPassport @relation(fields: [passport_id], references: [id], onDelete: Cascade)
+
+  @@map("risk_register_items")
+}
+
+model Order {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id            String    @db.Uuid
+  order_type         String
+  amount_inr         Float
+  currency           String    @default("INR")
+  status             String    @default("pending")
+  payment_gateway    String?
+  gateway_order_id   String?
+  gateway_payment_id String?
+  metadata           Json?
+  created_at         DateTime  @default(now()) @db.Timestamptz(6)
+  paid_at            DateTime? @db.Timestamptz(6)
+  user               User      @relation(fields: [user_id], references: [id])
+
+  @@map("orders")
+}
+
+model Guide {
+  id                  String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id             String         @db.Uuid
+  city_id             Int?
+  city_name           String?
+  country_name        String?
+  bio                 String?
+  languages           String[]
+  specialties         String[]
+  tier_chat           Boolean        @default(false)
+  tier_video          Boolean        @default(false)
+  tier_inperson       Boolean        @default(false)
+  price_chat_inr      Int            @default(0)
+  price_video_inr     Int            @default(0)
+  price_inperson_inr  Int            @default(0)
+  avg_rating          Float          @default(0)
+  total_reviews       Int            @default(0)
+  total_sessions      Int            @default(0)
+  verification_status String         @default("pending")
+  verified_at         DateTime?      @db.Timestamptz(6)
+  is_active           Boolean        @default(true)
+  sessions            GuideSession[]
+  user                User           @relation(fields: [user_id], references: [id])
+
+  @@map("guides")
+}
+
+model City {
+  id         Int    @id @default(autoincrement())
+  name       String
+  country_id Int
+  latitude   Float?
+  longitude  Float?
+
+  @@map("cities")
+}
+
+model Airport {
+  id         Int    @id @default(autoincrement())
+  name       String
+  iata_code  String
+  city_id    Int
+  country_id Int
+
+  @@map("airports")
+}
+
+model Review {
+  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id          String        @db.Uuid
+  property_name    String?
+  property_type    String?
+  city_name        String?
+  overall_rating   Int
+  review_text      String?
+  is_verified      Boolean       @default(false)
+  trust_score      Float?
+  helpful_count    Int           @default(0)
+  created_at       DateTime      @default(now()) @db.Timestamptz(6)
+  passport_item_id String?       @db.Uuid
+  passport_item    PassportItem? @relation(fields: [passport_item_id], references: [id])
+  user             User          @relation(fields: [user_id], references: [id])
+
+  @@map("reviews")
+}
+
+model SafetyAlert {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  city_name    String?
+  country_name String?
+  alert_type   String
+  title        String
+  description  String?
+  severity     String
+  is_active    Boolean   @default(true)
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  expires_at   DateTime? @db.Timestamptz(6)
+  radius_km    Float?
+  severity_val Int       @default(0)
+  source       String    @default("neon")
+
+  @@map("safety_alerts")
+}
+
+model PassportItem {
+  id            String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  passport_id   String           @db.Uuid
+  item_type     String
+  provider_name String
+  status        String           @default("pending")
+  booked_at     DateTime?        @db.Timestamptz(6)
+  details       Json?
+  created_at    DateTime         @default(now()) @db.Timestamptz(6)
+  passport      DecisionPassport @relation(fields: [passport_id], references: [id], onDelete: Cascade)
+  reviews       Review[]
+
+  @@map("passport_items")
+}
+
+model GuideSession {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id      String    @db.Uuid
+  guide_id     String    @db.Uuid
+  session_type String
+  status       String    @default("scheduled")
+  scheduled_at DateTime? @db.Timestamptz(6)
+  notes        String?
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  guide        Guide     @relation(fields: [guide_id], references: [id], onDelete: Cascade)
+  user         User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("guide_sessions")
+}

@@ -35,7 +35,7 @@ export async function GET(
             [params.id]
         ),
         query(
-            `SELECT * FROM risk_registers
+            `SELECT * FROM risk_register_items
        WHERE passport_id = $1
        ORDER BY sort_order`,
             [params.id]

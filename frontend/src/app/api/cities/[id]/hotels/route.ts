@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { sql } from '@/lib/db';
 
 export async function GET(
     req: NextRequest,
@@ -7,18 +7,17 @@ export async function GET(
 ) {
     const cityId = parseInt(params.id);
 
-    const { data, error } = await supabase
-        .from('neighbourhoods')
-        .select('*')
-        .eq('city_id', cityId)
-        .order('safety_score', { ascending: false });
-
-    if (error) {
+    try {
+        const data = await sql`
+            SELECT * FROM neighbourhoods
+            WHERE city_id = ${cityId}
+            ORDER BY safety_score DESC
+        `;
+        return NextResponse.json({ data });
+    } catch (error: unknown) {
         return NextResponse.json(
-            { error: error.message },
+            { error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }
-
-    return NextResponse.json({ data });
 }

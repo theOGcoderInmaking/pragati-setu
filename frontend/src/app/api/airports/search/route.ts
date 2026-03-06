@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { sql } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
@@ -10,27 +10,36 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ data: [] });
     }
 
-    const { data, error } = await supabase
-        .from('airports')
-        .select(`
-      id,
-      name,
-      iata_code,
-      city_id,
-      cities!airports_city_fk (
-        name,
-        countries (name)
-      )
-    `)
-        .or(`name.ilike.%${q}%,iata_code.ilike.${q}%`)
-        .limit(limit);
+    console.log('API: airports search called with q:', q);
+    try {
+        const queryTerm = `%${q}%`;
+        const data = await sql`
+            SELECT a.id, a.name, a.iata_code, a.city_id, c.name as city_name, co.name as country_name
+            FROM airports a
+            LEFT JOIN cities c ON a.city_id = c.id
+            LEFT JOIN countries co ON c.country_id = co.id
+            WHERE a.name ILIKE ${queryTerm} OR a.iata_code ILIKE ${queryTerm}
+            LIMIT ${limit}
+        `;
 
-    if (error) {
+        // Transform results to match old the shape if necessary
+        const formattedData = data.map((row: Record<string, unknown>) => ({
+            id: row.id,
+            name: row.name,
+            iata_code: row.iata_code,
+            city_id: row.city_id,
+            cities: {
+                name: row.city_name,
+                countries: { name: row.country_name }
+            }
+        }));
+
+        return NextResponse.json({ data: formattedData });
+    } catch (error: unknown) {
+        console.error('API: airports search error:', error);
         return NextResponse.json(
-            { error: error.message },
+            { error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }
-
-    return NextResponse.json({ data });
 }

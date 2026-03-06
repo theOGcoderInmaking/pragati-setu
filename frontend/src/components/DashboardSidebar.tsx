@@ -5,24 +5,47 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./DashboardSidebar.module.css";
 
-const NAV_ITEMS = [
-    { href: "/dashboard", icon: "🏠", label: "Home", badge: null, badgeType: "" },
-    { href: "/dashboard/passports", icon: "🛂", label: "My Passports", badge: "4", badgeType: "amber" },
-    { href: "/dashboard/bookings", icon: "📦", label: "My Bookings", badge: null, badgeType: "" },
-    { href: "/dashboard/active-trip", icon: "✈️", label: "Active Trip", badge: "LIVE", badgeType: "live" },
-    { href: "#reviews", icon: "⭐", label: "Reviews Due", badge: "3", badgeType: "red" },
-    { href: "#alerts", icon: "🔔", label: "Safety Alerts", badge: "2", badgeType: "amber" },
-    { href: "#messages", icon: "💬", label: "Guide Messages", badge: "5", badgeType: "amber" },
-    { href: "#profile", icon: "👤", label: "Profile", badge: null, badgeType: "" },
-    { href: "#settings", icon: "⚙️", label: "Settings", badge: null, badgeType: "" },
-];
 
-export default function DashboardSidebar() {
+export interface SidebarStats {
+    countries: number;
+    passports: number;
+    reviews: number;
+}
+
+export interface SidebarBadges {
+    alerts: number;
+    messages: number;
+    reviewsDue: number;
+    passports: number;
+}
+
+export default function DashboardSidebar({
+    name = "Traveler",
+    stats = { countries: 7, passports: 4, reviews: 12 },
+    badges = { alerts: 2, messages: 5, reviewsDue: 3, passports: 4 }
+}: {
+    name?: string;
+    stats?: SidebarStats;
+    badges?: SidebarBadges;
+}) {
     const pathname = usePathname();
+
+    const NAV_ITEMS = [
+        { href: "/dashboard", icon: "🏠", label: "Home", badge: null, badgeType: "" },
+        { href: "/dashboard/passports", icon: "🛂", label: "My Passports", badge: badges.passports > 0 ? String(badges.passports) : null, badgeType: "amber" },
+        { href: "/dashboard/bookings", icon: "📦", label: "My Bookings", badge: null, badgeType: "" },
+        { href: "/dashboard/active-trip", icon: "✈️", label: "Active Trip", badge: "LIVE", badgeType: "live" },
+        { href: "/dashboard/reviews", icon: "⭐", label: "Reviews Due", badge: badges.reviewsDue > 0 ? String(badges.reviewsDue) : null, badgeType: "red" },
+        { href: "/dashboard/alerts", icon: "🔔", label: "Safety Alerts", badge: badges.alerts > 0 ? String(badges.alerts) : null, badgeType: "amber" },
+        { href: "/dashboard/messages", icon: "💬", label: "Guide Messages", badge: badges.messages > 0 ? String(badges.messages) : null, badgeType: "amber" },
+        { href: "/dashboard/profile", icon: "👤", label: "Profile", badge: null, badgeType: "" },
+        { href: "/dashboard/settings", icon: "⚙️", label: "Settings", badge: null, badgeType: "" },
+    ];
 
     const badgeClass = (type: string) => {
         if (type === "live") return `${styles.navBadge} ${styles.navBadgeLive}`;
         if (type === "amber") return `${styles.navBadge} ${styles.navBadgeAmber}`;
+        if (type === "red") return `${styles.navBadge} ${styles.navBadgeRed}`;
         return styles.navBadge;
     };
 
@@ -42,7 +65,7 @@ export default function DashboardSidebar() {
                     <span className={styles.onlineDot} />
                 </div>
                 <div>
-                    <span className={styles.userName}>Arjun M.</span>
+                    <span className={styles.userName}>{name}</span>
                     <span className={styles.userRole}>Explorer</span>
                 </div>
             </div>
@@ -73,9 +96,9 @@ export default function DashboardSidebar() {
 
             {/* Quick stats */}
             <div className={styles.quickStats}>
-                <p className={styles.statLine}>7 countries visited</p>
-                <p className={styles.statLine}>4 active passports</p>
-                <p className={styles.statLine}>12 reviews written</p>
+                <p className={styles.statLine}>{stats.countries} countries visited</p>
+                <p className={styles.statLine}>{stats.passports} active passports</p>
+                <p className={styles.statLine}>{stats.reviews} reviews written</p>
             </div>
         </nav>
     );
