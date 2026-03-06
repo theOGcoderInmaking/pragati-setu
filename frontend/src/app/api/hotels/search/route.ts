@@ -3,7 +3,6 @@ import {
     searchHotelsByCity,
     searchHotelOffers,
     getCityCode,
-    formatHotelPrice,
 } from '@/lib/amadeus';
 
 export async function GET(req: NextRequest) {
@@ -69,9 +68,20 @@ export async function GET(req: NextRequest) {
             const hotelId = String(hotel.hotelId ?? index);
             const rating = Number(hotel.rating ?? 3);
             const cityName = String(hotel.cityCode ?? destination);
-            const priceTotal = parseFloat(price.total ?? '0');
+            let priceTotal = parseFloat(price.total ?? '0');
             const currency = String(price.currency ?? 'INR');
-            const formattedPrice = formatHotelPrice(priceTotal, currency);
+
+            // Convert to INR if Amadeus returns a different currency
+            // (test env often ignores currency: INR param)
+            const TO_INR: Record<string, number> = {
+                JPY: 0.55, USD: 84, EUR: 92, GBP: 108,
+                AED: 23, SGD: 63, THB: 2.4, AUD: 55,
+            };
+            const inrAmount = currency === 'INR'
+                ? priceTotal
+                : priceTotal * (TO_INR[currency] ?? 1);
+            priceTotal = Math.round(inrAmount);
+            const formattedPrice = `₹${priceTotal.toLocaleString('en-IN')}`;
 
             const confidence = Math.min(100, Math.max(60,
                 (rating / 5) * 100 - (index * 2)
