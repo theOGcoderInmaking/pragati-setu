@@ -4,6 +4,7 @@ import styles from "./dashboard.module.css";
 import { auth } from "@/lib/auth";
 import DashboardClient from "./DashboardClient";
 import { query } from '@/lib/db';
+import { getWeather, weatherEmoji } from '@/lib/weather';
 import { DecisionPassport, PassportItem, GuideSession, SafetyAlert } from "@/types";
 
 // ─── Time-based greeting ────────────────────────────────────────────────────
@@ -263,6 +264,11 @@ export default async function DashboardPage() {
         && new Date() >= new Date(activePassport.travel_dates_start)
         && new Date() <= new Date(activePassport.travel_dates_end);
 
+    // Fetch real weather for active destination
+    const weather = activePassport?.destination_name
+        ? await getWeather(String(activePassport.destination_name)).catch(() => null)
+        : null;
+
 
     return (
         <>
@@ -346,9 +352,40 @@ export default async function DashboardPage() {
 
                         {/* Weather */}
                         <div className={styles.weatherWidget}>
-                            <span className={styles.weatherCity}>{activePassport.destination_name}</span>
-                            <div className={styles.weatherTemp}>31°C</div>
-                            <div className={styles.weatherDesc}>🌤 Partly cloudy · Humid</div>
+                            <span className={styles.weatherCity}>
+                                {weather?.city ??
+                                    activePassport.destination_name}
+                            </span>
+                            <div className={styles.weatherTemp}>
+                                {weather
+                                    ? `${weather.temp}°C`
+                                    : '—°C'
+                                }
+                            </div>
+                            <div className={styles.weatherDesc}>
+                                {weather
+                                    ? `${weatherEmoji(
+                                        weather.icon
+                                    )} ${weather.description
+                                        .split(' ')
+                                        .map(w =>
+                                            w.charAt(0).toUpperCase() + w.slice(1)
+                                        )
+                                        .join(' ')} · ${weather.humidity}% humidity`
+                                    : 'Weather unavailable'
+                                }
+                            </div>
+                            {weather && (
+                                <div style={{
+                                    fontFamily: "'Space Mono', monospace",
+                                    fontSize: "11px",
+                                    color: "#9A8F82",
+                                    marginTop: "6px",
+                                }}>
+                                    💨 {weather.wind_kph} km/h ·
+                                    Feels {weather.feels_like}°C
+                                </div>
+                            )}
                         </div>
 
                         {/* Safety */}
