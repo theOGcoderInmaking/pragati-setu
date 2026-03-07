@@ -158,14 +158,14 @@ export async function searchHotelsByGeocode(
     radius: number = 20
 ) {
     try {
-        const response = await (amadeus
-            .referenceData.locations.hotels as any).byGeocode
-            .get({
-                latitude,
-                longitude,
-                radius,
-                radiusUnit: 'KM'
-            });
+        const hotels = amadeus.referenceData.locations.hotels;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const response = await (hotels as any).byGeocode.get({
+            latitude,
+            longitude,
+            radius,
+            radiusUnit: 'KM'
+        });
         return response.data ?? [];
     } catch (error) {
         console.error('Hotel geocode search error:', error);

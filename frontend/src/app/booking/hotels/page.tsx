@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import PageWrapper from "@/components/PageWrapper";
 import styles from "./hotels.module.css";
 import Navbar from "@/components/layout/Navbar";

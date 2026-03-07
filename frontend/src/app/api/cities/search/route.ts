@@ -34,6 +34,7 @@ export async function GET(req: NextRequest) {
             throw error;
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const formattedData = data.map((row: any) => ({
             code: row.iata_code || `DB-${row.id}`,
             name: row.name,
