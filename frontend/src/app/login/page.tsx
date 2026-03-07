@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeSlash, ArrowLeft } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import PageWrapper from "@/components/PageWrapper";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -186,11 +187,32 @@ export default function LoginPage() {
             return;
         }
         setLoading(true);
-        await new Promise((r) => setTimeout(r, 1200));
-        setLoading(false);
-        setPageState("success");
-        setBurst(true);
-        setTimeout(() => router.push("/"), 800);
+        try {
+            const res = await signIn("credentials", {
+                email,
+                password,
+                redirect: false,
+            });
+
+            if (res?.error) {
+                setPageState("error");
+                setPwError(res.error);
+                setLoading(false);
+                setTimeout(() => setPageState("idle"), 500);
+                return;
+            }
+
+            setLoading(false);
+            setPageState("success");
+            setBurst(true);
+            setTimeout(() => router.push("/"), 800);
+        } catch (error) {
+            console.error("Login Error:", error);
+            setLoading(false);
+            setPageState("error");
+            setPwError("An unexpected error occurred.");
+            setTimeout(() => setPageState("idle"), 500);
+        }
     };
 
     const shakeVariants = {
@@ -553,6 +575,7 @@ export default function LoginPage() {
                                             {/* Google */}
                                             <button
                                                 type="button"
+                                                onClick={() => signIn("google", { callbackUrl: "/" })}
                                                 className="w-full h-12 rounded-lg flex items-center justify-center gap-3 font-sans text-sm text-text-primary transition-colors"
                                                 style={{
                                                     background: "rgba(255,255,255,0.06)",

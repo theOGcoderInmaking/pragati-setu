@@ -18,7 +18,8 @@ import {
     Coins,
     FlowerLotus,
     CaretDown,
-    Info
+    Info,
+    NavigationArrow
 } from "@phosphor-icons/react";
 
 // ─── Drawing Checkmark Component ─────────────────────────────────────────────
@@ -261,6 +262,7 @@ export default function RegisterPage() {
     const [burst, setBurst] = useState(false);
     const [shake, setShake] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const [isLocating, setIsLocating] = useState(false);
 
     useEffect(() => { setMounted(true); }, []);
 
@@ -290,6 +292,48 @@ export default function RegisterPage() {
     };
 
     const prevStep = () => setStep(s => s - 1);
+
+    const detectLocation = () => {
+        if (!navigator.geolocation) {
+            setShake(true);
+            setTimeout(() => setShake(false), 500);
+            return;
+        }
+        setIsLocating(true);
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                try {
+                    const { latitude, longitude } = position.coords;
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+                    if (!res.ok) throw new Error("Reverse geocoding failed");
+                    const data = await res.json();
+
+                    const city = data.address.city || data.address.town || data.address.village || data.address.county || "";
+                    const country = data.address.country || "";
+
+                    const locationString = [city, country].filter(Boolean).join(", ");
+                    if (locationString) {
+                        setFormData(prev => ({ ...prev, homeCity: locationString }));
+                    } else {
+                        throw new Error("City not found");
+                    }
+                } catch (err) {
+                    console.error("Location detection error:", err);
+                    setShake(true);
+                    setTimeout(() => setShake(false), 500);
+                } finally {
+                    setIsLocating(false);
+                }
+            },
+            (err) => {
+                console.error("Geolocation error:", err);
+                setIsLocating(false);
+                setShake(true);
+                setTimeout(() => setShake(false), 500);
+            },
+            { timeout: 10000 }
+        );
+    };
 
     const toggleStyle = (id: string) => {
         setFormData(prev => {
@@ -542,11 +586,20 @@ export default function RegisterPage() {
                                                         <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" />
                                                         <input
                                                             type="text"
-                                                            className="glass-input w-full h-12 pl-11 pr-4 text-sm"
+                                                            className="glass-input w-full h-12 pl-11 pr-12 text-sm"
                                                             placeholder="e.g. New Delhi, India"
                                                             value={formData.homeCity}
                                                             onChange={e => setFormData({ ...formData, homeCity: e.target.value })}
                                                         />
+                                                        <button
+                                                            onClick={detectLocation}
+                                                            disabled={isLocating}
+                                                            type="button"
+                                                            className={`absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary hover:text-saffron transition-colors cursor-pointer ${isLocating ? 'animate-pulse' : ''}`}
+                                                            title="Use current location"
+                                                        >
+                                                            <NavigationArrow size={16} />
+                                                        </button>
                                                     </div>
                                                 </div>
 

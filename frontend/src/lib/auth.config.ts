@@ -11,6 +11,7 @@ export const authConfig = {
         signIn: '/login',
         error: '/login',
     },
+    trustHost: true,
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
