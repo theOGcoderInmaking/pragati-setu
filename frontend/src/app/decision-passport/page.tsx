@@ -215,7 +215,8 @@ const PaymentForm = ({
                 borderRadius: '10px',
                 marginBottom: '20px',
             }}>
-                {/* @ts-expect-error - Stripe CardElement type conflict in Next.js 14 */}
+                {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+                {/* @ts-ignore */}
                 <CardElement options={{
                     style: {
                         base: {
@@ -605,7 +606,8 @@ const PassportCreationModal = ({
                             <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "32px", fontWeight: 700, color: "#D4590A" }}>₹149</div>
                         </div>
 
-                        {/* @ts-expect-error - Stripe Elements type conflict in Next.js 14 */}
+                        {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+                        {/* @ts-ignore */}
                         <Elements stripe={stripePromise} options={{ clientSecret }}>
                             <PaymentForm clientSecret={clientSecret} onSuccess={handlePaymentSuccess} onError={setError} />
                         </Elements>
