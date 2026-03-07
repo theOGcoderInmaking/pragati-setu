@@ -76,40 +76,276 @@ function RainCanvas() {
 }
 
 // ─── Data ──────────────────────────────────────────────────────────────────
+// ─── Data ──────────────────────────────────────────────────────────────────
 const APP_DIRECTORY = [
-    { city: "Tokyo", app: "GO", range: "¥600–¥2,500", scam: "low", note: "Safest option. Registered metered taxis only." },
-    { city: "Bangkok", app: "Grab", range: "฿80–฿350", scam: "med", note: "Always use app — avoid street hails." },
-    { city: "Dubai", app: "Careem", range: "AED 15–90", scam: "low", note: "RTA taxis also safe and metered." },
-    { city: "Mumbai", app: "Ola", range: "₹80–₹600", scam: "med", note: "Share your ride with a contact." },
-    { city: "Istanbul", app: "BiTaksi", range: "₺40–₺200", scam: "high", note: "Avoid unlicensed airport taxis." },
-    { city: "Mexico City", app: "inDriver", range: "MX$60–₺300", scam: "high", note: "Never hail cabs from street at night." },
-    { city: "London", app: "Gett", range: "£8–£45", scam: "low", note: "Black cabs & Uber both safe." },
-    { city: "Cairo", app: "Careem", range: "E£30–E£180", scam: "med", note: "Negotiate price before entering unmetered cabs." },
-    { city: "Seoul", app: "KakaoT", range: "₩4,800–₩25,000", scam: "low", note: "All taxis are metered and registered." },
-    { city: "Nairobi", app: "Bolt", range: "KES 300–1,200", scam: "high", note: "Only use app. Share ride with contact." },
+    {
+        city: "Mumbai", app: "Ola",
+        range: "₹80–₹600", scam: "med",
+        note: "Share ride location with contact."
+    },
+    {
+        city: "Delhi", app: "Ola / Uber",
+        range: "₹60–₹500", scam: "med",
+        note: "Use app only. Never street hail at night."
+    },
+    {
+        city: "Bangalore", app: "Namma Yatri",
+        range: "₹60–₹450", scam: "low",
+        note: "Open-source, driver-friendly app."
+    },
+    {
+        city: "Chennai", app: "Ola",
+        range: "₹70–₹500", scam: "low",
+        note: "Rapido bikes good for short hops."
+    },
+    {
+        city: "Kolkata", app: "Ola",
+        range: "₹60–₹400", scam: "med",
+        note: "Yellow taxis still widely used."
+    },
+    {
+        city: "Goa", app: "GoaMiles",
+        range: "₹150–₹800", scam: "high",
+        note: "Avoid tourist taxis. GoaMiles is metered."
+    },
+    {
+        city: "Jaipur", app: "Ola",
+        range: "₹80–₹500", scam: "med",
+        note: "Auto-rickshaws fine for short trips."
+    },
+    {
+        city: "Tokyo", app: "GO",
+        range: "¥600–¥2,500", scam: "low",
+        note: "All taxis metered. Very safe."
+    },
+    {
+        city: "Bangkok", app: "Grab",
+        range: "฿80–฿350", scam: "med",
+        note: "Never hail from street."
+    },
+    {
+        city: "Dubai", app: "Careem",
+        range: "AED 15–90", scam: "low",
+        note: "RTA taxis also metered and safe."
+    },
+    {
+        city: "London", app: "Uber / Bolt",
+        range: "£8–£45", scam: "low",
+        note: "Black cabs safe. Avoid unlicensed minicabs."
+    },
+    {
+        city: "Paris", app: "Uber / Bolt",
+        range: "€8–€40", scam: "med",
+        note: "Only use licensed VTC or G7 taxis."
+    },
+    {
+        city: "Singapore", app: "Grab",
+        range: "S$8–S$40", scam: "low",
+        note: "Grab dominates. CDG taxis also metered."
+    },
+    {
+        city: "Istanbul", app: "BiTaksi",
+        range: "₺40–₺200", scam: "high",
+        note: "Avoid unlicensed airport taxis."
+    },
+    {
+        city: "Nairobi", app: "Bolt",
+        range: "KES 300–1,200", scam: "high",
+        note: "Only use app. Share ride with contact."
+    },
+    {
+        city: "New York", app: "Uber / Lyft",
+        range: "$10–$60", scam: "low",
+        note: "Yellow cabs metered and safe."
+    },
+    {
+        city: "Sydney", app: "Uber",
+        range: "A$10–A$50", scam: "low",
+        note: "13CABS also reliable."
+    },
+    {
+        city: "Seoul", app: "KakaoT",
+        range: "₩4,800–₩25,000", scam: "low",
+        note: "All taxis metered and registered."
+    },
 ];
 
-type Tab = "apps" | "transfer" | "local";
-
-const APPS_FOR_CITY: Record<string, { icon: string; name: string; avail: boolean; price: string; why: string; recommended: boolean }[]> = {
+const APPS_FOR_CITY: Record<string,
+    {
+        icon: string; name: string; avail: boolean;
+        price: string; why: string;
+        recommended: boolean; url: string
+    }[]
+> = {
     default: [
-        { icon: "🚗", name: "Uber", avail: true, price: "$2–$18 / km", why: "Widest international coverage. Driver identity verified before pickup.", recommended: false },
-        { icon: "🟢", name: "Grab", avail: true, price: "$1–$12 / km", why: "Top pick for Southeast Asia. In-app emergency share.", recommended: true },
-        { icon: "🔵", name: "Gett", avail: false, price: "N/A", why: "Not available in this city.", recommended: false },
-        { icon: "🟠", name: "Careem", avail: true, price: "$1.5–$15 / km", why: "MENA specialist. Female driver option available.", recommended: false },
+        {
+            icon: "🚗", name: "Uber",
+            avail: true, price: "Varies by city",
+            why: "Widest global coverage. Driver verified before pickup.",
+            recommended: false,
+            url: "https://m.uber.com/ul/"
+        },
+        {
+            icon: "🟢", name: "Bolt",
+            avail: true, price: "Varies by city",
+            why: "Available in 45+ countries. Often cheaper than Uber.",
+            recommended: false,
+            url: "https://bolt.eu/en/cities/"
+        },
+        {
+            icon: "🌍", name: "Rome2Rio",
+            avail: true, price: "Compare options",
+            why: "Find all transport options including cabs for any city.",
+            recommended: true,
+            url: "https://www.rome2rio.com"
+        },
     ],
-    tokyo: [
-        { icon: "🚕", name: "GO", avail: true, price: "¥600–2,500", why: "Japan-specific app. Metered taxis only. Highest safety rating in dataset.", recommended: true },
-        { icon: "🚗", name: "Uber", avail: true, price: "¥800–3,000", why: "Available but pricier. Same licensed taxi fleet as GO.", recommended: false },
-        { icon: "🔵", name: "S.RIDE", avail: true, price: "¥600–2,500", why: "Japan Railways affiliated. Very reliable.", recommended: false },
-
+    india: [
+        {
+            icon: "🟠", name: "Ola",
+            avail: true, price: "₹60–₹600",
+            why: "Largest cab network in India. Driver photo before pickup.",
+            recommended: true,
+            url: "https://book.olacabs.com"
+        },
+        {
+            icon: "🚗", name: "Uber",
+            avail: true, price: "₹70–₹650",
+            why: "Available in 100+ Indian cities. UPI payment supported.",
+            recommended: false,
+            url: "https://m.uber.com/ul/"
+        },
+        {
+            icon: "⚡", name: "Rapido",
+            avail: true, price: "₹30–₹200",
+            why: "Bike taxis for short hops. Very fast in traffic.",
+            recommended: false,
+            url: "https://rapido.bike"
+        },
+        {
+            icon: "🟡", name: "Namma Yatri",
+            avail: true, price: "₹50–₹400",
+            why: "Bangalore only. Open-source, no surge pricing.",
+            recommended: false,
+            url: "https://nammayatri.in"
+        },
     ],
-    bangkok: [
-        { icon: "🟢", name: "Grab", avail: true, price: "฿80–350", why: "Best in Bangkok. Driver-rated, car photo before ride.", recommended: true },
-        { icon: "🚗", name: "Bolt", avail: true, price: "฿70–300", why: "Cheaper than Grab. Slightly less safety infrastructure.", recommended: false },
-        { icon: "🟠", name: "InDriver", avail: true, price: "฿60–280", why: "Price negotiation. Good for long routes with fixed rates.", recommended: false },
+    seasia: [
+        {
+            icon: "🟢", name: "Grab",
+            avail: true, price: "Varies",
+            why: "Dominant app across all SE Asian cities. Safest option.",
+            recommended: true,
+            url: "https://grab.onelink.me/2695613898"
+        },
+        {
+            icon: "🚗", name: "Bolt",
+            avail: true, price: "Varies",
+            why: "Available in Bangkok, KL, Jakarta. Cheaper than Grab.",
+            recommended: false,
+            url: "https://bolt.eu/en/cities/"
+        },
+        {
+            icon: "🟠", name: "inDriver",
+            avail: true, price: "Negotiable",
+            why: "Bid-based pricing. Good for fixed long routes.",
+            recommended: false,
+            url: "https://indriver.com"
+        },
+    ],
+    middleeast: [
+        {
+            icon: "🟠", name: "Careem",
+            avail: true, price: "Varies",
+            why: "MENA specialist. Female driver option available.",
+            recommended: true,
+            url: "https://www.careem.com"
+        },
+        {
+            icon: "🚗", name: "Uber",
+            avail: true, price: "Varies",
+            why: "Available in UAE, Saudi, Egypt, Jordan.",
+            recommended: false,
+            url: "https://m.uber.com/ul/"
+        },
+    ],
+    europe: [
+        {
+            icon: "🚗", name: "Uber",
+            avail: true, price: "€8–€50",
+            why: "Available in most European cities.",
+            recommended: false,
+            url: "https://m.uber.com/ul/"
+        },
+        {
+            icon: "🟢", name: "Bolt",
+            avail: true, price: "€6–€40",
+            why: "Often 20-30% cheaper than Uber in Europe.",
+            recommended: true,
+            url: "https://bolt.eu/en/cities/"
+        },
+        {
+            icon: "🚕", name: "FreeNow",
+            avail: true, price: "€8–€45",
+            why: "Licensed taxis via app. UK, Germany, France.",
+            recommended: false,
+            url: "https://free-now.com"
+        },
+    ],
+    uk: [
+        {
+            icon: "🚗", name: "Uber",
+            avail: true, price: "£8–£45",
+            why: "Fully licensed in London and major UK cities.",
+            recommended: false,
+            url: "https://m.uber.com/ul/"
+        },
+        {
+            icon: "🟢", name: "Bolt",
+            avail: true, price: "£6–£35",
+            why: "Cheaper than Uber. Available in London, Manchester, Edinburgh.",
+            recommended: true,
+            url: "https://bolt.eu/en/cities/"
+        },
+        {
+            icon: "🚕", name: "FreeNow",
+            avail: true, price: "£10–£50",
+            why: "Licensed black cabs via app. Most regulated option.",
+            recommended: false,
+            url: "https://free-now.com"
+        },
     ],
 };
+
+function detectCabRegion(city: string): string {
+    const c = city.toLowerCase();
+    if (["delhi", "mumbai", "bangalore", "chennai",
+        "kolkata", "hyderabad", "pune", "jaipur",
+        "ahmedabad", "goa", "kochi", "bengaluru"]
+        .some(x => c.includes(x)))
+        return "india";
+    if (["bangkok", "singapore", "kuala lumpur",
+        "jakarta", "bali", "hanoi", "ho chi minh",
+        "phuket", "chiang mai", "phnom penh"]
+        .some(x => c.includes(x)))
+        return "seasia";
+    if (["dubai", "abu dhabi", "riyadh", "jeddah",
+        "cairo", "amman", "beirut", "doha", "kuwait"]
+        .some(x => c.includes(x)))
+        return "middleeast";
+    if (["london", "manchester", "edinburgh",
+        "birmingham", "glasgow"]
+        .some(x => c.includes(x)))
+        return "uk";
+    if (["paris", "berlin", "amsterdam", "rome",
+        "madrid", "barcelona", "vienna", "zurich",
+        "lisbon", "athens", "prague", "budapest"]
+        .some(x => c.includes(x)))
+        return "europe";
+    return "default";
+}
+
+type Tab = "apps" | "transfer" | "local";
 
 const TRANSFER_CARDS = [
     {
@@ -169,6 +405,7 @@ export default function CabsPage() {
     const [tab, setTab] = useState<Tab>("apps");
     const [query, setQuery] = useState("");
     const [searched, setSearched] = useState(false);
+    const [cabRegion, setCabRegion] = useState("default");
 
     // Transfer form state
     const [pickup, setPickup] = useState("");
@@ -180,8 +417,7 @@ export default function CabsPage() {
     const [flightNo, setFlightNo] = useState("");
     const [showTransfers, setShowTransfers] = useState(false);
 
-    const cityKey = city.toLowerCase().trim();
-    const appsForCity = APPS_FOR_CITY[cityKey] ?? APPS_FOR_CITY["default"];
+    const appsForCity = APPS_FOR_CITY[cabRegion] ?? APPS_FOR_CITY["default"];
 
     const filteredDir = APP_DIRECTORY.filter(r =>
         r.city.toLowerCase().includes(query.toLowerCase()) ||
@@ -227,11 +463,21 @@ export default function CabsPage() {
                                 placeholder="Which city are you visiting?"
                                 value={city}
                                 onChange={e => setCity(e.target.value)}
-                                onKeyDown={e => e.key === "Enter" && setSearched(true)}
+                                onKeyDown={e => {
+                                    if (e.key === "Enter") {
+                                        const r = detectCabRegion(city);
+                                        setCabRegion(r);
+                                        setSearched(true);
+                                    }
+                                }}
                             />
                             <button
                                 className={styles.citySearchBtn}
-                                onClick={() => setSearched(true)}
+                                onClick={() => {
+                                    const r = detectCabRegion(city);
+                                    setCabRegion(r);
+                                    setSearched(true);
+                                }}
                             >
                                 Find Options →
                             </button>
@@ -290,7 +536,15 @@ export default function CabsPage() {
                                         </span>
                                         <span className={styles.appPrice}>{app.price}</span>
                                         <p className={styles.appWhy}>{app.why}</p>
-                                        <button className={styles.appLink}>Open App →</button>
+                                        <a
+                                            href={app.url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className={styles.appLink}
+                                            style={{ textDecoration: "none" }}
+                                        >
+                                            Open App →
+                                        </a>
                                     </div>
                                 ))}
                             </div>
@@ -461,7 +715,24 @@ export default function CabsPage() {
                                             </div>
                                             <div className={styles.ctaRow}>
                                                 <button className={styles.btnGhost}>Add to Passport</button>
-                                                <button className={styles.btnPrimary}>Book Transfer →</button>
+                                                <a
+                                                    href={`https://wa.me/?text=${encodeURIComponent(
+                                                        `Hi, I'd like to book a transfer:\n` +
+                                                        `Pickup: ${pickup}\n` +
+                                                        `Drop-off: ${dropoff}\n` +
+                                                        `Date: ${tDate} at ${tTime}\n` +
+                                                        `Passengers: ${pax}\n` +
+                                                        `Luggage: ${luggage}` +
+                                                        (flightNo ? `\nFlight: ${flightNo}` : "")
+                                                    )
+                                                        }`}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className={styles.btnPrimary}
+                                                    style={{ textDecoration: "none" }}
+                                                >
+                                                    Book via WhatsApp →
+                                                </a>
                                             </div>
                                         </div>
                                     </div>

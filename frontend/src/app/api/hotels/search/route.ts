@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
     searchHotelsByCity,
     searchHotelOffers,
+    searchHotelsByGeocode,
     getCityCode,
 } from '@/lib/amadeus';
 
@@ -9,27 +10,32 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
 
     const destination = searchParams.get('destination') ?? '';
+    const iataCode = searchParams.get('iataCode') ?? '';
+    const lat = searchParams.get('lat');
+    const lon = searchParams.get('lon');
     const checkIn = searchParams.get('checkin') ?? '';
     const checkOut = searchParams.get('checkout') ?? '';
     const adults = parseInt(searchParams.get('adults') ?? '1');
 
-    if (!destination || !checkIn || !checkOut) {
+    if (!checkIn || !checkOut || (!destination && !iataCode)) {
         return NextResponse.json(
-            { error: 'destination, checkin, and checkout are required' },
+            { error: 'destination/iataCode, checkin, and checkout are required' },
             { status: 400 }
         );
     }
 
-    const cityCode = getCityCode(destination);
-    if (!cityCode) {
-        return NextResponse.json(
-            { error: `City not supported: ${destination}. Try Tokyo, Paris, Dubai etc.` },
-            { status: 400 }
-        );
+    // Use geocode if available (preferred for small cities), 
+    // fallback to iataCode/city resolution
+    let hotels = [];
+    if (lat && lon) {
+        hotels = await searchHotelsByGeocode(parseFloat(lat), parseFloat(lon));
+    } else {
+        const cityCode = iataCode || getCityCode(destination);
+        if (cityCode) {
+            hotels = await searchHotelsByCity(cityCode);
+        }
     }
 
-    // Step 1: Get hotels in city
-    const hotels = await searchHotelsByCity(cityCode);
     if (!hotels.length) {
         return NextResponse.json({ data: [] });
     }

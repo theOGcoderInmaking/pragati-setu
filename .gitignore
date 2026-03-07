@@ -1,1 +1,17 @@
 node_modules
+.env
+.env.local
+.env.*.local
+.DS_Store
+dist
+build
+.next
+*.bak
+*.tmp
+frontend/check-*.js
+frontend/check-*.ts
+frontend/diag-*.js
+frontend/test-*.ts
+frontend/test_*.js
+frontend/test_*.ts
+frontend/src/app/decision-passport/test_file.txt

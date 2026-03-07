@@ -69,7 +69,8 @@ src/
 │   │   ├── cabs/             # Local transportation
 │   │   ├── buses/            # Luxury coaches
 │   │   ├── trains/           # Heritage rail
-│   │   └── ferries/          # Island transit
+│   │   ├── ferries/          # Island transit
+│   │   └── experiences/      # Verified tours & stays
 │   ├── dashboard/            # User Hub
 │   │   ├── active-trip/      # Real-time traveler tracking
 │   │   ├── bookings/         # Reservation archives
@@ -104,21 +105,23 @@ src/
 | `/login` | Immersive auth entry with 3D tilt effects | Production-ready |
 | `/register` | 3-step onboarding (Profile, Style, Safety) | Production-ready |
 | `/safety` | Global safety intelligence map | Interactive UI |
+| `/weather` | Meteorological Intelligence & comfort analytics | Production-ready |
 
 ### ✈️ Booking Hub (`/booking`)
 The booking hub provides tailored interfaces for 6 distinct travel categories, each designed with bespoke luxury aesthetics.
 
 | Sub-Route | Feature | Status |
 |---|---|---|
-| `/booking/flights` | Accountable flight vetting & carbon tracking | UI Prototype |
+| `/booking/flights` | Accountable flight vetting & carbon tracking | Live API (Amadeus) |
 | `/booking/hotels` | Premium stay discovery with safety audits | UI Prototype |
-| `/booking/cabs` | Verified local transportation booking | UI Prototype |
-| `/booking/buses` | Inter-city luxury coach reservations | UI Prototype |
-| `/booking/trains` | Heritage & Express rail booking interface | UI Prototype |
-| `/booking/ferries` | Coastal and island transit coordination | UI Prototype |
+| `/booking/cabs` | Verified local transportation booking | Production-ready (Deep-links) |
+| `/booking/buses` | Inter-city luxury coach reservations | Production-ready (Deep-links) |
+| `/booking/trains` | Heritage & Express rail booking interface | Production-ready (Deep-links) |
+| `/booking/ferries` | Coastal and island transit coordination | Production-ready (Deep-links) |
+| `/booking/experiences` | Curated tours, activities, and local stays | Production-ready (Deep-links) |
 
 ### 🛠️ User Dashboard (`/dashboard`)
-A centralized hub for the modern traveler to manage their "Decision Passports" and active itineraries.
+A centralized hub for the modern traveler to manage their "Decision Passports", active itineraries, and real-time travel intelligence (Weather, Safety).
 
 | Sub-Route | Description | Status |
 |---|---|---|
@@ -155,10 +158,11 @@ A centralized hub for the modern traveler to manage their "Decision Passports" a
 
 ## ✅ Build Status
 
-Current status: **Ready for Integration**
+Current status: **Production Verified**
 - **UI Architecture**: Stable (Tailwind + CSS Variables)
 - **Animations**: Verified (Framer Motion)
 - **3D Layer**: Optimized (Three.js)
+- **Production Build**: Clean (Zero ESLint/TypeScript errors)
 
 ---
 
@@ -186,7 +190,9 @@ Current status: **Ready for Integration**
 - [x] Booking Hub Infrastructure
 - [x] Real Auth Integration (Supabase/NextAuth Backend)
 - [x] Dynamic Field Report Data
+- [x] Real-time Weather Integration
+- [x] Dedicated Weather Intelligence Page
+- [x] External Booking Provider Integration (Transport & Experiences)
 - [ ] Personalized Passport Detail Pages
 - [ ] Mobile-first Responsive Pass
-- [ ] Real-time Weather Integration
-- [ ] External Booking Provider Integration
+- [ ] Live Pricing Aggregation (Meta-search)

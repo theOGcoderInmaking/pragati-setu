@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sql } from '@/lib/db';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
@@ -10,24 +10,37 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ data: [] });
     }
 
-    console.log('API: cities search called with q:', q);
+    console.log('API: Supabase cities search called with q:', q);
 
     try {
-        const queryTerm = `${q}%`;
-        const data = await sql`
-            SELECT c.id, c.name, c.country_id, co.name as country_name
-            FROM cities c
-            LEFT JOIN countries co ON c.country_id = co.id
-            WHERE c.name ILIKE ${queryTerm}
-            LIMIT ${limit}
-        `;
+        // Query Supabase for 67k cities coverage
+        const { data, error } = await supabaseAdmin
+            .from('cities')
+            .select(`
+                id,
+                name,
+                latitude,
+                longitude,
+                iata_code,
+                countries:country_id (
+                    name
+                )
+            `)
+            .ilike('name', `${q}%`)
+            .limit(limit);
 
-        // Transform the payload to match the old shape expected by the frontend
-        const formattedData = data.map((row: Record<string, unknown>) => ({
-            id: row.id,
+        if (error) {
+            console.error('Supabase cities search error:', error);
+            throw error;
+        }
+
+        const formattedData = data.map((row: any) => ({
+            code: row.iata_code || `DB-${row.id}`,
             name: row.name,
-            country_id: row.country_id,
-            countries: { name: row.country_name }
+            city: row.name,
+            country: row.countries?.name || '',
+            lat: row.latitude,
+            lon: row.longitude
         }));
 
         return NextResponse.json({ data: formattedData });

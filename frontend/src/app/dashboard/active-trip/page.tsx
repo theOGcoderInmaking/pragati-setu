@@ -3,6 +3,7 @@ import React from "react";
 import styles from "./active.module.css";
 import { query } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { getWeather, weatherEmoji } from "@/lib/weather";
 
 interface ActivePassportData {
     id: string;
@@ -63,6 +64,11 @@ export default async function ActiveTripPage() {
         { time: "18:00", text: "Transfer to Suvarnabhumi", active: false },
     ];
 
+    // Fetch real weather
+    const weather = activePassport?.destination_name
+        ? await getWeather(activePassport.destination_name).catch(() => null)
+        : null;
+
     return (
         <div className={styles.activePage}>
             <h1 className={styles.pageTitle}>Active Trip</h1>
@@ -96,10 +102,20 @@ export default async function ActiveTripPage() {
                         <div className={styles.tripCard}>
                             <span className={styles.cardLabel}>Live Conditions</span>
                             <div className={styles.weatherBlock}>
-                                <span className={styles.weatherCity}>{activePassport.destination_name}</span>
+                                <span className={styles.weatherCity}>{weather?.city || activePassport.destination_name}</span>
                                 <div className={styles.weatherMain}>
-                                    <div className={styles.weatherTemp}>31°C</div>
-                                    <div className={styles.weatherDesc}>🌤 Partly cloudy · Humid · Wind 12 km/h</div>
+                                    <div className={styles.weatherTemp}>
+                                        {weather ? `${weather.temp}°C` : "—°C"}
+                                    </div>
+                                    <div className={styles.weatherDesc}>
+                                        {weather ? (
+                                            <>
+                                                {weatherEmoji(weather.icon)} {weather.description.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} · {weather.humidity}% humidity · Wind {weather.wind_kph} km/h
+                                            </>
+                                        ) : (
+                                            "Weather data currently unavailable"
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                             <div className={styles.safetyStatus}>

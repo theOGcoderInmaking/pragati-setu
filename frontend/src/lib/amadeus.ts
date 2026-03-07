@@ -151,6 +151,28 @@ export async function searchHotelsByCity(
     }
 }
 
+// ── Hotel search by geocode ─────────────────────
+export async function searchHotelsByGeocode(
+    latitude: number,
+    longitude: number,
+    radius: number = 20
+) {
+    try {
+        const response = await (amadeus
+            .referenceData.locations.hotels as any).byGeocode
+            .get({
+                latitude,
+                longitude,
+                radius,
+                radiusUnit: 'KM'
+            });
+        return response.data ?? [];
+    } catch (error) {
+        console.error('Hotel geocode search error:', error);
+        return [];
+    }
+}
+
 // ── Hotel offers/pricing ────────────────────────
 export async function searchHotelOffers({
     hotelIds,

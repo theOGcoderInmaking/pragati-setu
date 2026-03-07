@@ -12,7 +12,7 @@ export interface WeatherData {
 export async function getWeather(
     city: string
 ): Promise<WeatherData | null> {
-    const key = process.env.OPENWEATHER_API_KEY;
+    const key = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
     if (!key) {
         console.error('OPENWEATHER_API_KEY not set');
         return null;

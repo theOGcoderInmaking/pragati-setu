@@ -59,6 +59,46 @@ const BUS_RESULTS = [
     },
 ];
 
+function detectBusRegion(from: string, to: string): string {
+    const s = (from + " " + to).toLowerCase();
+    if (["mumbai", "goa", "bangalore", "delhi", "jaipur", "pune", "hyderabad", "chennai", "kolkata"]
+        .some(x => s.includes(x))) return "india";
+    if (["london", "paris", "berlin", "amsterdam", "rome", "madrid", "barcelona", "vienna", "zurich", "prague"]
+        .some(x => s.includes(x))) return "europe";
+    if (["bangkok", "singapore", "kuala lumpur", "jakarta", "bali", "hanoi", "ho chi minh"]
+        .some(x => s.includes(x))) return "seasia";
+    if (["new york", "la", "los angeles", "chicago", "san francisco", "vegas", "miami", "toronto", "vancouver"]
+        .some(x => s.includes(x))) return "na";
+    return "global";
+}
+
+function getBusLinks(from: string, to: string, date: string, region: string) {
+    const f = encodeURIComponent(from);
+    const t = encodeURIComponent(to);
+    const d = date || "";
+
+    if (region === "india") return [
+        { label: "Book on redBus →", url: `https://www.redbus.in/bus-tickets/${f}-to-${t}`, primary: true },
+        { label: "Search AbhiBus →", url: `https://www.abhibus.com/bus_search/${f}/${t}/${d}` },
+    ];
+    if (region === "europe") return [
+        { label: "Book on FlixBus →", url: `https://www.flixbus.com/`, primary: true },
+        { label: "Search Busbud →", url: `https://www.busbud.com/en/bus-search/${f}/${t}/${d}` },
+    ];
+    if (region === "seasia") return [
+        { label: "Book on 12Go Asia →", url: `https://12go.asia/en/travel/${f}/${t}`, primary: true },
+        { label: "Search Busbud →", url: `https://www.busbud.com/en/bus-search/${f}/${t}/${d}` },
+    ];
+    if (region === "na") return [
+        { label: "Book on Greyhound →", url: `https://www.greyhound.com/`, primary: true },
+        { label: "Search Busbud →", url: `https://www.busbud.com/en/bus-search/${f}/${t}/${d}` },
+    ];
+    return [
+        { label: "Search Busbud →", url: `https://www.busbud.com/en/bus-search/${f}/${t}/${d}`, primary: true },
+        { label: "Compare on Rome2Rio →", url: `https://www.rome2rio.com/map/${f}/${t}` },
+    ];
+}
+
 // ─── Star canvas ───────────────────────────────────────────────────────────
 function StarCanvas() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -110,6 +150,8 @@ export default function BusesPage() {
     const [to, setTo] = useState("");
     const [date, setDate] = useState("");
     const [type, setType] = useState("Sleeper AC");
+    const [searched, setSearched] = useState(false);
+    const [busLinks, setBusLinks] = useState<{ label: string; url: string; primary?: boolean }[]>([]);
 
     return (
         <PageWrapper>
@@ -174,7 +216,15 @@ export default function BusesPage() {
                                     <option>Any</option>
                                 </select>
                             </div>
-                            <button className={styles.searchButton}>
+                            <button
+                                className={styles.searchButton}
+                                onClick={() => {
+                                    if (!from || !to) return;
+                                    const r = detectBusRegion(from, to);
+                                    setBusLinks(getBusLinks(from, to, date, r));
+                                    setSearched(true);
+                                }}
+                            >
                                 🔍 Search Buses — Safety Scored
                             </button>
                         </div>
@@ -183,69 +233,241 @@ export default function BusesPage() {
 
                 {/* ═══ RESULTS ═══ */}
                 <section className={styles.resultsSection}>
-                    <h2 className={styles.sectionTitle}>Available Buses</h2>
-                    <p className={styles.sectionSubtitle}>Operator safety scores, on-time records, and scam alerts for each route.</p>
+                    {!searched && (
+                        <>
+                            <h2 className={styles.sectionTitle}>Available Buses</h2>
+                            <p className={styles.sectionSubtitle}>Example schedules and safety ratings for long-distance routes</p>
 
-                    {BUS_RESULTS.map(b => (
-                        <div key={b.id} className={`${styles.busCard} ${b.recommended ? styles.busCardRecommended : ""}`}>
-                            {b.recommended && <span className={styles.recLabel}>🧭 Pragati Setu Recommends</span>}
+                            {BUS_RESULTS.map(b => (
+                                <div key={b.id} className={`${styles.busCard} ${b.recommended ? styles.busCardRecommended : ""}`}>
+                                    {b.recommended && <span className={styles.recLabel}>🧭 Pragati Setu Recommends</span>}
 
-                            <div className={styles.busName}>{b.name}</div>
-                            <div className={styles.busRoute}>{b.route}</div>
+                                    <div className={styles.busName}>{b.name}</div>
+                                    <div className={styles.busRoute}>{b.route}</div>
 
-                            {b.overnight && (
-                                <div className={styles.nightBadgeNew}>
-                                    🌙 PS VERIFIED — Verified Night Route
+                                    {b.overnight && (
+                                        <div className={styles.nightBadgeNew}>
+                                            🌙 PS VERIFIED — Verified Night Route
+                                        </div>
+                                    )}
+
+                                    <div className={styles.safetyBlockNew}>
+                                        <div>
+                                            <div className={styles.safetyLabel}>Operator Safety Rating</div>
+                                            <div style={{ fontFamily: 'Sora', fontSize: '11px', color: '#9A8F82' }}>Based on 42 GPS-tracked trips</div>
+                                        </div>
+                                        <div className={styles.safetyScoreNew}>{b.operatorSafety}</div>
+                                    </div>
+
+                                    <div className={styles.busMeta}>
+                                        <span className={styles.metaItem}>🕘 Dep: {b.dep}</span>
+                                        <span className={styles.metaItem}>
+                                            🕗 Arr: {b.arr}{b.plusDay ? " (+1 Day)" : ""}
+                                        </span>
+                                        <span className={styles.metaItem}>⏱ {b.dur}</span>
+                                        <span className={styles.metaItem}>🎫 {b.type}</span>
+                                        <span className={styles.metaItem}>⏰ On-time: {b.onTime}</span>
+                                        <span className={styles.metaItem}>🧳 {b.luggage}</span>
+                                    </div>
+
+                                    {b.recommended && (
+                                        <div className={styles.whyBox}>
+                                            <span className={styles.whyLabel}>Why we recommend this</span>
+                                            <p className={styles.whyText}>&ldquo;{b.why}&rdquo;</p>
+                                        </div>
+                                    )}
+
+                                    {b.stationWarning && (
+                                        <div className={styles.stationWarning}>
+                                            <span>⚠️</span>
+                                            <span>{b.stationWarning}</span>
+                                        </div>
+                                    )}
+
+                                    <div className={styles.priceRow}>
+                                        <div>
+                                            <div className={styles.price}>{b.price}</div>
+                                            <span className={styles.priceSub}>{b.priceSub}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                            )}
+                            ))}
+                        </>
+                    )}
 
-                            <div className={styles.safetyBlockNew}>
-                                <div>
-                                    <div className={styles.safetyLabel}>Operator Safety Rating</div>
-                                    <div style={{ fontFamily: 'Sora', fontSize: '11px', color: '#9A8F82' }}>Based on 42 GPS-tracked trips</div>
-                                </div>
-                                <div className={styles.safetyScoreNew}>{b.operatorSafety}</div>
+                    {searched && (
+                        <div style={{
+                            maxWidth: "720px",
+                            margin: "0 auto",
+                            padding: "0 24px",
+                        }}>
+                            {/* Route confirmation */}
+                            <div style={{
+                                fontFamily: "'Space Mono', monospace",
+                                fontSize: "10px",
+                                letterSpacing: "3px",
+                                color: "#D4590A",
+                                textTransform: "uppercase",
+                                marginBottom: "8px",
+                            }}>
+                                ✦ PRAGATI SETU · ROUTE INTELLIGENCE
                             </div>
 
-                            <div className={styles.busMeta}>
-                                <span className={styles.metaItem}>🕘 Dep: {b.dep}</span>
-                                <span className={styles.metaItem}>
-                                    🕗 Arr: {b.arr}{b.plusDay ? " (+1 Day)" : ""}
-                                </span>
-                                <span className={styles.metaItem}>⏱ {b.dur}</span>
-                                <span className={styles.metaItem}>🎫 {b.type}</span>
-                                <span className={styles.metaItem}>⏰ On-time: {b.onTime}</span>
-                                <span className={styles.metaItem}>🧳 {b.luggage}</span>
+                            <h2 style={{
+                                fontFamily: "'Cormorant Garamond', serif",
+                                fontSize: "clamp(28px, 5vw, 40px)",
+                                fontWeight: 700,
+                                color: "#F2EDE4",
+                                marginBottom: "8px",
+                                lineHeight: 1.2,
+                            }}>
+                                {from} → {to}
+                            </h2>
+
+                            <p style={{
+                                fontFamily: "'Sora', sans-serif",
+                                fontSize: "14px",
+                                color: "#9A8F82",
+                                marginBottom: "40px",
+                            }}>
+                                We&apos;ve identified the best bus booking platforms for this route.
+                            </p>
+
+                            {/* Provider cards */}
+                            <div style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "16px",
+                                marginBottom: "40px",
+                            }}>
+                                {busLinks.map((link) => (
+                                    <a
+                                        key={link.label}
+                                        href={link.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "space-between",
+                                            padding: "24px 28px",
+                                            background: link.primary
+                                                ? "rgba(212,89,10,0.06)"
+                                                : "rgba(255,255,255,0.03)",
+                                            border: link.primary
+                                                ? "1px solid rgba(212,89,10,0.30)"
+                                                : "1px solid rgba(255,255,255,0.08)",
+                                            borderRadius: "14px",
+                                            textDecoration: "none",
+                                            transition: "all 0.2s",
+                                        }}
+                                        onMouseEnter={e => {
+                                            e.currentTarget.style.background =
+                                                link.primary
+                                                    ? "rgba(212,89,10,0.12)"
+                                                    : "rgba(255,255,255,0.06)";
+                                        }}
+                                        onMouseLeave={e => {
+                                            e.currentTarget.style.background =
+                                                link.primary
+                                                    ? "rgba(212,89,10,0.06)"
+                                                    : "rgba(255,255,255,0.03)";
+                                        }}
+                                    >
+                                        <div>
+                                            {link.primary && (
+                                                <div style={{
+                                                    fontFamily: "'Space Mono', monospace",
+                                                    fontSize: "9px",
+                                                    letterSpacing: "2px",
+                                                    color: "#D4590A",
+                                                    textTransform: "uppercase",
+                                                    marginBottom: "6px",
+                                                }}>
+                                                    ✦ PRAGATI SETU RECOMMENDED
+                                                </div>
+                                            )}
+                                            <div style={{
+                                                fontFamily: "'Sora', sans-serif",
+                                                fontSize: "16px",
+                                                fontWeight: 600,
+                                                color: "#F2EDE4",
+                                                marginBottom: "4px",
+                                            }}>
+                                                {link.label.replace(" →", "")}
+                                            </div>
+                                            <div style={{
+                                                fontFamily: "'Sora', sans-serif",
+                                                fontSize: "12px",
+                                                color: "#9A8F82",
+                                            }}>
+                                                Opens in new tab ↗
+                                            </div>
+                                        </div>
+                                        <div style={{
+                                            fontFamily: "'Sora', sans-serif",
+                                            fontSize: "14px",
+                                            fontWeight: 600,
+                                            color: link.primary ? "#D4590A" : "#9A8F82",
+                                            flexShrink: 0,
+                                            marginLeft: "16px",
+                                        }}>
+                                            Search {from} → {to} →
+                                        </div>
+                                    </a>
+                                ))}
                             </div>
 
-                            {b.recommended && (
-                                <div className={styles.whyBox}>
-                                    <span className={styles.whyLabel}>Why we recommend this</span>
-                                    <p className={styles.whyText}>&ldquo;{b.why}&rdquo;</p>
-                                </div>
-                            )}
-
-                            {b.stationWarning && (
-                                <div className={styles.stationWarning}>
-                                    <span>⚠️</span>
-                                    <span>{b.stationWarning}</span>
-                                </div>
-                            )}
-
-                            <div className={styles.priceRow}>
-                                <div>
-                                    <div className={styles.price}>{b.price}</div>
-                                    <span className={styles.priceSub}>{b.priceSub}</span>
-                                </div>
-                                <div style={{ display: "flex", gap: 12 }}>
-                                    <button className={styles.btnGhost}>Save to Passport</button>
-                                    <button className={styles.btnPrimary}>
-                                        {b.recommended ? "Book This Bus →" : "Select →"}
-                                    </button>
-                                </div>
+                            {/* PS Intelligence note */}
+                            <div style={{
+                                padding: "20px 24px",
+                                background: "rgba(255,255,255,0.02)",
+                                border: "1px solid rgba(255,255,255,0.06)",
+                                borderRadius: "12px",
+                                marginBottom: "32px",
+                            }}>
+                                <p style={{
+                                    fontFamily: "'Space Mono', monospace",
+                                    fontSize: "10px",
+                                    letterSpacing: "2px",
+                                    color: "#9A8F82",
+                                    textTransform: "uppercase",
+                                    marginBottom: "8px",
+                                }}>
+                                    PRAGATI SETU INTELLIGENCE
+                                </p>
+                                <p style={{
+                                    fontFamily: "'Sora', sans-serif",
+                                    fontSize: "13px",
+                                    color: "#9A8F82",
+                                    lineHeight: 1.6,
+                                    margin: 0,
+                                }}>
+                                    Night buses save hotel costs. Always book a berth, not a seat, for routes over 6 hours. Add booking to your Passport for guide support en route.
+                                </p>
                             </div>
+
+                            {/* Add to Passport CTA */}
+                            <button
+                                onClick={() => window.location.href = "/decision-passport"}
+                                style={{
+                                    width: "100%",
+                                    padding: "16px",
+                                    background: "none",
+                                    border: "1px solid rgba(212,89,10,0.25)",
+                                    borderRadius: "10px",
+                                    color: "#D4590A",
+                                    fontFamily: "'Sora', sans-serif",
+                                    fontSize: "14px",
+                                    fontWeight: 600,
+                                    cursor: "pointer",
+                                    letterSpacing: "0.04em",
+                                }}
+                            >
+                                + Add to Decision Passport
+                            </button>
                         </div>
-                    ))}
+                    )}
                 </section>
             </div>
             <Footer />
