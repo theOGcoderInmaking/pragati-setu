@@ -166,6 +166,58 @@ function FlightArc() {
     );
 }
 
+// ─── Flight Deep Link Helper ──────────────────────────────────────────────
+function buildFlightDeepLink(
+    flight: FlightResult,
+    from: Airport,
+    to: Airport,
+    date: string,
+    passengers: number,
+    cabinClass: string
+): string {
+    const d = date;
+    const pax = passengers;
+
+    // Detect airline and return best booking URL
+    const code = flight.code?.toUpperCase() ?? "";
+    const airline = flight.airline?.toLowerCase() ?? "";
+
+    // Indian carriers
+    if (code === "AI" || airline.includes("air india"))
+        return `https://www.airindia.com/book-flights.htm?origin=${from.code}&destination=${to.code}&departure=${d}&adults=${pax}`;
+
+    if (code === "6E" || airline.includes("indigo"))
+        return `https://www.goindigo.in/flight-booking.html?origin=${from.code}&destination=${to.code}&departure=${d}&adult=${pax}`;
+
+    if (code === "SG" || airline.includes("spicejet"))
+        return `https://www.spicejet.com/?from=${from.code}&to=${to.code}&date=${d}&adults=${pax}`;
+
+    if (code === "UK" || airline.includes("vistara"))
+        return `https://www.airvistara.com/in/en/flight-booking?origin=${from.code}&destination=${to.code}&departure=${d}&adults=${pax}`;
+
+    if (code === "QP" || airline.includes("akasa"))
+        return `https://www.akasaair.com/booking?from=${from.code}&to=${to.code}&date=${d}&adult=${pax}`;
+
+    // International carriers
+    if (code === "EK" || airline.includes("emirates"))
+        return `https://www.emirates.com/us/english/booking/flights/?origin=${from.code}&destination=${to.code}&ddate=${d}&adults=${pax}`;
+
+    if (code === "SQ" || airline.includes("singapore"))
+        return `https://www.singaporeair.com/en_UK/us/plan-travel/flights/search-flights/?origin=${from.code}&destination=${to.code}&type=O&adult=${pax}`;
+
+    if (code === "QR" || airline.includes("qatar"))
+        return `https://www.qatarairways.com/en/homepage.html`;
+
+    if (code === "EY" || airline.includes("etihad"))
+        return `https://www.etihad.com/en/fly-etihad/book`;
+
+    if (code === "TG" || airline.includes("thai"))
+        return `https://www.thaiairways.com/en_TH/flights/book_fly/flight_booking.page`;
+
+    // Global fallback — Google Flights
+    return `https://www.google.com/travel/flights?q=Flights+from+${from.code}+to+${to.code}+on+${d}&adults=${pax}&cabin=${cabinClass}`;
+}
+
 // ─── View enum ────────────────────────────────────────────────────────────
 type View = "search" | "results";
 
@@ -520,8 +572,28 @@ export default function FlightsPage() {
                                             <span className={styles.confidenceLabel}>Confidence: {recFlight.confidence}/100</span>
                                         </div>
                                         <div className={styles.btnGroup}>
-                                            <button className={styles.ghostBtn}>Add to Passport</button>
-                                            <button className={styles.bookBtn}>Book This Flight →</button>
+                                            <button
+                                                className={styles.ghostBtn}
+                                                onClick={() => window.location.href = "/decision-passport"}
+                                            >
+                                                Add to Passport
+                                            </button>
+                                            <a
+                                                href={buildFlightDeepLink(
+                                                    recFlight,
+                                                    from,
+                                                    to,
+                                                    departureDate,
+                                                    passengers,
+                                                    cabinClass
+                                                )}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className={styles.bookBtn}
+                                                style={{ textDecoration: "none" }}
+                                            >
+                                                Book This Flight →
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -569,7 +641,22 @@ export default function FlightsPage() {
 
                                     <div className={styles.cardRight}>
                                         <div className={styles.cardPrice}>{flight.price}</div>
-                                        <button className={styles.selectBtn}>Select →</button>
+                                        <a
+                                            href={buildFlightDeepLink(
+                                                flight,
+                                                from,
+                                                to,
+                                                departureDate,
+                                                passengers,
+                                                cabinClass
+                                            )}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className={styles.selectBtn}
+                                            style={{ textDecoration: "none" }}
+                                        >
+                                            Select →
+                                        </a>
                                     </div>
                                 </div>
                             ))}
