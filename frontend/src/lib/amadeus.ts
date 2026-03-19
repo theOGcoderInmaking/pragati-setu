@@ -1,18 +1,42 @@
 import Amadeus from 'amadeus';
 
-// Singleton Amadeus client
-const amadeus = new Amadeus({
-    clientId: process.env.AMADEUS_API_KEY!,
-    clientSecret: process.env.AMADEUS_API_SECRET!,
-    hostname: (process.env.AMADEUS_ENV ?? 'test') as 'test' | 'production',
-});
+let amadeusClient: Amadeus | null = null;
+let hasLoggedMissingCredentials = false;
 
-export default amadeus;
+function getAmadeusClient(): Amadeus | null {
+    if (amadeusClient) return amadeusClient;
+
+    const clientId = process.env.AMADEUS_API_KEY;
+    const clientSecret = process.env.AMADEUS_API_SECRET;
+
+    if (!clientId || !clientSecret) {
+        if (!hasLoggedMissingCredentials) {
+            console.error(
+                'Amadeus is not configured. Missing AMADEUS_API_KEY or AMADEUS_API_SECRET.'
+            );
+            hasLoggedMissingCredentials = true;
+        }
+        return null;
+    }
+
+    amadeusClient = new Amadeus({
+        clientId,
+        clientSecret,
+        hostname: (process.env.AMADEUS_ENV ?? 'test') as 'test' | 'production',
+    });
+
+    return amadeusClient;
+}
+
+export default getAmadeusClient;
 
 // ── Airport search ──────────────────────────────
 export async function searchAirports(
     keyword: string
 ) {
+    const amadeus = getAmadeusClient();
+    if (!amadeus) return [];
+
     try {
         const response = await amadeus
             .referenceData.locations.get({
@@ -57,6 +81,9 @@ export async function searchFlights({
     travelClass: string;
     nonStop?: boolean;
 }) {
+    const amadeus = getAmadeusClient();
+    if (!amadeus) return [];
+
     try {
         const params: Record<string, unknown> = {
             originLocationCode: originCode,
@@ -140,6 +167,9 @@ export function getAirlineName(code: string): string {
 export async function searchHotelsByCity(
     cityCode: string
 ) {
+    const amadeus = getAmadeusClient();
+    if (!amadeus) return [];
+
     try {
         const response = await amadeus
             .referenceData.locations.hotels.byCity
@@ -157,6 +187,9 @@ export async function searchHotelsByGeocode(
     longitude: number,
     radius: number = 20
 ) {
+    const amadeus = getAmadeusClient();
+    if (!amadeus) return [];
+
     try {
         const hotels = amadeus.referenceData.locations.hotels;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -185,6 +218,9 @@ export async function searchHotelOffers({
     checkOutDate: string;
     adults: number;
 }) {
+    const amadeus = getAmadeusClient();
+    if (!amadeus) return [];
+
     try {
         const response = await amadeus
             .shopping.hotelOffersSearch.get({
