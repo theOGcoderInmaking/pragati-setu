@@ -5,7 +5,13 @@ import ResetPasswordEmail from '@/emails/ResetPasswordEmail';
 import PassportReadyEmail from '@/emails/PassportReadyEmail';
 import SafetyAlertEmail from '@/emails/SafetyAlertEmail';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error('RESEND_API_KEY is not configured');
+  }
+  return new Resend(apiKey);
+}
 
 const FROM = process.env.FROM_EMAIL
   ?? 'onboarding@resend.dev';
@@ -22,6 +28,7 @@ export async function sendWelcomeEmail(
     const html = await render(
       WelcomeEmail({ name })
     );
+    const resend = getResendClient();
     await resend.emails.send({
       from: FROM,
       to,
@@ -44,6 +51,7 @@ export async function sendPasswordResetEmail(
     const html = await render(
       ResetPasswordEmail({ resetUrl })
     );
+    const resend = getResendClient();
     await resend.emails.send({
       from: FROM,
       to,
@@ -71,6 +79,7 @@ export async function sendPassportReadyEmail(
         name, destination, score, passportUrl
       })
     );
+    const resend = getResendClient();
     await resend.emails.send({
       from: FROM,
       to,
@@ -96,6 +105,7 @@ export async function sendSafetyAlertEmail(
         name, city, alertTitle, severity
       })
     );
+    const resend = getResendClient();
     await resend.emails.send({
       from: FROM,
       to,
