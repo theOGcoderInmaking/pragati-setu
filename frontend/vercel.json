@@ -1,8 +1,7 @@
 {
   "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "installCommand": "npm install --workspaces=false",
   "outputDirectory": ".next",
+
   "regions": ["bom1"],
   "headers": [
     {
