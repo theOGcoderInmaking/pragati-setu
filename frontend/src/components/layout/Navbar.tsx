@@ -39,16 +39,12 @@ const BookingDropdown = () => {
             title: "Stays",
             items: [
                 { icon: <Buildings size={18} weight="duotone" />, label: "Hotels", href: "/booking/hotels" },
-                { icon: <Buildings size={18} weight="duotone" />, label: "Homestays", href: "/booking/homestays" },
-                { icon: <Buildings size={18} weight="duotone" />, label: "Hostels", href: "/booking/hostels" },
             ]
         },
         {
             title: "Experiences",
             items: [
-                { icon: <Ticket size={18} weight="duotone" />, label: "Events", href: "/booking/events" },
-                { icon: <Ticket size={18} weight="duotone" />, label: "Workshops", href: "/booking/workshops" },
-                { icon: <Ticket size={18} weight="duotone" />, label: "Guided Tours", href: "/booking/tours" },
+                { icon: <Ticket size={18} weight="duotone" />, label: "Experiences", href: "/booking/experiences" },
             ]
         }
     ];

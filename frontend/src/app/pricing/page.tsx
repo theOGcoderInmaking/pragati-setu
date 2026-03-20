@@ -193,11 +193,21 @@ export default function PricingPage() {
 
     const handleTierCta = (tierName: Tier["name"]) => {
         if (tierName === "Corporate") {
-            window.location.href = "mailto:sales@pragatisetu.com";
+            window.open(
+                `https://wa.me/?text=${encodeURIComponent(
+                    "Hi, I'm interested in Pragati Setu Corporate plan. Please share details."
+                )}`,
+                "_blank"
+            );
             return;
         }
 
-        router.push("/dashboard");
+        if (tierName === "Explorer Pass") {
+            router.push("/register");
+            return;
+        }
+
+        router.push("/decision-passport");
     };
 
     return (

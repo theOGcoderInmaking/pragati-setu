@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Compass, GithubLogo, TwitterLogo, InstagramLogo, LinkedinLogo } from "@phosphor-icons/react";
+import { Compass, TwitterLogo, InstagramLogo, LinkedinLogo } from "@phosphor-icons/react";
 import Link from "next/link";
 
 const Footer: React.FC = () => {
@@ -24,8 +24,18 @@ const Footer: React.FC = () => {
                             The world&apos;s first accountable travel intelligence platform. Empowering decisions with certainty through 190+ countries.
                         </p>
                         <div className="flex items-center gap-4">
-                            {[TwitterLogo, InstagramLogo, GithubLogo, LinkedinLogo].map((Icon, i) => (
-                                <a key={i} href="#" className="w-9 h-9 glass-card flex items-center justify-center text-text-secondary hover:text-saffron hover:border-saffron/40 transition-all">
+                            {[
+                                { Icon: TwitterLogo, href: "https://x.com" },
+                                { Icon: InstagramLogo, href: "https://instagram.com" },
+                                { Icon: LinkedinLogo, href: "https://linkedin.com" },
+                            ].map(({ Icon, href }, i) => (
+                                <a
+                                    key={i}
+                                    href={href}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="w-9 h-9 glass-card flex items-center justify-center text-text-secondary hover:text-saffron hover:border-saffron/40 transition-all"
+                                >
                                     <Icon size={18} />
                                 </a>
                             ))}
@@ -68,9 +78,19 @@ const Footer: React.FC = () => {
                     <div>
                         <h4 className="font-mono text-[10px] uppercase tracking-[3px] text-saffron mb-6">Legal</h4>
                         <ul className="space-y-4">
-                            {["Privacy Policy", "Terms of Service", "Safety Guarantee", "Cookie Policy"].map((link) => (
-                                <li key={link}>
-                                    <a href="#" className="text-sm text-text-secondary hover:text-white transition-colors">{link}</a>
+                            {[
+                                { label: "Privacy Policy", href: "/privacy-policy" },
+                                { label: "Terms of Service", href: "/terms" },
+                                { label: "Safety Guarantee", href: "/decision-passport" },
+                                { label: "Cookie Policy", href: "/privacy-policy" },
+                            ].map((link) => (
+                                <li key={link.label}>
+                                    <Link
+                                        href={link.href}
+                                        className="text-sm text-text-secondary hover:text-white transition-colors"
+                                    >
+                                        {link.label}
+                                    </Link>
                                 </li>
                             ))}
                         </ul>

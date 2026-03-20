@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./plan.module.css";
 import PageWrapper from "@/components/PageWrapper";
 import {
@@ -81,6 +82,7 @@ const PHILOSOPHIES = [
 
 export default function PlanYourTripPage() {
     const [activeLabel, setActiveLabel] = useState(0);
+    const router = useRouter();
 
     useEffect(() => {
         const labelTimer = setInterval(() => {
@@ -175,7 +177,12 @@ export default function PlanYourTripPage() {
                                 </li>
                             </ul>
 
-                            <button className={styles.btnTeal}>Start Planning Free <ArrowRight size={18} /></button>
+                            <button
+                                className={styles.btnTeal}
+                                onClick={() => router.push("/decision-passport")}
+                            >
+                                Start Planning Free <ArrowRight size={18} />
+                            </button>
                         </div>
 
                         <div className={`${styles.mockupCard} fade-up`}>
@@ -235,7 +242,12 @@ export default function PlanYourTripPage() {
                                 ))}
                             </div>
 
-                            <button className={styles.btnSaffron}>Let Us Plan <ArrowRight size={18} /></button>
+                            <button
+                                className={styles.btnSaffron}
+                                onClick={() => router.push("/decision-passport")}
+                            >
+                                Let Us Plan <ArrowRight size={18} />
+                            </button>
                         </div>
                     </div>
                 </section>
@@ -285,7 +297,13 @@ export default function PlanYourTripPage() {
                             <li className={styles.featureTinyItem}>✓ AI conflict checker</li>
                             <li className={styles.featureTinyItem}>✓ Confidence scoring</li>
                         </ul>
-                        <button className={styles.btnTeal} style={{ width: '100%' }}>Start Planning</button>
+                        <button
+                            className={styles.btnTeal}
+                            style={{ width: '100%' }}
+                            onClick={() => router.push("/decision-passport")}
+                        >
+                            Start Planning
+                        </button>
                     </div>
 
                     <div className={`${styles.ctaGlass} ${styles.ctaGlassSaffron} fade-up`}>
@@ -296,7 +314,13 @@ export default function PlanYourTripPage() {
                             <li className={styles.featureTinyItem}>✓ 24/7 Human guide</li>
                             <li className={styles.featureTinyItem}>✓ Full guarantee</li>
                         </ul>
-                        <button className={styles.btnSaffron} style={{ width: '100%' }}>Let Us Plan</button>
+                        <button
+                            className={styles.btnSaffron}
+                            style={{ width: '100%' }}
+                            onClick={() => router.push("/decision-passport")}
+                        >
+                            Let Us Plan
+                        </button>
                     </div>
                 </section>
 
