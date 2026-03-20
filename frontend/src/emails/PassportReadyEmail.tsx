@@ -108,7 +108,7 @@ export const PassportReadyEmail: React.FC<PassportReadyProps> = ({
             <body>
                 <div className="wrapper">
                     <div className="card">
-                        <div className="logo">✦ PRAGATI SETU</div>
+                        <div className="logo">PRAGATI SETU</div>
 
                         <h1 className="heading">
                             Your passport is ready, {name}.
@@ -140,9 +140,9 @@ export const PassportReadyEmail: React.FC<PassportReadyProps> = ({
 
                         <p className="body-text" style={{ fontSize: '13px' }}>
                             Your passport includes:<br />
-                            ✦ Weather, Safety, Scam, Crowd + Budget scores<br />
-                            ✦ Full risk register with prevention steps<br />
-                            ✦ ₹25,000 guarantee coverage
+                            - Weather, Safety, Scam, Crowd + Budget scores<br />
+                            - Full risk register with prevention steps<br />
+                            - ₹25,000 guarantee coverage
                         </p>
 
                     </div>

@@ -244,3 +244,29 @@ model GuideSession {
 
   @@map("guide_sessions")
 }
+
+model NewsletterSubscriber {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email          String   @unique
+  subscribed_at  DateTime @default(now()) @db.Timestamptz(6)
+  is_active      Boolean  @default(true)
+  source         String   @default("blog")
+
+  @@map("newsletter_subscribers")
+}
+
+model BlogPost {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug         String    @unique
+  title        String
+  excerpt      String?
+  body         String
+  category     String    @default("editorial")
+  author       String    @default("Editorial Desk")
+  published    Boolean   @default(false)
+  published_at DateTime? @db.Timestamptz(6)
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+
+  @@map("blog_posts")
+}

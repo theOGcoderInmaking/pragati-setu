@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Eye, EyeSlash } from '@phosphor-icons/react';
+import { Eye, EyeSlash, CheckCircle } from '@phosphor-icons/react';
 import PageWrapper from '@/components/PageWrapper';
 
 export default function ResetPasswordPage() {
@@ -103,7 +103,7 @@ export default function ResetPasswordPage() {
                                     color: '#D4590A',
                                     marginBottom: '12px',
                                 }}>
-                                    ✦ PRAGATI SETU
+                                    PRAGATI SETU
                                 </div>
                                 <h1 style={{
                                     fontFamily:
@@ -253,11 +253,8 @@ export default function ResetPasswordPage() {
                     ) : (
                         /* Success */
                         <div style={{ textAlign: 'center' }}>
-                            <div style={{
-                                fontSize: '48px',
-                                marginBottom: '24px',
-                            }}>
-                                ✦
+                            <div style={{ marginBottom: '24px' }}>
+                                <CheckCircle size={48} weight="fill" color="#D4590A" />
                             </div>
                             <h2 style={{
                                 fontFamily:

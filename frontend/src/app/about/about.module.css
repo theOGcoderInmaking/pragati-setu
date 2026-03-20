@@ -144,6 +144,16 @@
     border-radius: 50%;
     margin: 0 auto 20px;
     border: 2px solid rgba(255, 255, 255, 0.10);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.teamAvatarText {
+    color: #F2EDE4;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    letter-spacing: 1px;
 }
 
 .avatarA {
@@ -249,10 +259,20 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    text-decoration: none;
 }
 
 .btnDownload:hover {
     color: #ffffff;
+}
+
+.reportMeta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #7AB3B5;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 0 0 12px;
 }
 
 /* SECTION 5 — VALUES */
@@ -275,12 +295,6 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 20px;
     padding: 48px 32px;
-}
-
-.valueIcon {
-    font-size: 24px;
-    margin-bottom: 24px;
-    display: block;
 }
 
 .valueTitle {

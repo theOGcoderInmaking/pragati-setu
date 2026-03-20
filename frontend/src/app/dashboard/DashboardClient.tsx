@@ -9,7 +9,7 @@ export default function DashboardClient() {
     return (
         <div className={styles.newTripSearch}>
             <div className={styles.tripInputWrap}>
-                <input className={styles.tripInput} placeholder="✦ Plan a new trip…" />
+                <input className={styles.tripInput} placeholder="Plan a new trip..." />
                 <div className={styles.modeSelector}>
                     <button
                         className={`${styles.modePill} ${mode === "plan" ? styles.modePillActive : ""}`}

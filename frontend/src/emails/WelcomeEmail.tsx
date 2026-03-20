@@ -78,7 +78,7 @@ export const WelcomeEmail: React.FC<WelcomeEmailProps> = ({ name }) => (
         <body>
             <div className="wrapper">
                 <div className="card">
-                    <div className="logo">✦ PRAGATI SETU</div>
+                    <div className="logo">PRAGATI SETU</div>
 
                     <h1 className="heading">
                         Welcome, {name}.
@@ -108,10 +108,10 @@ export const WelcomeEmail: React.FC<WelcomeEmailProps> = ({ name }) => (
                         <strong style={{ color: '#F2EDE4' }}>
                             What you can do:
                         </strong><br />
-                        ✦ Create Decision Passports for any destination<br />
-                        ✦ Get 5 real-time confidence scores<br />
-                        ✦ Access local guide intelligence<br />
-                        ✦ Track safety alerts for your trips
+                        - Create Decision Passports for any destination<br />
+                        - Get 5 real-time confidence scores<br />
+                        - Access local guide intelligence<br />
+                        - Track safety alerts for your trips
                     </p>
 
                 </div>

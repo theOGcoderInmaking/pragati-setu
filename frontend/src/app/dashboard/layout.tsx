@@ -5,6 +5,7 @@ import DashboardSidebar from "@/components/DashboardSidebar";
 import styles from "./dashboard.module.css";
 import { auth } from "@/lib/auth";
 import { query } from "@/lib/db";
+import { getUserAccount } from "@/lib/user-profile";
 
 export default async function DashboardLayout({
     children,
@@ -15,7 +16,14 @@ export default async function DashboardLayout({
     const user = session?.user;
     const userId = user?.id;
 
-    const displayName = user?.name || user?.email?.split('@')[0] || "Traveler";
+    const account = userId
+        ? await getUserAccount(userId).catch(() => null)
+        : null;
+    const displayName =
+        account?.full_name ||
+        user?.name ||
+        user?.email?.split('@')[0] ||
+        "Traveler";
 
     // Global dashboard stats for sidebar
     const [stats, counts] = await Promise.all([

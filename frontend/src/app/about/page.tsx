@@ -1,153 +1,276 @@
-"use client";
-
-import React from "react";
+import Link from "next/link";
 import styles from "./about.module.css";
 import PageWrapper from "@/components/PageWrapper";
-import { ArrowRight, Target, MagnifyingGlass, House } from "@phosphor-icons/react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { queryOne } from "@/lib/db";
 
-// --- Data ---
+interface AboutSnapshotRow {
+    active_passports: number;
+    active_guides: number;
+    active_alerts: number;
+    published_briefs: number;
+    newsletter_subscribers: number;
+}
 
-const TEAM = [
+interface PublishedBriefRow {
+    title: string;
+    slug: string;
+    author: string;
+    published_at: string | null;
+    created_at: string;
+}
+
+const PLATFORM_AREAS = [
     {
-        name: "Arjun Mehta",
-        role: "FOUNDER & CEO",
-        avatarCls: styles.avatarA,
-        bio: "Ex-Booking.com. Scam survivor. Obsessed with making travel less stressful for every Indian going abroad."
+        title: "Signal Layer",
+        role: "LIVE DATA",
+        summary:
+            "Safety alerts, destination demand, and editorial briefs are surfaced from current tables rather than padded with fake coverage.",
+        avatarClass: styles.avatarA,
+        avatarLabel: "S",
     },
     {
-        name: "Priya Sharma",
-        role: "HEAD OF INTELLIGENCE",
-        avatarCls: styles.avatarB,
-        bio: "Former analyst at Ministry of External Affairs. Manages our guide network and safety data architecture."
+        title: "Guide Coverage",
+        role: "LOCAL CONTEXT",
+        summary:
+            "Guide records, verification state, and destination coverage stay visible so users can see where human support actually exists.",
+        avatarClass: styles.avatarB,
+        avatarLabel: "G",
     },
     {
-        name: "Rohan Verma",
-        role: "CHIEF TECHNOLOGY OFFICER",
-        avatarCls: styles.avatarC,
-        bio: "Ex-Flipkart engineering lead. Built the Confidence Score engine and Passport generation system from scratch."
+        title: "Decision Passport",
+        role: "TRIP SYSTEM",
+        summary:
+            "Passport generation ties together alerts, bookings, preferences, and destination context into one trackable planning flow.",
+        avatarClass: styles.avatarC,
+        avatarLabel: "P",
     },
     {
-        name: "Ananya Iyer",
-        role: "HEAD OF GUIDE OPERATIONS",
-        avatarCls: styles.avatarD,
-        bio: "Managed 400+ guides across 60 cities. Former travel editor. Personally vets every field report before it goes live."
-    }
-];
-
-const STATS = [
-    { val: "47", label: "TOTAL CLAIMS FILED" },
-    { val: "2.8hrs", label: "AVG RESOLUTION TIME" },
-    { val: "₹4.87L", label: "TOTAL PAID OUT" },
-    { val: "99.6%", label: "CLAIM-FREE RATE" }
-];
+        title: "Transparency",
+        role: "PUBLIC REPORTING",
+        summary:
+            "This page now reflects current platform counts and published briefs. If a metric is not tracked, it is not invented here.",
+        avatarClass: styles.avatarD,
+        avatarLabel: "T",
+    },
+] as const;
 
 const VALUES = [
     {
-        icon: <Target className={styles.valueIcon} color="#D4590A" />,
-        title: "Accountable",
-        text: "We only say things we're willing to stand behind financially."
+        title: "Evidence First",
+        text: "We would rather show a thin but accurate surface than inflate credibility with fictional history, fictional people, or invented performance metrics.",
     },
     {
-        icon: <MagnifyingGlass className={styles.valueIcon} color="#D4590A" />,
-        title: "Transparent",
-        text: "We publish our claim rate every quarter. No platform does this. We started."
+        title: "Operational Honesty",
+        text: "If a table does not exist yet, the page says so. Claims, payouts, and guarantee outcomes will only appear once they are actually being logged.",
     },
     {
-        icon: <House className={styles.valueIcon} color="#D4590A" />,
-        title: "Built for India",
-        text: "Designed for Indian travelers. By Indians who've been scammed, confused, and lost in foreign airports."
-    }
-];
+        title: "Built Around Indian Travel",
+        text: "The product is designed for the real friction Indian travelers deal with abroad: uncertainty, timing gaps, local context, and avoidable mistakes.",
+    },
+] as const;
 
-// --- Components ---
+export const revalidate = 300;
 
-export default function AboutUsPage() {
+export default async function AboutUsPage() {
+    const [snapshot, latestBrief] = await Promise.all([
+        getAboutSnapshot(),
+        getLatestPublishedBrief(),
+    ]);
+
+    const snapshotCards = [
+        {
+            value: formatCount(snapshot.active_passports),
+            label: "ACTIVE PASSPORTS",
+        },
+        {
+            value: formatCount(snapshot.active_guides),
+            label: "LIVE GUIDE PROFILES",
+        },
+        {
+            value: formatCount(snapshot.active_alerts),
+            label: "ACTIVE ALERTS",
+        },
+        {
+            value: formatCount(snapshot.published_briefs),
+            label: "PUBLISHED BRIEFS",
+        },
+    ];
+
+    const briefHref = latestBrief
+        ? `/blog/${latestBrief.slug}`
+        : "/blog";
+    const briefLabel = latestBrief
+        ? "Open Latest Brief"
+        : "Open Intelligence Feed";
+    const briefMeta = latestBrief
+        ? `${latestBrief.title} | ${latestBrief.author} | ${formatPublishedDate(latestBrief.published_at ?? latestBrief.created_at)}`
+        : "No published brief yet. The intelligence feed remains the current public record.";
+
     return (
         <PageWrapper>
             <Navbar />
             <div className={styles.aboutPage}>
-
-                {/* HERO — FOUNDER STORY */}
                 <section className={styles.hero}>
                     <div className={styles.heroGlow} />
                     <div className={styles.heroContent}>
-                        <span className={styles.eyebrow}>THE ORIGIN STORY</span>
+                        <span className={styles.eyebrow}>WHY WE EXIST</span>
                         <h1 className={styles.heading}>
-                            We got scammed.
-                            <span className={styles.headingAccent}>So we built the answer.</span>
+                            Travel intelligence should be auditable.
+                            <span className={styles.headingAccent}>Not theatrical.</span>
                         </h1>
                         <p className={styles.storyText}>
-                            In 2022, our founder Arjun Mehta landed in Bangkok and was scammed within 40 minutes. The taxi, the hotel, the &apos;closed temple&apos; trick — all of it. Things that every local knew to avoid, but nobody had told him.<br /><br />
-                            He searched for a platform that would have warned him. Nothing existed. So he built Pragati Setu.<br /><br />
-                            Today, 12,847 Indian travelers plan smarter because of that one bad afternoon in Bangkok.
+                            Pragati Setu exists to reduce uncertainty for Indian travelers abroad with visible signals, local context, and trip-specific planning tools.
+                            <br />
+                            <br />
+                            This page intentionally avoids fictional founders, fictional team biographies, and invented historical win-rate numbers. If a metric is public here, it comes from the current system. If we are not tracking it yet, we say that directly.
                         </p>
                     </div>
                 </section>
 
-                {/* SECTION 2 — MISSION */}
                 <section className={styles.missionSection}>
                     <blockquote className={styles.missionQuote}>
-                        &ldquo;Every Indian traveler deserves to explore the world with the same confidence as someone who&apos;s been there before. That&apos;s our only mission.&rdquo;
+                        &ldquo;Confidence should come from visible signals, not marketing promises.&rdquo;
                     </blockquote>
                     <span className={styles.missionAttribution}>
-                        — Arjun Mehta, Founder
+                        — Pragati Setu operating principle
                     </span>
                 </section>
 
-                {/* SECTION 3 — TEAM */}
                 <section className={styles.teamSection}>
-                    <h2 className={styles.sectionTitle}>The people behind the Passport.</h2>
+                    <h2 className={styles.sectionTitle}>What powers the platform.</h2>
                     <div className={styles.teamGrid}>
-                        {TEAM.map((member, i) => (
-                            <div key={i} className={styles.teamCard}>
-                                <div className={`${styles.teamAvatar} ${member.avatarCls}`} />
-                                <h3 className={styles.teamName}>{member.name}</h3>
-                                <span className={styles.teamRole}>{member.role}</span>
-                                <p className={styles.teamBio}>{member.bio}</p>
+                        {PLATFORM_AREAS.map((area) => (
+                            <div key={area.title} className={styles.teamCard}>
+                                <div className={`${styles.teamAvatar} ${area.avatarClass}`}>
+                                    <span className={styles.teamAvatarText}>{area.avatarLabel}</span>
+                                </div>
+                                <h3 className={styles.teamName}>{area.title}</h3>
+                                <span className={styles.teamRole}>{area.role}</span>
+                                <p className={styles.teamBio}>{area.summary}</p>
                             </div>
                         ))}
                     </div>
                 </section>
 
-                {/* SECTION 4 — TRANSPARENCY REPORT */}
                 <section className={styles.reportSection}>
-                    <h2 className={styles.sectionTitle}>We publish our mistakes.</h2>
+                    <h2 className={styles.sectionTitle}>Live transparency snapshot.</h2>
                     <p className={styles.reportIntro}>
-                        Every quarter we publish a full transparency report showing our claim rate, resolution time, and what we got wrong. Because accountability is our entire product.
+                        These counts are pulled from current platform tables. Historical guarantee payout, claims resolved, and claim-free-rate figures are intentionally omitted until guarantee events are tracked in a dedicated table.
                     </p>
 
                     <div className={styles.statGrid}>
-                        {STATS.map((stat, i) => (
-                            <div key={i} className={styles.statCard}>
-                                <span className={styles.statValue}>{stat.val}</span>
+                        {snapshotCards.map((stat) => (
+                            <div key={stat.label} className={styles.statCard}>
+                                <span className={styles.statValue}>{stat.value}</span>
                                 <span className={styles.statLabel}>{stat.label}</span>
                             </div>
                         ))}
                     </div>
 
-                    <button className={styles.btnDownload}>
-                        Download Latest Report <ArrowRight size={14} />
-                    </button>
+                    <p className={styles.reportMeta}>
+                        Newsletter subscribers on file: {formatCount(snapshot.newsletter_subscribers)}.
+                    </p>
+                    <p className={styles.reportMeta}>{briefMeta}</p>
+
+                    <Link className={styles.btnDownload} href={briefHref}>
+                        {briefLabel}
+                        <span aria-hidden="true">&rarr;</span>
+                    </Link>
                 </section>
 
-                {/* SECTION 5 — VALUES */}
                 <section className={styles.valuesSection}>
-                    <h2 className={styles.sectionTitle}>Our Values.</h2>
+                    <h2 className={styles.sectionTitle}>Our values.</h2>
                     <div className={styles.valuesGrid}>
-                        {VALUES.map((val, i) => (
-                            <div key={i} className={styles.valueCard}>
-                                {val.icon}
-                                <h3 className={styles.valueTitle}>{val.title}</h3>
-                                <p className={styles.valueText}>{val.text}</p>
+                        {VALUES.map((value) => (
+                            <div key={value.title} className={styles.valueCard}>
+                                <h3 className={styles.valueTitle}>{value.title}</h3>
+                                <p className={styles.valueText}>{value.text}</p>
                             </div>
                         ))}
                     </div>
                 </section>
-
             </div>
             <Footer />
         </PageWrapper>
     );
+}
+
+async function getAboutSnapshot(): Promise<AboutSnapshotRow> {
+    try {
+        const row = await queryOne<AboutSnapshotRow>(
+            `SELECT
+                (SELECT COUNT(*)::int
+                 FROM decision_passports
+                 WHERE is_active = true) AS active_passports,
+                (SELECT COUNT(*)::int
+                 FROM guides
+                 WHERE is_active = true) AS active_guides,
+                (SELECT COUNT(*)::int
+                 FROM safety_alerts
+                 WHERE is_active = true) AS active_alerts,
+                (SELECT COUNT(*)::int
+                 FROM blog_posts
+                 WHERE published = true) AS published_briefs,
+                (SELECT COUNT(*)::int
+                 FROM newsletter_subscribers
+                 WHERE is_active = true) AS newsletter_subscribers`
+        );
+
+        return row ?? {
+            active_passports: 0,
+            active_guides: 0,
+            active_alerts: 0,
+            published_briefs: 0,
+            newsletter_subscribers: 0,
+        };
+    } catch (error) {
+        console.error("Failed to load About snapshot:", error);
+        return {
+            active_passports: 0,
+            active_guides: 0,
+            active_alerts: 0,
+            published_briefs: 0,
+            newsletter_subscribers: 0,
+        };
+    }
+}
+
+async function getLatestPublishedBrief(): Promise<PublishedBriefRow | null> {
+    try {
+        return await queryOne<PublishedBriefRow>(
+            `SELECT
+                title,
+                slug,
+                author,
+                published_at,
+                created_at
+             FROM blog_posts
+             WHERE published = true
+             ORDER BY COALESCE(published_at, created_at) DESC
+             LIMIT 1`
+        );
+    } catch (error) {
+        console.error("Failed to load latest brief:", error);
+        return null;
+    }
+}
+
+function formatCount(value: number): string {
+    return value.toLocaleString("en-IN");
+}
+
+function formatPublishedDate(value: string): string {
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "Unscheduled";
+    }
+
+    return date.toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+    });
 }

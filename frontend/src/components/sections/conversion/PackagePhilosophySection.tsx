@@ -91,7 +91,7 @@ const PackageCard: React.FC<{ pkg: Package; index: number }> = ({ pkg, index }) 
         {pkg.isCenter && (
             <>
                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-saffron to-transparent" />
-                <div className="font-mono text-[9px] text-saffron tracking-[3px] uppercase mb-1">✦ Most Popular</div>
+                <div className="font-mono text-[9px] text-saffron tracking-[3px] uppercase mb-1">Most Popular</div>
             </>
         )}
 

@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeSlash, ArrowLeft } from "@phosphor-icons/react";
+import { Eye, EyeSlash, ArrowLeft, CheckCircle } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
@@ -346,7 +346,7 @@ export default function LoginPage() {
                                             className="text-6xl mb-6"
                                             style={{ color: "var(--saffron)" }}
                                         >
-                                            ✦
+                                            <CheckCircle weight="fill" size={56} />
                                         </motion.div>
                                         <h2 className="font-display text-4xl font-black text-text-primary mb-2">
                                             Welcome back.
@@ -368,12 +368,7 @@ export default function LoginPage() {
                                         {/* Logo */}
                                         <div className="text-center mb-10">
                                             <div className="inline-flex items-center justify-center gap-2 mb-2">
-                                                <span
-                                                    className="font-display font-bold text-[16px]"
-                                                    style={{ color: "var(--saffron)", letterSpacing: "2px" }}
-                                                >
-                                                    ✦
-                                                </span>
+                                                <span className="inline-block h-2 w-2 rounded-full bg-saffron" />
                                                 <span
                                                     className="font-display font-bold text-[16px] text-text-primary uppercase"
                                                     style={{ letterSpacing: "2px" }}

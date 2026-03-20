@@ -135,7 +135,7 @@ export default function ExperiencesPage() {
                     <div className={styles.skyGlow} />
 
                     <div className={styles.heroContent}>
-                        <span className={styles.eyebrow}>✦ Curated Discoveries</span>
+                        <span className={styles.eyebrow}>Curated Discoveries</span>
                         <h1 className={styles.heading}>
                             Unforgettable
                             <span className={styles.headingAccent}>Experiences.</span>
@@ -227,7 +227,7 @@ export default function ExperiencesPage() {
                                 textTransform: "uppercase",
                                 marginBottom: "8px",
                             }}>
-                                ✦ PRAGATI SETU · LOCAL INTELLIGENCE
+                                PRAGATI SETU · LOCAL INTELLIGENCE
                             </div>
 
                             <h2 style={{
@@ -280,7 +280,7 @@ export default function ExperiencesPage() {
                                                     textTransform: "uppercase",
                                                     marginBottom: "6px",
                                                 }}>
-                                                    ✦ PRIMARY PROVIDER
+                                                    PRIMARY PROVIDER
                                                 </div>
                                             )}
                                             <div style={{

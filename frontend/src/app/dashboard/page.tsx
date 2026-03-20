@@ -7,13 +7,26 @@ import { query } from '@/lib/db';
 import { getWeather, weatherEmoji } from '@/lib/weather';
 import { DecisionPassport, PassportItem, GuideSession, SafetyAlert } from "@/types";
 
+interface RecommendationRow {
+    name: string;
+    country_name?: string | null;
+}
+
+interface LiveSafetyStatus {
+    tone: 'clear' | 'watch' | 'high';
+    label: string;
+    detail: string;
+    href: string;
+    cta: string;
+}
+
 // ─── Time-based greeting ────────────────────────────────────────────────────
 function greeting(name: string): string {
     const h = new Date().getHours();
     if (h >= 5 && h < 12) return `Good morning, ${name}. ☀️`;
     if (h >= 12 && h < 17) return `Good afternoon, ${name}.`;
     if (h >= 17 && h < 21) return `Good evening, ${name}. 🌙`;
-    return `Traveling somewhere, ${name}? ✦`;
+    return `Traveling somewhere, ${name}?`;
 }
 
 // ─── SVG progress ring ──────────────────────────────────────────────────────
@@ -56,7 +69,6 @@ export default async function DashboardPage() {
         reviewsDueData,
         recentSessions,
         alertsData,
-        recommendationsData,
     ] = await Promise.all([
         userId ? query<DecisionPassport>(
             `SELECT id, destination_name, destination_country,
@@ -131,36 +143,51 @@ export default async function DashboardPage() {
  LIMIT 3`,
             []
         ),
-
-        query<{ name: string; country_name?: string }>(
-            `SELECT c.name, co.name as country_name 
-             FROM cities c 
-             LEFT JOIN countries co ON co.id = c.country_id 
-             LIMIT 3`,
-            []
-        ).catch(() => [] as { name: string; country_name?: string }[]),
     ]);
 
     const activePassport = activePassportArr[0] ?? null;
+    const activeDestinationCity = activePassport
+        ? extractDestinationCity(activePassport.destination_name)
+        : null;
 
     // Additional data for active passport
-    const [passportItems, scheduleToday] = activePassport ? await Promise.all([
-        query<PassportItem>(
-            `SELECT item_type, provider_name, status, booked_at
+    const [passportItems, scheduleToday, activeDestinationAlerts, recommendationsData] = await Promise.all([
+        activePassport ? query<PassportItem>(
+            `SELECT id, item_type, provider_name, status, booked_at, details
              FROM passport_items
              WHERE passport_id = $1`,
             [activePassport.id]
-        ),
-        query<PassportItem>(
-            `SELECT item_type, provider_name, status, booked_at
+        ) : Promise.resolve([] as PassportItem[]),
+        activePassport ? query<PassportItem>(
+            `SELECT id, item_type, provider_name, status, booked_at, details
              FROM passport_items
              WHERE passport_id = $1
-             AND (EXTRACT(EPOCH FROM booked_at) >= EXTRACT(EPOCH FROM CURRENT_DATE)
-                  AND EXTRACT(EPOCH FROM booked_at) < EXTRACT(EPOCH FROM CURRENT_DATE + INTERVAL '1 day'))
+             AND booked_at >= CURRENT_DATE
+             AND booked_at < CURRENT_DATE + INTERVAL '1 day'
              ORDER BY booked_at ASC`,
             [activePassport.id]
-        ).catch(() => [] as PassportItem[])
-    ]) : [[], []];
+        ).catch(() => [] as PassportItem[]) : Promise.resolve([] as PassportItem[]),
+        activePassport ? query<SafetyAlert>(
+            `SELECT id, city_name, country_name, alert_type, title, severity, severity_val
+             FROM safety_alerts
+             WHERE is_active = true
+             AND (
+                LOWER(COALESCE(city_name, '')) = LOWER($1)
+                OR LOWER(COALESCE(country_name, '')) = LOWER($2)
+             )
+             ORDER BY severity_val DESC, created_at DESC
+             LIMIT 3`,
+            [activeDestinationCity ?? '', activePassport.destination_country ?? '']
+        ).catch(() => [] as SafetyAlert[]) : Promise.resolve([] as SafetyAlert[]),
+        query<RecommendationRow>(
+            `SELECT c.name, co.name as country_name
+             FROM cities c
+             LEFT JOIN countries co ON co.id = c.country_id
+             ORDER BY c.id DESC
+             LIMIT 8`,
+            []
+        ).catch(() => [] as RecommendationRow[]),
+    ]);
 
     const doneCount = passportItems.filter(i => i.status === 'confirmed').length;
     const totalCount = passportItems.length;
@@ -182,27 +209,31 @@ export default async function DashboardPage() {
             String(p.travel_dates_start ?? ''),
             String(p.travel_dates_end ?? '')
         ),
-        status: String(p.status ?? 'draft') as 'active' | 'complete' | 'draft',
+        status: mapDashboardPassportStatus(String(p.status ?? 'draft')),
         id: String(p.id),
     }));
 
     // Format alerts
     const ALERTS = (alertsData as SafetyAlert[]).map((a) => ({
+        id: String(a.id),
         flag: getFlag(a.country_name || ''),
         city: String(a.city_name ?? ''),
         text: String(a.title ?? ''),
         severity: String(a.severity).toLowerCase() === 'high'
             ? 'high' as const : 'med' as const,
+        href: `/dashboard/alerts?alert=${encodeURIComponent(String(a.id))}`,
     }));
 
     // Format reviews due
     const REVIEWS = (reviewsDueData as PassportItem[]).map((r) => ({
+        id: String(r.id),
         name: String(r.provider_name ?? 'Unknown'),
         date: r.booked_at
             ? new Date(String(r.booked_at)).toLocaleDateString('en-IN', {
                 month: 'short', year: 'numeric'
             })
             : '',
+        href: `/dashboard/reviews?item=${encodeURIComponent(String(r.id))}`,
     }));
 
     // Format messages from guide sessions
@@ -218,37 +249,35 @@ export default async function DashboardPage() {
 
     // PENDING bookings
     const PENDING = passportItems.filter(i => i.status === 'pending').slice(0, 2).map((p) => ({
+        id: String(p.id),
         icon: getItemIcon(String(p.item_type ?? '')),
         label: String(p.provider_name ?? p.item_type ?? 'Item'),
+        href: getBookingHref(String(p.item_type ?? ''), activePassport?.destination_name ?? null),
     }));
 
-    // Recommendations with fallback
-    const DESTINATIONS = (recommendationsData.length > 0)
-        ? (recommendationsData as { name: string; country_name?: string }[]).map(c => ({
+    // Recommendations from real city data only
+    const DESTINATIONS = (recommendationsData as RecommendationRow[])
+        .filter((c) => normalizeLocation(c.name) !== normalizeLocation(activeDestinationCity ?? ''))
+        .slice(0, 3)
+        .map((c) => ({
             flag: getFlag(c.country_name || ''),
             name: c.name,
-            why: "Curated for your travel style.",
-            season: "Check local weather",
-            budget: "Calculate in Passport"
-        }))
-        : [
-            { flag: "🇵🇹", name: "Lisbon", why: "Matches your love of coastal cities.", season: "Apr–Jun", budget: "~₹60K / week" },
-            { flag: "🇻🇳", name: "Hội An", why: "Slow travel, lanterns — like Kyoto.", season: "Feb–Apr", budget: "~₹35K / week" },
-            { flag: "🇲🇦", name: "Marrakech", why: "Souk culture and grand architecture.", season: "Oct–Nov", budget: "~₹55K / week" },
-        ];
+            country: c.country_name || 'Global coverage',
+            why: activePassport
+                ? `A strong alternative if you want a different rhythm from ${activeDestinationCity}.`
+                : 'Active intelligence coverage and booking support are available here.',
+            coverage: activePassport?.budget_score != null
+                ? `Budget reference ${activePassport.budget_score}/100`
+                : 'Passport-ready',
+            href: getPassportHref(c.name, c.country_name || ''),
+        }));
 
     // Today's schedule formatting
-    const TODAY_SCHEDULE = scheduleToday.length > 0
-        ? (scheduleToday as PassportItem[]).map(i => ({
-            time: i.booked_at ? new Date(i.booked_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false }) : "--:--",
-            text: `${i.item_type === 'hotel' ? 'Checking out — ' : ''}${i.provider_name}`,
-            active: i.status === 'confirmed'
-        }))
-        : [
-            { time: "09:00", text: "Checking out — Lub d Bangkok", active: true },
-            { time: "11:30", text: "Chatuchak Weekend Market", active: false },
-            { time: "18:00", text: "Transfer to Suvarnabhumi", active: false },
-        ];
+    const TODAY_SCHEDULE = (scheduleToday as PassportItem[]).map(i => ({
+        time: i.booked_at ? new Date(i.booked_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false }) : "--:--",
+        text: `${i.item_type === 'hotel' ? 'Checking out — ' : ''}${i.provider_name}`,
+        active: i.status === 'confirmed'
+    }));
 
     const activeDestination = activePassport
         ? `${getFlag(activePassport.destination_country || '')} ${activePassport.destination_name}`
@@ -268,6 +297,12 @@ export default async function DashboardPage() {
     const weather = activePassport?.destination_name
         ? await getWeather(String(activePassport.destination_name)).catch(() => null)
         : null;
+
+    const liveSafety = getLiveSafetyStatus(
+        activeDestinationAlerts,
+        activePassport?.safety_score ?? null,
+        activeDestinationCity ?? activePassport?.destination_name ?? 'your destination'
+    );
 
 
     return (
@@ -301,16 +336,19 @@ export default async function DashboardPage() {
                         <div>
                             <ProgressRing done={doneCount} total={totalCount} />
                             <div className={styles.pendingList}>
+                                {PENDING.length === 0 && (
+                                    <div className={styles.pendingEmpty}>No pending bookings.</div>
+                                )}
                                 {PENDING.map(p => (
-                                    <div key={p.label} className={styles.pendingItem}>
+                                    <div key={p.id} className={styles.pendingItem}>
                                         {p.icon} {p.label}
-                                        <button className={styles.pendingLink}>BOOK →</button>
+                                        <Link href={p.href} className={styles.pendingLink}>BOOK →</Link>
                                     </div>
                                 ))}
                             </div>
                         </div>
-                        <Link href="/dashboard/passports">
-                            <button className={styles.btnPassport}>Open Full Passport →</button>
+                        <Link href="/dashboard/passports" className={styles.btnPassport}>
+                            Open Full Passport →
                         </Link>
                     </div>
                 </div>
@@ -322,8 +360,8 @@ export default async function DashboardPage() {
                     <p style={{ fontFamily: "'Sora', sans-serif", fontSize: 14, color: '#9A8F82', marginBottom: 24 }}>
                         Create your first Decision Passport to start.
                     </p>
-                    <Link href="/decision-passport">
-                        <button className={styles.btnPassport}>Create First Passport →</button>
+                    <Link href="/decision-passport" className={styles.btnPassport}>
+                        Create First Passport →
                     </Link>
                 </div>
             )}
@@ -339,8 +377,10 @@ export default async function DashboardPage() {
                         {/* Schedule */}
                         <div>
                             <span className={styles.tripTodayLabel}>Today&apos;s Schedule</span>
-                            {TODAY_SCHEDULE.map(s => (
-                                <div key={s.time} className={styles.scheduleItem}>
+                            {TODAY_SCHEDULE.length === 0 ? (
+                                <div className={styles.scheduleEmpty}>No booked items scheduled for today.</div>
+                            ) : TODAY_SCHEDULE.map(s => (
+                                <div key={`${s.time}-${s.text}`} className={styles.scheduleItem}>
                                     <span className={styles.scheduleTime}>{s.time}</span>
                                     <span>{s.active ? "→" : "·"}</span>
                                     <span style={{ fontSize: 13, color: s.active ? "#F2EDE4" : "#9A8F82", fontFamily: "'Sora', sans-serif" }}>
@@ -390,9 +430,17 @@ export default async function DashboardPage() {
 
                         {/* Safety */}
                         <div>
-                            <div className={styles.safetyOk}>✅ All clear</div>
-                            <Link href="/dashboard/active-trip">
-                                <button className={styles.btnLive}>Open Live View →</button>
+                            <div className={`${styles.safetyStatus} ${liveSafety.tone === 'high'
+                                ? styles.safetyHigh
+                                : liveSafety.tone === 'watch'
+                                    ? styles.safetyWatch
+                                    : styles.safetyOk
+                                }`}>
+                                {liveSafety.tone === 'high' ? '🚨' : liveSafety.tone === 'watch' ? '⚠️' : '✅'} {liveSafety.label}
+                            </div>
+                            <div className={styles.safetyStatusDetail}>{liveSafety.detail}</div>
+                            <Link href={liveSafety.href} className={styles.btnLive}>
+                                {liveSafety.cta}
                             </Link>
                         </div>
                     </div>
@@ -438,16 +486,16 @@ export default async function DashboardPage() {
                             No reviews due.
                         </p>
                     ) : REVIEWS.map((r) => (
-                        <div key={r.name} className={styles.reviewItem}>
+                        <div key={r.id} className={styles.reviewItem}>
                             <div>
                                 <div className={styles.reviewName}>{r.name}</div>
                                 <span className={styles.reviewDate}>{r.date}</span>
                             </div>
-                            <button className={styles.reviewLink}>Review →</button>
+                            <Link href={r.href} className={styles.reviewLink}>Review →</Link>
                         </div>
                     ))}
                     <p className={styles.reviewIncentive}>
-                        Complete reviews → 10% off your next Passport ✨
+                        Complete reviews → 10% off your next Passport
                     </p>
                 </div>
 
@@ -460,7 +508,7 @@ export default async function DashboardPage() {
                             <span className={styles.allClearText}>All your destinations are clear</span>
                         </div>
                     ) : ALERTS.map((a) => (
-                        <div key={a.city} className={styles.alertItem}>
+                        <div key={a.id} className={styles.alertItem}>
                             <span className={`${styles.alertSeverity} ${a.severity === "high" ? styles.severityHigh : styles.severityMed
                                 }`}>
                                 {a.severity === "high" ? "HIGH" : "MED"}
@@ -469,7 +517,7 @@ export default async function DashboardPage() {
                                 <span className={styles.alertCity}>{a.flag} {a.city}</span>
                                 {a.text}
                                 <br />
-                                <button className={styles.alertLink}>Details →</button>
+                                <Link href={a.href} className={styles.alertLink}>Details →</Link>
                             </div>
                         </div>
                     ))}
@@ -479,20 +527,26 @@ export default async function DashboardPage() {
             {/* ══ AI RECOMMENDATIONS ══ */}
             <section className={styles.recommendSection}>
                 <div className={styles.recommendTitle}>Based on your trips, you might love:</div>
-                <div className={styles.destCards}>
-                    {DESTINATIONS.map(d => (
-                        <div key={d.name} className={styles.destCard}>
-                            <span className={styles.destFlag}>{d.flag}</span>
-                            <div className={styles.destName}>{d.name}</div>
-                            <p className={styles.destWhy}>{d.why}</p>
-                            <div className={styles.destMeta}>
-                                <span className={styles.destMetaItem}>🗓 {d.season}</span>
-                                <span className={styles.destMetaItem}>💸 {d.budget}</span>
+                {DESTINATIONS.length === 0 ? (
+                    <div className={styles.recommendEmpty}>
+                        More destination recommendations will appear once we have enough trip history to personalize them.
+                    </div>
+                ) : (
+                    <div className={styles.destCards}>
+                        {DESTINATIONS.map(d => (
+                            <div key={d.name} className={styles.destCard}>
+                                <span className={styles.destFlag}>{d.flag}</span>
+                                <div className={styles.destName}>{d.name}</div>
+                                <p className={styles.destWhy}>{d.why}</p>
+                                <div className={styles.destMeta}>
+                                    <span className={styles.destMetaItem}>🌍 {d.country}</span>
+                                    <span className={styles.destMetaItem}>🧭 {d.coverage}</span>
+                                </div>
+                                <Link href={d.href} className={styles.planBtn}>Plan This →</Link>
                             </div>
-                            <button className={styles.planBtn}>Plan This →</button>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
             </section>
 
             {/* ══ GUIDE MESSAGES ══ */}
@@ -515,7 +569,7 @@ export default async function DashboardPage() {
                         </div>
                     </div>
                 ))}
-                <button className={styles.ghostLink}>Open All Messages →</button>
+                <Link href="/dashboard/messages" className={styles.ghostLink}>Open All Messages →</Link>
             </section>
         </>
     );
@@ -568,4 +622,86 @@ function getItemIcon(type: string): string {
         experience: '🎯',
     };
     return icons[type?.toLowerCase()] ?? '📋';
+}
+
+function mapDashboardPassportStatus(status: string): 'active' | 'complete' | 'draft' {
+    const normalized = status.toLowerCase();
+    if (normalized === 'ready') return 'active';
+    if (normalized === 'expired') return 'complete';
+    return 'draft';
+}
+
+function normalizeLocation(value: string | null | undefined): string {
+    return String(value ?? '').toLowerCase().split(',')[0].trim();
+}
+
+function extractDestinationCity(value: string | null | undefined): string {
+    return String(value ?? '').split(',')[0].trim();
+}
+
+function getBookingHref(type: string, destination?: string | null): string {
+    const map: Record<string, string> = {
+        flight: '/booking/flights',
+        hotel: '/booking/hotels',
+        train: '/booking/trains',
+        ferry: '/booking/ferries',
+        bus: '/booking/buses',
+        cab: '/booking/cabs',
+        experience: '/booking/experiences',
+    };
+    const base = map[type.toLowerCase()] ?? '/booking';
+    const city = extractDestinationCity(destination);
+    return city ? `${base}?destination=${encodeURIComponent(city)}` : base;
+}
+
+function getPassportHref(name: string, country?: string | null): string {
+    const params = new URLSearchParams();
+    params.set('destination', country ? `${name}, ${country}` : name);
+    if (country) params.set('country', country);
+    return `/decision-passport?${params.toString()}`;
+}
+
+function getLiveSafetyStatus(
+    alerts: SafetyAlert[],
+    safetyScore: number | null,
+    destinationLabel: string
+): LiveSafetyStatus {
+    const topAlert = alerts[0];
+    if (topAlert && String(topAlert.severity).toLowerCase() === 'high') {
+        return {
+            tone: 'high',
+            label: 'High alert active',
+            detail: topAlert.title,
+            href: `/dashboard/alerts?alert=${encodeURIComponent(String(topAlert.id))}`,
+            cta: 'Review Alerts →',
+        };
+    }
+
+    if (topAlert) {
+        return {
+            tone: 'watch',
+            label: 'Monitor local alerts',
+            detail: topAlert.title,
+            href: `/dashboard/alerts?alert=${encodeURIComponent(String(topAlert.id))}`,
+            cta: 'Review Alerts →',
+        };
+    }
+
+    if (safetyScore !== null && safetyScore < 65) {
+        return {
+            tone: 'watch',
+            label: 'Use extra caution',
+            detail: `Safety confidence is currently ${safetyScore}/100 for ${destinationLabel}.`,
+            href: '/dashboard/active-trip',
+            cta: 'Open Live View →',
+        };
+    }
+
+    return {
+        tone: 'clear',
+        label: 'All clear',
+        detail: `No active alerts found for ${destinationLabel}.`,
+        href: '/dashboard/active-trip',
+        cta: 'Open Live View →',
+    };
 }

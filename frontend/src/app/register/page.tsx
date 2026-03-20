@@ -485,7 +485,9 @@ export default function RegisterPage() {
                                     animate={{ opacity: 1, scale: 1 }}
                                     className="p-12 text-center py-20"
                                 >
-                                    <span className="text-4xl text-saffron block mb-6">✦</span>
+                                    <span className="text-saffron block mb-6">
+                                        <NavigationArrow size={40} weight="fill" />
+                                    </span>
                                     <h1 className="font-display text-4xl italic text-text-primary mb-4">Your journey begins now.</h1>
                                     <p className="font-sans text-base text-text-secondary mb-12">Welcome to Pragati Setu, {formData.fullName.split(" ")[0] || "Traveler"}.</p>
                                     <button

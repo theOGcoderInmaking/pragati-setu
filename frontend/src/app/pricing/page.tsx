@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./pricing.module.css";
 import PageWrapper from "@/components/PageWrapper";
 import { CheckCircle, CaretDown } from "@phosphor-icons/react";
@@ -71,6 +72,58 @@ const TIERS_PER_USE: Tier[] = [
     }
 ];
 
+const TIERS_MONTHLY: Tier[] = [
+    {
+        name: "Single Passport",
+        desc: "One trip. Full intelligence.",
+        price: "129",
+        unit: "per month",
+        savings: "Subscriber benefit",
+        cta: "Get This Passport",
+        features: [
+            { text: "Full itinerary (Day-by-day)", highlight: true },
+            { text: "5 Confidence Scores", highlight: true },
+            { text: "Risk Register", highlight: true },
+            { text: "1 Guide consultation (Chat)" },
+            { text: "₹25,000 Guarantee coverage" },
+            { text: "Valid for 90 days" }
+        ]
+    },
+    {
+        name: "Explorer Pass",
+        desc: "For frequent travelers.",
+        price: "899",
+        unit: "per month",
+        savings: "Annual commitment discount",
+        featured: true,
+        cta: "Start Explorer Pass",
+        features: [
+            { text: "Unlimited Passports", highlight: true },
+            { text: "5 Confidence Scores (priority)", highlight: true },
+            { text: "Risk Register (real-time)", highlight: true },
+            { text: "3 Guide consultations/month" },
+            { text: "₹1,00,000 Guarantee coverage" },
+            { text: "Priority support" },
+            { text: "Early access features" }
+        ]
+    },
+    {
+        name: "Corporate",
+        desc: "For teams and travel managers.",
+        price: "Custom",
+        unit: "price upon request",
+        cta: "Talk to Sales",
+        features: [
+            { text: "Unlimited Passports for team", highlight: true },
+            { text: "Centralised dashboard", highlight: true },
+            { text: "Dedicated account guide", highlight: true },
+            { text: "Custom Guarantee terms" },
+            { text: "API access" },
+            { text: "SLA-backed response times" }
+        ]
+    }
+];
+
 const FAQs = [
     {
         q: "Can I use one Passport for multiple people?",
@@ -98,6 +151,23 @@ const FAQs = [
     }
 ];
 
+const GUARANTEE_STATS = [
+    { id: "claimsResolved", value: "47", label: "Claims Resolved" },
+    { id: "avgResponse", value: "2.8h", label: "Avg Response" },
+    { id: "paidOut", value: "₹4.87L", label: "Paid Out" },
+    { id: "safeTrips", value: "99.6%", label: "Safe Trips" }
+] as const;
+
+const COMPARISON_ROWS = [
+    { f: "Itinerary Planning", s: "✅", e: "✅", c: "✅" },
+    { f: "Confidence Scores", s: "✅", e: "Priority", c: "Priority" },
+    { f: "Risk Register", s: "✅", e: "Real-time", c: "Real-time" },
+    { f: "Guide Chat", s: "1/trip", e: "3/month", c: "Dedicated" },
+    { f: "Guarantee Coverage", s: "₹25K", e: "₹100K", c: "Custom" },
+    { f: "Dashboard", s: "❌", e: "✅", c: "Corporate" },
+    { f: "API Access", s: "❌", e: "❌", c: "✅" }
+] as const;
+
 // --- Components ---
 
 function FAQItem({ q, a }: { q: string; a: string }) {
@@ -116,7 +186,19 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 }
 
 export default function PricingPage() {
+    const router = useRouter();
     const [billingMode, setBillingMode] = useState<"monthly" | "perUse">("perUse");
+    const visibleTiers =
+        billingMode === "monthly" ? TIERS_MONTHLY : TIERS_PER_USE;
+
+    const handleTierCta = (tierName: Tier["name"]) => {
+        if (tierName === "Corporate") {
+            window.location.href = "mailto:sales@pragatisetu.com";
+            return;
+        }
+
+        router.push("/dashboard");
+    };
 
     return (
         <PageWrapper>
@@ -152,7 +234,7 @@ export default function PricingPage() {
                 {/* TIERS SECTION */}
                 <section className={styles.tiersSection}>
                     <div className={styles.tiersGrid}>
-                        {TIERS_PER_USE.map((tier, i) => (
+                        {visibleTiers.map((tier, i) => (
                             <div
                                 key={i}
                                 className={`
@@ -182,10 +264,14 @@ export default function PricingPage() {
                                     ))}
                                 </div>
 
-                                <button className={`
+                                <button
+                                    className={`
                   ${styles.tierCta} 
                   ${tier.featured ? styles.tierCtaPrimary : styles.tierCtaGhost}
-                `}>
+                `}
+                                    onClick={() => handleTierCta(tier.name)}
+                                    type="button"
+                                >
                                     {tier.cta}
                                 </button>
                             </div>
@@ -200,26 +286,16 @@ export default function PricingPage() {
                             <h2 className={styles.guaranteeTitle}>The Guarantee. Explained honestly.</h2>
                             <p className={styles.guaranteeText}>
                                 The Guarantee fee is included in every Passport. If our recommendation causes a known, avoidable problem we didn&apos;t warn you about — we compensate you. No arguments. No delays.<br /><br />
-                                In 18 months: 47 claims resolved. ₹4.87L paid. 99.6% of Passports issued with zero claim.
+                                In 18 months: {getGuaranteeStatValue("claimsResolved")} claims resolved. {getGuaranteeStatValue("paidOut")} paid. {getGuaranteeStatValue("safeTrips")} of Passports issued with zero claim.
                             </p>
                         </div>
                         <div className={styles.guaranteeStats}>
-                            <div className={styles.statItem}>
-                                <span className={styles.statNum}>47</span>
-                                <span className={styles.statLabel}>Claims Resolved</span>
-                            </div>
-                            <div className={styles.statItem}>
-                                <span className={styles.statNum}>2.8h</span>
-                                <span className={styles.statLabel}>Avg Response</span>
-                            </div>
-                            <div className={styles.statItem}>
-                                <span className={styles.statNum}>₹4.87L</span>
-                                <span className={styles.statLabel}>Paid Out</span>
-                            </div>
-                            <div className={styles.statItem}>
-                                <span className={styles.statNum}>99.6%</span>
-                                <span className={styles.statLabel}>Safe Trips</span>
-                            </div>
+                            {GUARANTEE_STATS.map((stat) => (
+                                <div key={stat.id} className={styles.statItem}>
+                                    <span className={styles.statNum}>{stat.value}</span>
+                                    <span className={styles.statLabel}>{stat.label}</span>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </section>
@@ -236,15 +312,7 @@ export default function PricingPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {[
-                                { f: "Itinerary Planning", s: "✅", e: "✅", c: "✅" },
-                                { f: "Confidence Scores", s: "✅", e: "Priority", c: "Priority" },
-                                { f: "Risk Register", s: "✅", e: "Real-time", c: "Real-time" },
-                                { f: "Guide Chat", s: "1/trip", e: "3/month", c: "Dedicated" },
-                                { f: "Guarantee Coverage", s: "₹25K", e: "₹100K", c: "Custom" },
-                                { f: "Dashboard", s: "❌", e: "✅", c: "Corporate" },
-                                { f: "API Access", s: "❌", e: "❌", c: "✅" }
-                            ].map((row, i) => (
+                            {COMPARISON_ROWS.map((row, i) => (
                                 <tr key={i} className={styles.compRow}>
                                     <td className={`${styles.compCell} ${styles.compCellFeature}`}>{row.f}</td>
                                     <td className={styles.compCell}>{row.s}</td>
@@ -270,4 +338,10 @@ export default function PricingPage() {
             <Footer />
         </PageWrapper>
     );
+}
+
+function getGuaranteeStatValue(
+    id: (typeof GUARANTEE_STATS)[number]["id"]
+): string {
+    return GUARANTEE_STATS.find((stat) => stat.id === id)?.value ?? "";
 }

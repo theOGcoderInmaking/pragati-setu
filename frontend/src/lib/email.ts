@@ -32,7 +32,7 @@ export async function sendWelcomeEmail(
     await resend.emails.send({
       from: FROM,
       to,
-      subject: '✦ Welcome to Pragati Setu',
+      subject: 'Welcome to Pragati Setu',
       html,
     });
   } catch (error) {
@@ -83,7 +83,7 @@ export async function sendPassportReadyEmail(
     await resend.emails.send({
       from: FROM,
       to,
-      subject: `✦ Your ${destination} Passport is ready`,
+      subject: `Your ${destination} Passport is ready`,
       html,
     });
   } catch (error) {

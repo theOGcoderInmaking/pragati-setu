@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import ParticleField from "./ParticleField";
 import Globe from "./Globe";
 import StatBar from "./StatBar";
-import { ArrowRight, CaretDown, Sparkle } from "@phosphor-icons/react";
+import { ArrowRight, CaretDown, Compass } from "@phosphor-icons/react";
 import Link from "next/link";
 
 const Hero: React.FC = () => {
@@ -27,7 +27,7 @@ const Hero: React.FC = () => {
                         transition={{ delay: 0.2, duration: 0.8 }}
                         className="flex items-center justify-center lg:justify-start gap-2 mb-8"
                     >
-                        <Sparkle size={14} weight="fill" className="text-saffron" />
+                        <Compass size={14} weight="fill" className="text-saffron" />
                         <span className="data-label text-[10px] tracking-[3px] text-saffron">
                             GLOBAL TRAVEL INTELLIGENCE PLATFORM
                         </span>

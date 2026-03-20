@@ -106,7 +106,7 @@ export const SafetyAlertEmail: React.FC<SafetyAlertProps> = ({
             <body>
                 <div className="wrapper">
                     <div className="card">
-                        <div className="logo">✦ PRAGATI SETU</div>
+                        <div className="logo">PRAGATI SETU</div>
 
                         <h1 className="heading">
                             Safety alert for {city}.

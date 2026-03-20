@@ -236,7 +236,7 @@ export default async function PassportDetailPage({ params }: { params: { id: str
                         textTransform: "uppercase",
                         margin: "0 0 16px",
                     }}>
-                        ✦ PRAGATI SETU · DECISION PASSPORT
+                        PRAGATI SETU · DECISION PASSPORT
                     </p>
 
                     <h1 style={{

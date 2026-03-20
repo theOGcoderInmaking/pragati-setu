@@ -1352,8 +1352,12 @@
 }
 
 .psFilterHeader::before {
-    content: '✦';
-    color: #D4590A;
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: #D4590A;
+    display: inline-block;
 }
 
 .filterToggleRow {

@@ -1,0 +1,360 @@
+.page {
+    background:
+        radial-gradient(circle at top right, rgba(18, 168, 174, 0.16), transparent 34%),
+        radial-gradient(circle at left 20%, rgba(212, 89, 10, 0.18), transparent 28%),
+        #060A12;
+    min-height: 100vh;
+    padding: 148px 0 120px;
+}
+
+.hero,
+.section {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 32px;
+}
+
+.hero {
+    display: grid;
+    gap: 32px;
+}
+
+.backLink {
+    color: #7AB3B5;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.heroHeader {
+    align-items: start;
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+}
+
+.eyebrow,
+.sectionEyebrow {
+    color: #D4590A;
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+}
+
+.heading {
+    color: #F2EDE4;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(46px, 6vw, 82px);
+    font-weight: 800;
+    letter-spacing: -2px;
+    line-height: 0.94;
+    margin: 0;
+}
+
+.heroBody {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: 260px 1fr;
+}
+
+.scorePanel,
+.summaryPanel,
+.signalCard,
+.relatedCard,
+.quickStat {
+    background: rgba(10, 16, 29, 0.78);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+}
+
+.scorePanel {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 28px;
+}
+
+.summaryPanel {
+    padding: 28px 30px;
+}
+
+.summary {
+    color: #F2EDE4;
+    font-family: 'Sora', sans-serif;
+    font-size: 20px;
+    line-height: 1.7;
+    margin: 0 0 18px;
+}
+
+.explanation {
+    color: #9A8F82;
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    line-height: 1.8;
+    margin: 0;
+    max-width: 780px;
+}
+
+.actionRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 28px;
+}
+
+.primaryAction,
+.secondaryAction {
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 14px 18px;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.primaryAction {
+    background: linear-gradient(135deg, #D4590A, #12A8AE);
+    color: #060A12;
+}
+
+.secondaryAction {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #F2EDE4;
+}
+
+.quickStats {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.quickStat {
+    padding: 22px 24px;
+}
+
+.quickValue {
+    color: #F2EDE4;
+    display: block;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 34px;
+    font-weight: 700;
+}
+
+.quickLabel,
+.scoreLabel,
+.updatedLabel,
+.itemMeta {
+    color: #7AB3B5;
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.updatedLabel {
+    margin-top: 4px;
+}
+
+.section {
+    margin-top: 56px;
+}
+
+.sectionHeader {
+    margin-bottom: 24px;
+}
+
+.sectionTitle {
+    color: #F2EDE4;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(34px, 4vw, 50px);
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin: 0;
+}
+
+.signalGrid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.signalCard,
+.relatedCard {
+    padding: 24px;
+}
+
+.cardTitle {
+    color: #F2EDE4;
+    font-family: 'Sora', sans-serif;
+    font-size: 18px;
+    margin: 0 0 18px;
+}
+
+.signalItem {
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    padding-top: 16px;
+}
+
+.signalItem:first-of-type {
+    border-top: none;
+    padding-top: 0;
+}
+
+.itemHeader,
+.relatedTop {
+    align-items: center;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.itemTitle {
+    color: #F2EDE4;
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    margin: 14px 0 8px;
+}
+
+.itemText,
+.relatedSummary,
+.emptyCopy {
+    color: #9A8F82;
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    line-height: 1.7;
+    margin: 0;
+}
+
+.passportPill {
+    border: 1px solid rgba(122, 179, 181, 0.24);
+    border-radius: 999px;
+    color: #7AB3B5;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 7px 11px;
+    text-transform: uppercase;
+}
+
+.relatedGrid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.relatedCard {
+    display: block;
+    text-decoration: none;
+}
+
+.relatedName {
+    color: #F2EDE4;
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.relatedScore {
+    color: #F2EDE4;
+    display: block;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 42px;
+    font-weight: 700;
+    margin: 18px 0 12px;
+}
+
+.ratingBadge {
+    align-items: center;
+    border-radius: 999px;
+    display: inline-flex;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 8px 12px;
+    text-transform: uppercase;
+}
+
+.ratingSafe {
+    background: rgba(46, 201, 122, 0.15);
+    border: 1px solid rgba(46, 201, 122, 0.22);
+    color: #2EC97A;
+}
+
+.ratingCaution {
+    background: rgba(245, 166, 35, 0.15);
+    border: 1px solid rgba(245, 166, 35, 0.22);
+    color: #F5A623;
+}
+
+.ratingAlert {
+    background: rgba(232, 69, 60, 0.15);
+    border: 1px solid rgba(232, 69, 60, 0.22);
+    color: #E8453C;
+}
+
+.bigScore {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 94px;
+    font-weight: 700;
+    letter-spacing: -2px;
+    line-height: 0.86;
+}
+
+.scoreSafe {
+    color: #2EC97A;
+}
+
+.scoreCaution {
+    color: #F5A623;
+}
+
+.scoreAlert {
+    color: #E8453C;
+}
+
+@media (max-width: 1024px) {
+    .heroBody,
+    .signalGrid,
+    .relatedGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .quickStats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 720px) {
+    .page {
+        padding: 124px 0 96px;
+    }
+
+    .hero,
+    .section {
+        padding: 0 20px;
+    }
+
+    .heroHeader {
+        flex-direction: column;
+    }
+
+    .quickStats {
+        grid-template-columns: 1fr;
+    }
+
+    .heading {
+        font-size: 48px;
+    }
+}

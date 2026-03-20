@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import Hero from "@/components/hero/Hero";
 import ProblemSection from "@/components/sections/awareness/ProblemSection";
 import HowItWorksSection from "@/components/sections/awareness/HowItWorksSection";
@@ -9,11 +10,42 @@ import CallToAction from "@/components/sections/conversion/FinalCTASection";
 import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
 import PageWrapper from "@/components/PageWrapper";
-import { motion } from "framer-motion";
+import { motion, useScroll, useSpring } from "framer-motion";
 
 import styles from "./page.module.css";
 
+const FEATURED_DESTINATIONS = [
+    {
+        image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&q=80&w=1200",
+        title: "Tokyo, Japan",
+        tag: "Transit Intelligence",
+        description: "Station flow, neighborhood intelligence, and arrival setup guidance before you land.",
+        href: "/blog?q=Tokyo",
+    },
+    {
+        image: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&q=80&w=1200",
+        title: "Bangkok, Thailand",
+        tag: "Safety Watch",
+        description: "Current taxi scam patterns, Grab guidance, and the small on-ground details that change outcomes.",
+        href: "/blog?q=Bangkok",
+    },
+    {
+        image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=1200",
+        title: "Dubai, UAE",
+        tag: "Field Report",
+        description: "Family-friendly timing, cultural context, and practical movement patterns from recent reports.",
+        href: "/blog?q=Dubai",
+    },
+] as const;
+
 export default function Home() {
+    const { scrollYProgress } = useScroll();
+    const scaleX = useSpring(scrollYProgress, {
+        stiffness: 120,
+        damping: 30,
+        restDelta: 0.001,
+    });
+
     return (
         <PageWrapper className={styles.home}>
             <main className="min-h-screen bg-[#05080F] selection:bg-saffron/30">
@@ -22,7 +54,7 @@ export default function Home() {
                 {/* Scroll Progress Indicator */}
                 <motion.div
                     className="fixed top-0 left-0 right-0 h-[2px] bg-saffron z-[100] origin-left"
-                    style={{ scaleX: 0 }} // This would typically be linked to scrollProgress
+                    style={{ scaleX }}
                 />
 
                 <Hero />
@@ -31,34 +63,26 @@ export default function Home() {
                     <ProblemSection />
                     <HowItWorksSection />
 
-                    {/* Featured Destinations (Previously DestinationCard implementation was here) */}
+                    {/* Featured Destinations */}
                     <section className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
                         <div className="mb-12">
                             <h2 className="text-4xl md:text-5xl font-display mb-4">Empowering Decisions</h2>
                             <p className="text-text-secondary max-w-2xl">
-                                From diverse terrains to complex itineraries, Pragati Setu simplifies your journey with a focus on safety and cultural richness.
+                                Live destination intelligence, not brochure copy. Explore recent guidance from the same network powering the rest of the platform.
                             </p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <DestinationCard
-                                image="https://images.unsplash.com/photo-1524492707947-5c87f9e8a71d?auto=format&fit=crop&q=80&w=800"
-                                title="Varanasi, UP"
-                                tag="Cultural Hub"
-                                description="Navigate the spiritual heart of India with confidence scores and local safety guides."
-                            />
-                            <DestinationCard
-                                image="https://images.unsplash.com/photo-1477587175574-c5f55fd91bab?auto=format&fit=crop&q=80&w=800"
-                                title="Leh, Ladakh"
-                                tag="Adventure"
-                                description="High-altitude planning with real-time terrain intelligence and medical facility mapping."
-                            />
-                            <DestinationCard
-                                image="https://images.unsplash.com/photo-1548013146-72479768bbaa?auto=format&fit=crop&q=80&w=800"
-                                title="Agra, UP"
-                                tag="Heritage"
-                                description="Optimized routing for heritage sites with integrated multi-modal transport options."
-                            />
+                            {FEATURED_DESTINATIONS.map((destination) => (
+                                <DestinationCard
+                                    key={destination.title}
+                                    image={destination.image}
+                                    title={destination.title}
+                                    tag={destination.tag}
+                                    description={destination.description}
+                                    href={destination.href}
+                                />
+                            ))}
                         </div>
                     </section>
 
@@ -78,7 +102,19 @@ export default function Home() {
     );
 }
 
-function DestinationCard({ image, title, tag, description }: { image: string, title: string, tag: string, description: string }) {
+function DestinationCard({
+    image,
+    title,
+    tag,
+    description,
+    href,
+}: {
+    image: string;
+    title: string;
+    tag: string;
+    description: string;
+    href: string;
+}) {
     return (
         <motion.div
             whileHover={{ y: -10 }}
@@ -100,10 +136,10 @@ function DestinationCard({ image, title, tag, description }: { image: string, ti
                 <p className="text-sm text-text-secondary leading-relaxed mb-6">
                     {description}
                 </p>
-                <button className="flex items-center gap-2 text-white font-semibold text-sm group/btn">
+                <Link href={href} className="inline-flex items-center gap-2 text-white font-semibold text-sm group/btn">
                     Explore Insights
                     <span className="w-6 h-[1px] bg-saffron transition-all group-hover/btn:w-10" />
-                </button>
+                </Link>
             </div>
         </motion.div>
     );

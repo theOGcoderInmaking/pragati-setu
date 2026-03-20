@@ -35,7 +35,7 @@ export async function query<T>(
     try {
         console.log(`[DB Query] Executing: ${queryText.substring(0, 50)}...`);
         const db = getDb();
-        const result = await db.query(queryText, params);
+        const result = await db.query(queryText, params ?? []);
         return result as T[];
     } catch (error) {
         console.error('Database query error:', error);

@@ -77,7 +77,7 @@ export const ResetPasswordEmail: React.FC<ResetPasswordProps> = ({ resetUrl }) =
         <body>
             <div className="wrapper">
                 <div className="card">
-                    <div className="logo">✦ PRAGATI SETU</div>
+                    <div className="logo">PRAGATI SETU</div>
 
                     <h1 className="heading">
                         Reset your password.

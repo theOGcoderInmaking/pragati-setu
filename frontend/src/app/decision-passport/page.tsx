@@ -158,6 +158,11 @@ interface CityResult {
     countries: { name: string };
 }
 
+interface PassportPrefill {
+    destination: string;
+    country: string;
+}
+
 // --- Components ---
 
 const PaymentForm = ({
@@ -281,8 +286,10 @@ const PaymentForm = ({
 
 const PassportCreationModal = ({
     onClose,
+    initialPrefill,
 }: {
     onClose: () => void;
+    initialPrefill?: PassportPrefill | null;
 }) => {
     const router = useRouter();
     const { data: session } = useSession();
@@ -296,7 +303,9 @@ const PassportCreationModal = ({
     const [orderId, setOrderId] =
         useState<string | null>(null);
 
-    const [cityQuery, setCityQuery] = useState("");
+    const [cityQuery, setCityQuery] = useState(
+        initialPrefill?.destination ?? ""
+    );
     const [cityResults, setCityResults] =
         useState<CityResult[]>([]);
     const [showDropdown, setShowDropdown] =
@@ -306,14 +315,30 @@ const PassportCreationModal = ({
 
     const [form, setForm] =
         useState<PassportForm>({
-            destination: "",
+            destination:
+                initialPrefill?.destination ?? "",
             destination_city_id: null,
-            destination_country: "",
+            destination_country:
+                initialPrefill?.country ?? "",
             start_date: "",
             end_date: "",
             party_size: 1,
             package_type: "balanced",
         });
+
+    useEffect(() => {
+        if (!initialPrefill?.destination) return;
+
+        setCityQuery(initialPrefill.destination);
+        setForm((current) => ({
+            ...current,
+            destination: initialPrefill.destination,
+            destination_country:
+                initialPrefill.country ?? current.destination_country,
+            destination_city_id: null,
+        }));
+        setShowDropdown(false);
+    }, [initialPrefill]);
 
     useEffect(() => {
         if (cityQuery.length < 2) {
@@ -544,7 +569,7 @@ const PassportCreationModal = ({
                 {step === "form" && (
                     <>
                         <div style={{ marginBottom: "32px" }}>
-                            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "11px", letterSpacing: "4px", color: "#D4590A", marginBottom: "12px" }}>✦ NEW PASSPORT</div>
+                            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "11px", letterSpacing: "4px", color: "#D4590A", marginBottom: "12px" }}>NEW PASSPORT</div>
                             <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "36px", fontWeight: 700, color: "#F2EDE4", lineHeight: 1.1 }}>Define your journey.</h2>
                         </div>
                         <div style={{ marginBottom: "24px", position: "relative" }}>
@@ -594,7 +619,7 @@ const PassportCreationModal = ({
                 {step === "payment" && clientSecret && (
                     <div>
                         <div style={{ marginBottom: "32px" }}>
-                            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "11px", letterSpacing: "4px", color: "#D4590A", marginBottom: "12px" }}>✦ SECURE CHECKOUT</div>
+                            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "11px", letterSpacing: "4px", color: "#D4590A", marginBottom: "12px" }}>SECURE CHECKOUT</div>
                             <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "36px", fontWeight: 700, color: "#F2EDE4", lineHeight: 1.1 }}>Finalize generation.</h2>
                         </div>
 
@@ -624,8 +649,12 @@ const PassportCreationModal = ({
                                 transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
                                 style={{ width: "100px", height: "100px", borderRadius: "50%", border: "2px solid rgba(212,89,10,0.1)", borderTop: "2px solid #D4590A" }}
                             />
-                            <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", color: "#D4590A" }}>
-                                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}>✦</motion.div>
+                            <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
+                                <motion.div
+                                    animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
+                                    transition={{ duration: 2, repeat: Infinity }}
+                                    style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#D4590A" }}
+                                />
                             </div>
                         </div>
                         <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "32px", color: "#F2EDE4", marginBottom: "20px" }}>Creating Intelligence…</h3>
@@ -664,7 +693,7 @@ const PassportCreationModal = ({
                             transition={{ type: "spring", stiffness: 200, damping: 15 }}
                             style={{ fontSize: "72px", marginBottom: "24px", color: "#D4590A" }}
                         >
-                            ✦
+                            <CheckCircle weight="fill" size={72} />
                         </motion.div>
                         <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "40px", color: "#F2EDE4", marginBottom: "12px" }}>Passport Issued.</h3>
                         <p style={{ color: "#9A8F82", fontSize: "16px", marginBottom: "40px" }}>Your Decision Passport for {form.destination.split(',')[0]} is now active.</p>
@@ -700,6 +729,8 @@ const PassportCreationModal = ({
 
 export default function DecisionPassportPage() {
     const [showModal, setShowModal] = useState(false);
+    const [modalPrefill, setModalPrefill] =
+        useState<PassportPrefill | null>(null);
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -717,6 +748,28 @@ export default function DecisionPassportPage() {
         return () => observer.disconnect();
     }, []);
 
+    useEffect(() => {
+        const params = new URLSearchParams(
+            window.location.search
+        );
+        const destination =
+            params.get("destination")?.trim() ?? "";
+        const countryParam =
+            params.get("country")?.trim() ?? "";
+
+        if (!destination) return;
+
+        const country =
+            countryParam ||
+            destination.split(",").slice(1).join(",").trim();
+
+        setModalPrefill({
+            destination,
+            country,
+        });
+        setShowModal(true);
+    }, []);
+
     return (
         <PageWrapper>
             <Navbar />
@@ -725,7 +778,7 @@ export default function DecisionPassportPage() {
                 <section className={styles.heroSection}>
                     <div className={styles.heroContent}>
                         <div className={`${styles.heroTag} fade-up`}>
-                            <span>✦ 2026 RELEASE</span>
+                            <span>2026 RELEASE</span>
                             <span>DATA-VERIFIED TRAVEL</span>
                         </div>
 
@@ -752,7 +805,7 @@ export default function DecisionPassportPage() {
 
                     <div className={styles.passportVisual}>
                         <div className={styles.passportCover}>
-                            <div className={styles.coverLogo}>✦ PRAGATI SETU</div>
+                            <div className={styles.coverLogo}>PRAGATI SETU</div>
                             <div className={styles.coverTitle}>DECISION PASSPORT</div>
                             <div className={styles.coverSubtitle}>TRAVEL INTELLIGENCE DOCUMENT</div>
                             <div className={styles.coverDest}>🇯🇵 TOKYO, JAPAN</div>
@@ -914,7 +967,12 @@ export default function DecisionPassportPage() {
                     </div>
                 </section>
 
-                {showModal && <PassportCreationModal onClose={() => setShowModal(false)} />}
+                {showModal && (
+                    <PassportCreationModal
+                        onClose={() => setShowModal(false)}
+                        initialPrefill={modalPrefill}
+                    />
+                )}
             </div>
             <Footer />
         </PageWrapper>

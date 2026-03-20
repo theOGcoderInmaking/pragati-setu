@@ -13,8 +13,10 @@ import {
     Ticket,
     List,
     X,
-    Sparkle,
+    Compass,
+    IdentificationCard,
     ArrowRight,
+    ShieldCheck,
     User,
     SignOut
 } from "@phosphor-icons/react";
@@ -57,7 +59,7 @@ const BookingDropdown = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.98 }}
             transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-            className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-[700px] glass-card p-8 border-white/10"
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-[700px] rounded-2xl border border-white/10 bg-[#0B1018] p-8 shadow-[0_24px_80px_rgba(0,0,0,0.55)]"
         >
             <div className="grid grid-cols-3 gap-8">
                 {categories.map((cat, idx) => (
@@ -88,9 +90,9 @@ const BookingDropdown = () => {
 
 const IntelligenceDropdown = () => {
     const items = [
-        { icon: <Sparkle size={24} weight="duotone" />, label: "Decision Passport", desc: "Your verifiable travel identity.", href: "/decision-passport" },
+        { icon: <IdentificationCard size={24} weight="duotone" />, label: "Decision Passport", desc: "Your verifiable travel identity.", href: "/decision-passport" },
         { icon: <List size={24} weight="duotone" />, label: "Intelligence Blog", desc: "Field reports & safety alerts.", href: "/blog" },
-        { icon: <Sparkle size={24} weight="duotone" />, label: "Real-time Safety Map", desc: "Live crowd & safety metrics.", href: "/safety" },
+        { icon: <ShieldCheck size={24} weight="duotone" />, label: "Real-time Safety Map", desc: "Live crowd & safety metrics.", href: "/safety" },
         { icon: <ArrowRight size={24} weight="duotone" />, label: "About Pragati Setu", desc: "Our mission & transparency.", href: "/about" },
     ];
 
@@ -100,7 +102,7 @@ const IntelligenceDropdown = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.98 }}
             transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-            className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-[600px] glass-card p-6 border-white/10"
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-[600px] rounded-2xl border border-white/10 bg-[#0B1018] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.55)]"
         >
             <div className="grid grid-cols-2 gap-4">
                 {items.map((item, idx) => (
@@ -164,7 +166,7 @@ const Navbar: React.FC = () => {
                         animate={{ opacity: 1, x: 0 }}
                         className="flex items-center gap-1.5 cursor-pointer relative group"
                     >
-                        <Sparkle size={18} weight="fill" className="text-saffron" />
+                        <Compass size={18} weight="fill" className="text-saffron" />
                         <h1 className="text-2xl font-display font-bold text-text-primary tracking-tight">
                             Pragati <span className="text-saffron relative">
                                 Setu

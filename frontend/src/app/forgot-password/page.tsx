@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft } from '@phosphor-icons/react';
+import { ArrowLeft, CheckCircle } from '@phosphor-icons/react';
 import PageWrapper from '@/components/PageWrapper';
 
 export default function ForgotPasswordPage() {
@@ -102,7 +102,7 @@ export default function ForgotPasswordPage() {
                                     color: '#D4590A',
                                     marginBottom: '12px',
                                 }}>
-                                    ✦ PRAGATI SETU
+                                    PRAGATI SETU
                                 </div>
                                 <h1 style={{
                                     fontFamily:
@@ -194,11 +194,8 @@ export default function ForgotPasswordPage() {
                     ) : (
                         /* Success state */
                         <div style={{ textAlign: 'center' }}>
-                            <div style={{
-                                fontSize: '48px',
-                                marginBottom: '24px',
-                            }}>
-                                ✦
+                            <div style={{ marginBottom: '24px' }}>
+                                <CheckCircle size={48} weight="fill" color="#D4590A" />
                             </div>
                             <h2 style={{
                                 fontFamily:

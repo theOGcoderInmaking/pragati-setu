@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Sparkle, GithubLogo, TwitterLogo, InstagramLogo, LinkedinLogo } from "@phosphor-icons/react";
+import { Compass, GithubLogo, TwitterLogo, InstagramLogo, LinkedinLogo } from "@phosphor-icons/react";
 import Link from "next/link";
 
 const Footer: React.FC = () => {
@@ -15,7 +15,7 @@ const Footer: React.FC = () => {
                     {/* Brand Column */}
                     <div className="md:col-span-1">
                         <div className="flex items-center gap-1.5 mb-6 group cursor-pointer">
-                            <Sparkle size={18} weight="fill" className="text-saffron" />
+                            <Compass size={18} weight="fill" className="text-saffron" />
                             <h2 className="text-2xl font-display font-bold text-white tracking-tight">
                                 Pragati <span className="text-saffron">Setu</span>
                             </h2>

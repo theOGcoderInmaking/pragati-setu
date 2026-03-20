@@ -33,7 +33,7 @@ const PassportMockup = () => (
         <div className="glass-card p-3 w-full border-saffron/20 overflow-hidden cursor-pointer hover:bg-white/5 transition-all">
             <div className="flex gap-3 items-center mb-3">
                 <div className="w-6 h-8 bg-[#0a1528] border border-saffron/30 rounded-sm flex items-center justify-center">
-                    <span className="text-[6px] font-mono text-saffron">✦</span>
+                    <div className="h-1.5 w-1.5 rounded-full bg-saffron" />
                 </div>
                 <div>
                     <div className="font-mono text-[9px] text-saffron">DECISION PASSPORT</div>

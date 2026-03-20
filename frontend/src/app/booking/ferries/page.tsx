@@ -366,7 +366,7 @@ export default function FerriesPage() {
                                 textTransform: "uppercase",
                                 marginBottom: "8px",
                             }}>
-                                ✦ PRAGATI SETU · ROUTE INTELLIGENCE
+                                PRAGATI SETU · ROUTE INTELLIGENCE
                             </div>
 
                             <h2 style={{
@@ -440,7 +440,7 @@ export default function FerriesPage() {
                                                     textTransform: "uppercase",
                                                     marginBottom: "6px",
                                                 }}>
-                                                    ✦ PRAGATI SETU RECOMMENDED
+                                                    PRAGATI SETU RECOMMENDED
                                                 </div>
                                             )}
                                             <div style={{

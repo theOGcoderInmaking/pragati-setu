@@ -413,7 +413,7 @@ export default function TrainsPage() {
                                 textTransform: "uppercase",
                                 marginBottom: "8px",
                             }}>
-                                ✦ PRAGATI SETU · ROUTE INTELLIGENCE
+                                PRAGATI SETU · ROUTE INTELLIGENCE
                             </div>
 
                             <h2 style={{
@@ -487,7 +487,7 @@ export default function TrainsPage() {
                                                     textTransform: "uppercase",
                                                     marginBottom: "6px",
                                                 }}>
-                                                    ✦ PRAGATI SETU RECOMMENDED
+                                                    PRAGATI SETU RECOMMENDED
                                                 </div>
                                             )}
                                             <div style={{
@@ -592,7 +592,7 @@ export default function TrainsPage() {
                             />
                         </div>
                         <div className={styles.resultsList}>
-                            {locationLoading && <div className={styles.modalNote}>✨ Searching global database...</div>}
+                            {locationLoading && <div className={styles.modalNote}>Searching global database...</div>}
                             {!locationLoading && locationSearch.length > 0 && locationResults.length === 0 && (
                                 <div className={styles.modalNote}>No cities found. Try a different name.</div>
                             )}
