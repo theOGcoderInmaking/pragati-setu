@@ -6,13 +6,13 @@ let hasLoggedMissingCredentials = false;
 function getAmadeusClient(): Amadeus | null {
     if (amadeusClient) return amadeusClient;
 
-    const clientId = process.env.AMADEUS_API_KEY;
-    const clientSecret = process.env.AMADEUS_API_SECRET;
+    const clientId = process.env.AMADEUS_CLIENT_ID;
+    const clientSecret = process.env.AMADEUS_CLIENT_SECRET;
 
     if (!clientId || !clientSecret) {
         if (!hasLoggedMissingCredentials) {
             console.error(
-                'Amadeus is not configured. Missing AMADEUS_API_KEY or AMADEUS_API_SECRET.'
+                'Amadeus is not configured. Missing AMADEUS_CLIENT_ID or AMADEUS_CLIENT_SECRET.'
             );
             hasLoggedMissingCredentials = true;
         }
