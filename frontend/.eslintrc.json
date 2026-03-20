@@ -1,3 +1,12 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "extends": [
+    "next/core-web-vitals",
+    "next/typescript"
+  ],
+  "ignorePatterns": [
+    "src/generated/**",
+    "src/frontend/src/generated/**",
+    "node_modules/**",
+    ".next/**"
+  ]
 }
