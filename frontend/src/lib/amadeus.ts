@@ -1,28 +1,48 @@
 import Amadeus from 'amadeus';
 
 let amadeusClient: Amadeus | null = null;
-let hasLoggedMissingCredentials = false;
+type AmadeusMode = 'test' | 'production';
 
-function getAmadeusClient(): Amadeus | null {
+export class AmadeusConfigError extends Error {
+    readonly status = 503;
+
+    constructor(message: string) {
+        super(message);
+        this.name = 'AmadeusConfigError';
+    }
+}
+
+export class AmadeusRequestError extends Error {
+    readonly status = 502;
+
+    constructor(message: string) {
+        super(message);
+        this.name = 'AmadeusRequestError';
+    }
+}
+
+export function getAmadeusMode(): AmadeusMode {
+    return process.env.AMADEUS_ENV === 'production'
+        ? 'production'
+        : 'test';
+}
+
+function getAmadeusClient(): Amadeus {
     if (amadeusClient) return amadeusClient;
 
     const clientId = process.env.AMADEUS_CLIENT_ID;
     const clientSecret = process.env.AMADEUS_CLIENT_SECRET;
 
     if (!clientId || !clientSecret) {
-        if (!hasLoggedMissingCredentials) {
-            console.error(
-                'Amadeus is not configured. Missing AMADEUS_CLIENT_ID or AMADEUS_CLIENT_SECRET.'
-            );
-            hasLoggedMissingCredentials = true;
-        }
-        return null;
+        throw new AmadeusConfigError(
+            'Flight search is not configured on the server. Add AMADEUS_CLIENT_ID and AMADEUS_CLIENT_SECRET to the deployment environment.'
+        );
     }
 
     amadeusClient = new Amadeus({
         clientId,
         clientSecret,
-        hostname: (process.env.AMADEUS_ENV ?? 'test') as 'test' | 'production',
+        hostname: getAmadeusMode(),
     });
 
     return amadeusClient;
@@ -30,12 +50,37 @@ function getAmadeusClient(): Amadeus | null {
 
 export default getAmadeusClient;
 
+function describeAmadeusError(error: unknown, fallbackMessage: string) {
+    const response = (error as {
+        response?: {
+            result?: {
+                error?: string;
+                error_description?: string;
+                errors?: Array<{ detail?: string; title?: string; code?: number | string }>;
+            };
+        };
+    })?.response?.result;
+
+    const firstError = response?.errors?.[0];
+
+    if (response?.error === 'invalid_client') {
+        return 'Amadeus credentials do not match the selected environment. Use test credentials with AMADEUS_ENV=test, or production credentials with AMADEUS_ENV=production.';
+    }
+
+    if (firstError?.code === 38192 || firstError?.title?.toLowerCase().includes('quota')) {
+        return 'The Amadeus API quota has been exhausted for this environment. Reset the quota or move the app to production credentials.';
+    }
+
+    return firstError?.detail
+        ?? response?.error_description
+        ?? fallbackMessage;
+}
+
 // ── Airport search ──────────────────────────────
 export async function searchAirports(
     keyword: string
 ) {
     const amadeus = getAmadeusClient();
-    if (!amadeus) return [];
 
     try {
         const response = await amadeus
@@ -59,7 +104,12 @@ export async function searchAirports(
         );
     } catch (error) {
         console.error('Airport search error:', error);
-        return [];
+        throw new AmadeusRequestError(
+            describeAmadeusError(
+                error,
+                'Airport search is temporarily unavailable.'
+            )
+        );
     }
 }
 
@@ -82,7 +132,6 @@ export async function searchFlights({
     nonStop?: boolean;
 }) {
     const amadeus = getAmadeusClient();
-    if (!amadeus) return [];
 
     try {
         const params: Record<string, unknown> = {
@@ -105,7 +154,12 @@ export async function searchFlights({
         return response.data ?? [];
     } catch (error) {
         console.error('Flight search error:', error);
-        return [];
+        throw new AmadeusRequestError(
+            describeAmadeusError(
+                error,
+                'Flight search is temporarily unavailable.'
+            )
+        );
     }
 }
 
@@ -168,7 +222,6 @@ export async function searchHotelsByCity(
     cityCode: string
 ) {
     const amadeus = getAmadeusClient();
-    if (!amadeus) return [];
 
     try {
         const response = await amadeus
@@ -177,7 +230,12 @@ export async function searchHotelsByCity(
         return response.data ?? [];
     } catch (error) {
         console.error('Hotel city search error:', error);
-        return [];
+        throw new AmadeusRequestError(
+            describeAmadeusError(
+                error,
+                'Hotel search is temporarily unavailable.'
+            )
+        );
     }
 }
 
@@ -188,7 +246,6 @@ export async function searchHotelsByGeocode(
     radius: number = 20
 ) {
     const amadeus = getAmadeusClient();
-    if (!amadeus) return [];
 
     try {
         const hotels = amadeus.referenceData.locations.hotels;
@@ -202,7 +259,12 @@ export async function searchHotelsByGeocode(
         return response.data ?? [];
     } catch (error) {
         console.error('Hotel geocode search error:', error);
-        return [];
+        throw new AmadeusRequestError(
+            describeAmadeusError(
+                error,
+                'Hotel geocode search is temporarily unavailable.'
+            )
+        );
     }
 }
 
@@ -219,7 +281,6 @@ export async function searchHotelOffers({
     adults: number;
 }) {
     const amadeus = getAmadeusClient();
-    if (!amadeus) return [];
 
     try {
         const response = await amadeus
@@ -230,11 +291,16 @@ export async function searchHotelOffers({
                 adults,
                 currency: 'INR',
                 bestRateOnly: true,
-            });
+        });
         return response.data ?? [];
     } catch (error) {
         console.error('Hotel offers error:', error);
-        return [];
+        throw new AmadeusRequestError(
+            describeAmadeusError(
+                error,
+                'Hotel offers are temporarily unavailable.'
+            )
+        );
     }
 }
 
