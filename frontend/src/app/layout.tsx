@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Cormorant_Garamond, Sora, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
@@ -34,21 +33,24 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" className={`${cormorant.variable} ${sora.variable} ${jetbrains.variable}`}>
-            <body className="font-sans antialiased text-text-primary bg-bg-void selection:bg-saffron/30 overflow-x-hidden">
-                <Script
-                    id="travelpayouts"
-                    strategy="afterInteractive"
+            <head>
+                <script
+                    data-noptimize="1"
+                    data-cfasync="false"
+                    data-wpfc-render="false"
                     dangerouslySetInnerHTML={{
                         __html: `
                             (function () {
                                 var script = document.createElement("script");
                                 script.async = 1;
-                                script.src = 'https://tp-em.com/NTA5Mzg4.js?t=509388';
+                                script.src = 'https://emrld.ltd/NTEwMTQz.js?t=510143';
                                 document.head.appendChild(script);
                             })();
                         `,
                     }}
                 />
+            </head>
+            <body className="font-sans antialiased text-text-primary bg-bg-void selection:bg-saffron/30 overflow-x-hidden">
                 <Providers>
                     {children}
                 </Providers>
@@ -56,6 +58,3 @@ export default function RootLayout({
         </html>
     );
 }
-
-
-//Travelpayouts
