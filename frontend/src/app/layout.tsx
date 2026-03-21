@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Cormorant_Garamond, Sora, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
@@ -37,16 +38,15 @@ export default function RootLayout({
                 <script
                     data-noptimize="1"
                     data-cfasync="false"
-                    data-wpfc-render="false"
                     dangerouslySetInnerHTML={{
-                        __html: `
-                            (function () {
-                                var script = document.createElement("script");
-                                script.async = 1;
-                                script.src = 'https://emrld.ltd/NTEwMTQz.js?t=510143';
-                                document.head.appendChild(script);
-                            })();
-                        `,
+                        __html: `(function () {
+        var script =
+          document.createElement("script");
+        script.async = 1;
+        script.src =
+          'https://emrld.ltd/NTEwMTQz.js?t=510143';
+        document.head.appendChild(script);
+      })();`
                     }}
                 />
             </head>
