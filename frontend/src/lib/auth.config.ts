@@ -23,12 +23,20 @@ export const authConfig = {
             const isLoggedIn = !!auth?.user;
             const isOnDashboard = ['/dashboard', '/decision-passport', '/plan'].some(route => nextUrl.pathname.startsWith(route));
             const isAuthRoute = nextUrl.pathname === '/login' || nextUrl.pathname === '/register';
+            const requestedPath = `${nextUrl.pathname}${nextUrl.search}`;
+            const callbackUrl = nextUrl.searchParams.get('callbackUrl');
+            const safeCallbackUrl =
+                callbackUrl && callbackUrl.startsWith('/') && !callbackUrl.startsWith('//')
+                    ? callbackUrl
+                    : null;
 
             if (isOnDashboard) {
                 if (isLoggedIn) return true;
-                return false; // Redirect to signIn page
+                const loginUrl = new URL('/login', nextUrl);
+                loginUrl.searchParams.set('callbackUrl', requestedPath);
+                return Response.redirect(loginUrl);
             } else if (isLoggedIn && isAuthRoute) {
-                return Response.redirect(new URL('/', nextUrl));
+                return Response.redirect(new URL(safeCallbackUrl ?? '/', nextUrl));
             }
             return true;
         },

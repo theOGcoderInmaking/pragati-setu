@@ -118,11 +118,18 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [pageState, setPageState] = useState<"idle" | "error" | "success">("idle");
     const [burst, setBurst] = useState(false);
+    const [callbackUrl, setCallbackUrl] = useState("/");
     const router = useRouter();
 
     // ── Particles — generated client-side only to avoid hydration mismatch
     const [mounted, setMounted] = useState(false);
     useEffect(() => { setMounted(true); }, []);
+    useEffect(() => {
+        const value = new URLSearchParams(window.location.search).get("callbackUrl");
+        if (value && value.startsWith("/") && !value.startsWith("//")) {
+            setCallbackUrl(value);
+        }
+    }, []);
 
     const particles = useMemo<Particle[]>(
         () =>
@@ -192,6 +199,7 @@ export default function LoginPage() {
                 email,
                 password,
                 redirect: false,
+                callbackUrl,
             });
 
             if (res?.error) {
@@ -205,7 +213,7 @@ export default function LoginPage() {
             setLoading(false);
             setPageState("success");
             setBurst(true);
-            setTimeout(() => router.push("/"), 800);
+            setTimeout(() => router.push(callbackUrl), 800);
         } catch (error) {
             console.error("Login Error:", error);
             setLoading(false);
@@ -570,7 +578,7 @@ export default function LoginPage() {
                                             {/* Google */}
                                             <button
                                                 type="button"
-                                                onClick={() => signIn("google", { callbackUrl: "/" })}
+                                                onClick={() => signIn("google", { callbackUrl })}
                                                 className="w-full h-12 rounded-lg flex items-center justify-center gap-3 font-sans text-sm text-text-primary transition-colors"
                                                 style={{
                                                     background: "rgba(255,255,255,0.06)",
