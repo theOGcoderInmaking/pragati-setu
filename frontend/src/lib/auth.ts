@@ -16,13 +16,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 password: { label: 'Password', type: 'password' }
             },
             async authorize(credentials) {
-                console.log('Auth: authorize called with', credentials?.email);
-
                 try {
                     if (!credentials?.email || !credentials?.password) return null;
 
                     const user = await queryOne<User>(
-                        'SELECT * FROM users WHERE email = $1',
+                        'SELECT * FROM users WHERE LOWER(email) = LOWER($1)',
                         [credentials.email]
                     );
 
@@ -41,18 +39,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                             };
                         }
                     }
-                    console.log('Auth: DB login failed, invalid credentials.');
                     return null;
 
                 } catch (error) {
                     console.error("Auth DB Error:", error);
-                    // TEMPORARY BYPASS FOR DEV/PREVIEW PURPOSES (If DB schema missing):
-                    return {
-                        id: "test-user-321",
-                        email: credentials?.email as string,
-                        name: "Pragati Traveler (Mock)",
-                        role: "traveler"
-                    };
+                    return null;
                 }
             }
         }),
@@ -61,17 +52,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     callbacks: {
         ...authConfig.callbacks,
         async signIn({ user, account }) {
-            console.log('Auth: signIn callback', { provider: account?.provider, email: user.email });
             if (account?.provider === 'google') {
                 try {
                     const existing = await queryOne<User>(
                         'SELECT * FROM users WHERE email = $1',
                         [user.email]
                     );
-                    console.log('Auth: existing user check', { exists: !!existing });
 
                     if (!existing) {
-                        console.log('Auth: creating new Google user', user.email);
                         await query(
                             `INSERT INTO users 
                              (email, full_name, avatar_url, email_verified, role)
@@ -85,7 +73,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                         );
 
                         if (newUser) {
-                            console.log('Auth: creating profile for new user', newUser.id);
                             await query(
                                 `INSERT INTO user_profiles (user_id) VALUES ($1)`,
                                 [newUser.id]
@@ -94,8 +81,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     }
                 } catch (err) {
                     console.error('Auth: Error in Google signIn callback', err);
-                    // We don't return false here to avoid AccessDenied if DB is transiently down,
-                    // but depending on policy we might want to.
                 }
             }
             return true;

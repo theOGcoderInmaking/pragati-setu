@@ -162,9 +162,26 @@
 .passportVisual {
     position: relative;
     z-index: 1;
-    width: 420px;
-    height: 540px;
+    width: 460px;
+    height: 590px;
     flex-shrink: 0;
+}
+
+.passportCardButton {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    text-align: inherit;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    will-change: transform;
+}
+
+.passportCardButton:focus-visible {
+    outline: 2px solid rgba(212, 89, 10, 0.85);
+    outline-offset: 6px;
 }
 
 .passportCover {
@@ -188,7 +205,6 @@
     align-items: center;
     justify-content: center;
     padding: 32px;
-    animation: passportFloat 6s ease-in-out infinite;
     z-index: 2;
 }
 
@@ -269,69 +285,119 @@
 }
 
 .passportInterior {
-    width: 300px;
-    height: 420px;
-    background: rgba(13, 21, 32, 0.95);
-    backdrop-filter: blur(12px);
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    width: 320px;
+    height: 440px;
+    background: linear-gradient(180deg,
+            rgba(17, 28, 42, 0.98) 0%,
+            rgba(11, 19, 31, 0.98) 100%);
+    backdrop-filter: blur(18px);
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
     position: absolute;
-    top: 30px;
+    top: 24px;
     right: 0;
-    padding: 32px 24px;
+    padding: 26px 24px 22px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    box-shadow: 8px 8px 48px rgba(0, 0, 0, 0.50);
+    gap: 18px;
+    box-shadow:
+        0 28px 68px rgba(0, 0, 0, 0.52),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
     z-index: 1;
+}
+
+.stackHint {
+    position: absolute;
+    left: 16px;
+    bottom: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: rgba(122, 179, 181, 0.78);
 }
 
 .interiorHeader {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    padding-bottom: 12px;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+    padding-bottom: 16px;
 }
 
 .interiorDest {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: #F2EDE4;
-    letter-spacing: 1px;
+    font-size: 12px;
+    color: rgba(242, 237, 228, 0.96);
+    letter-spacing: 1.6px;
+    line-height: 1.4;
 }
 
 .interiorDates {
     font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: rgba(122, 179, 181, 0.92);
+    letter-spacing: 1.2px;
+}
+
+.gaugePanel {
+    background: linear-gradient(180deg,
+            rgba(255, 255, 255, 0.035) 0%,
+            rgba(255, 255, 255, 0.015) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 14px 12px 16px;
+}
+
+.interiorSectionRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.interiorSectionLabel {
+    font-family: 'JetBrains Mono', monospace;
     font-size: 8px;
-    color: #7AB3B5;
+    color: rgba(122, 179, 181, 0.92);
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+}
+
+.interiorSectionValue {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: rgba(46, 201, 122, 0.96);
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
 }
 
 .gaugesRow {
     display: flex;
     justify-content: space-between;
-    gap: 8px;
+    gap: 10px;
 }
 
 .gauge {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     flex: 1;
 }
 
 .gaugeCircle {
-    width: 44px;
-    height: 44px;
+    width: 52px;
+    height: 52px;
     position: relative;
 }
 
 .gaugeScore {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
+    font-size: 11px;
     font-weight: 700;
-    color: #F2EDE4;
+    color: rgba(242, 237, 228, 0.98);
     position: absolute;
     top: 50%;
     left: 50%;
@@ -340,39 +406,50 @@
 
 .gaugeLabel {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 6px;
-    letter-spacing: 1px;
-    color: #7AB3B5;
+    font-size: 7px;
+    letter-spacing: 1.1px;
+    color: rgba(122, 179, 181, 0.92);
     text-transform: uppercase;
     text-align: center;
+    line-height: 1.35;
 }
 
 .compositeRow {
     margin-top: auto;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding-top: 12px;
+    background: linear-gradient(180deg,
+            rgba(255, 255, 255, 0.03) 0%,
+            rgba(255, 255, 255, 0.015) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 14px 14px 12px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
 .compositeText {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    color: #F2EDE4;
+    font-size: 10px;
+    color: rgba(242, 237, 228, 0.96);
     display: flex;
     justify-content: space-between;
+    letter-spacing: 1.2px;
 }
 
 .guaranteeBadge {
-    background: rgba(46, 201, 122, 0.10);
-    border: 1px solid rgba(46, 201, 122, 0.30);
-    border-radius: 4px;
-    padding: 6px;
+    background: linear-gradient(180deg,
+            rgba(46, 201, 122, 0.16) 0%,
+            rgba(20, 90, 58, 0.28) 100%);
+    border: 1px solid rgba(46, 201, 122, 0.34);
+    border-radius: 10px;
+    padding: 10px 12px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 8px;
-    color: #2EC97A;
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(76, 224, 143, 0.98);
     text-align: center;
+    letter-spacing: 1.2px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 /* SECTION 2 — INSIDE THE PASSPORT */

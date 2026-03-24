@@ -35,16 +35,23 @@ const stripePromise = loadStripe(
 
 // --- Components ---
 
+const GAUGE_RADIUS = 22;
+const GAUGE_CIRCUMFERENCE = 2 * Math.PI * GAUGE_RADIUS;
+
 const GaugeCircle = ({ score, color, label }: { score: number; color: string; label: string }) => {
-    const [offset, setOffset] = useState(126);
+    const [offset, setOffset] = useState(
+        GAUGE_CIRCUMFERENCE
+    );
     const circleRef = useRef<SVGCircleElement>(null);
 
     useEffect(() => {
         const observer = new IntersectionObserver((entries) => {
             if (entries[0].isIntersecting) {
-                const circumference = 2 * Math.PI * 20;
-                const progress = (score / 100) * circumference;
-                setOffset(circumference - progress);
+                const progress =
+                    (score / 100) * GAUGE_CIRCUMFERENCE;
+                setOffset(
+                    GAUGE_CIRCUMFERENCE - progress
+                );
             }
         }, { threshold: 0.5 });
 
@@ -55,24 +62,32 @@ const GaugeCircle = ({ score, color, label }: { score: number; color: string; la
     return (
         <div className={styles.gauge}>
             <div className={styles.gaugeCircle}>
-                <svg width="44" height="44" viewBox="0 0 44 44">
+                <svg
+                    width="52"
+                    height="52"
+                    viewBox="0 0 52 52"
+                >
                     <circle
-                        cx="22" cy="22" r="20"
+                        cx="26"
+                        cy="26"
+                        r={GAUGE_RADIUS}
                         fill="none"
-                        stroke="rgba(255,255,255,0.08)"
-                        strokeWidth="3"
+                        stroke="rgba(255,255,255,0.12)"
+                        strokeWidth="4"
                     />
                     <circle
                         ref={circleRef}
-                        cx="22" cy="22" r="20"
+                        cx="26"
+                        cy="26"
+                        r={GAUGE_RADIUS}
                         fill="none"
                         stroke={color}
-                        strokeWidth="3"
-                        strokeDasharray="125.66"
+                        strokeWidth="4"
+                        strokeDasharray={GAUGE_CIRCUMFERENCE}
                         strokeDashoffset={offset}
                         strokeLinecap="round"
                         style={{ transition: "stroke-dashoffset 1.5s ease-out" }}
-                        transform="rotate(-90 22 22)"
+                        transform="rotate(-90 26 26)"
                     />
                 </svg>
                 <span className={styles.gaugeScore}>{score}</span>
@@ -171,7 +186,7 @@ const PaymentForm = ({
     onError,
 }: {
     clientSecret: string;
-    onSuccess: () => void;
+    onSuccess: (paymentIntentId: string) => void;
     onError: (msg: string) => void;
 }) => {
     const stripe = useStripe();
@@ -207,7 +222,7 @@ const PaymentForm = ({
         } else if (
             paymentIntent?.status === 'succeeded'
         ) {
-            onSuccess();
+            onSuccess(paymentIntent.id);
         }
     };
 
@@ -419,8 +434,9 @@ const PassportCreationModal = ({
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        type: "passport",
-                        amount: 14900,
+                        order_type: "passport",
+                        gateway: "stripe",
+                        passport_id: form.destination_city_id ?? null,
                     }),
                 }
             );
@@ -430,8 +446,8 @@ const PassportCreationModal = ({
                     data.error ?? "Payment setup failed"
                 );
             }
-            setClientSecret(data.clientSecret);
-            setOrderId(data.orderId);
+            setClientSecret(data.client_secret);
+            setOrderId(data.order_id);
             setStep("payment");
         } catch (err) {
             setError(
@@ -442,7 +458,7 @@ const PassportCreationModal = ({
         }
     };
 
-    const handlePaymentSuccess = async () => {
+    const handlePaymentSuccess = async (paymentIntentId: string) => {
         setStep("generating");
         try {
             if (orderId) {
@@ -451,7 +467,10 @@ const PassportCreationModal = ({
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({ orderId }),
+                    body: JSON.stringify({
+                        payment_intent_id: paymentIntentId,
+                        order_id: orderId,
+                    }),
                 });
             }
             const res = await fetch(
@@ -731,6 +750,8 @@ export default function DecisionPassportPage() {
     const [showModal, setShowModal] = useState(false);
     const [modalPrefill, setModalPrefill] =
         useState<PassportPrefill | null>(null);
+    const [activeVisualCard, setActiveVisualCard] =
+        useState<"cover" | "interior">("cover");
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -770,29 +791,43 @@ export default function DecisionPassportPage() {
         setShowModal(true);
     }, []);
 
+    const coverIsActive = activeVisualCard === "cover";
+    const interiorIsActive = activeVisualCard === "interior";
+
     return (
         <PageWrapper>
             <Navbar />
-            <div className={styles.container}>
+            <div className={styles.passportPage}>
                 {/* SECTION 1 — HERO */}
-                <section className={styles.heroSection}>
-                    <div className={styles.heroContent}>
-                        <div className={`${styles.heroTag} fade-up`}>
-                            <span>2026 RELEASE</span>
-                            <span>DATA-VERIFIED TRAVEL</span>
-                        </div>
+                <section className={styles.hero}>
+                    <div className={styles.heroGlow} />
+                    <div className={styles.heroLeft}>
+                        <span className={`${styles.eyebrow} fade-up`}>
+                            2026 RELEASE · DATA-VERIFIED TRAVEL
+                        </span>
 
-                        <h1 className={`${styles.heroTitle} fade-up`}>
-                            One document.<br />
-                            Every <span className={styles.accentText}>decision</span> verified.
+                        <h1 className={`${styles.heading} fade-up`}>
+                            <span className={styles.headingLine}>One document.</span>
+                            <span className={styles.headingLine}>
+                                Every{" "}
+                                <span
+                                    style={{
+                                        color: "#D4590A",
+                                        fontStyle: "italic",
+                                    }}
+                                >
+                                    decision
+                                </span>{" "}
+                                verified.
+                            </span>
                         </h1>
 
-                        <p className={`${styles.heroDesc} fade-up`}>
+                        <p className={`${styles.subtext} fade-up`}>
                             The Decision Passport is a 20-page intelligence report for your next trip.
                             If our data is wrong and you get scammed, we pay up to ₹50,000 back. Guaranteed.
                         </p>
 
-                        <div className={`${styles.heroActions} fade-up`}>
+                        <div className={`${styles.ctaRow} fade-up`}>
                             <button
                                 className={styles.btnPrimary}
                                 onClick={() => setShowModal(true)}
@@ -804,28 +839,136 @@ export default function DecisionPassportPage() {
                     </div>
 
                     <div className={styles.passportVisual}>
-                        <div className={styles.passportCover}>
+                        <motion.button
+                            type="button"
+                            className={`${styles.passportCardButton} ${styles.passportCover}`}
+                            onClick={() => setActiveVisualCard("cover")}
+                            aria-pressed={coverIsActive}
+                            aria-label="Bring passport cover to front"
+                            animate={
+                                coverIsActive
+                                    ? {
+                                        x: 0,
+                                        y: [0, -14, 0],
+                                        rotate: -1,
+                                        scale: 1,
+                                        opacity: 1,
+                                    }
+                                    : {
+                                        x: 96,
+                                        y: 38,
+                                        rotate: 3,
+                                        scale: 0.92,
+                                        opacity: 0.74,
+                                    }
+                            }
+                            transition={
+                                coverIsActive
+                                    ? {
+                                        default: {
+                                            duration: 0.45,
+                                            ease: [0.23, 1, 0.32, 1],
+                                        },
+                                        y: {
+                                            duration: 4.8,
+                                            repeat: Infinity,
+                                            ease: "easeInOut",
+                                        },
+                                    }
+                                    : {
+                                        duration: 0.45,
+                                        ease: [0.23, 1, 0.32, 1],
+                                    }
+                            }
+                            whileHover={{
+                                scale: coverIsActive ? 1.01 : 0.95,
+                            }}
+                            style={{
+                                zIndex: coverIsActive ? 3 : 1,
+                            }}
+                        >
                             <div className={styles.coverLogo}>PRAGATI SETU</div>
                             <div className={styles.coverTitle}>DECISION PASSPORT</div>
                             <div className={styles.coverSubtitle}>TRAVEL INTELLIGENCE DOCUMENT</div>
                             <div className={styles.coverDest}>🇯🇵 TOKYO, JAPAN</div>
-                        </div>
+                        </motion.button>
 
-                        <div className={styles.passportInterior}>
+                        <motion.button
+                            type="button"
+                            className={`${styles.passportCardButton} ${styles.passportInterior}`}
+                            onClick={() => setActiveVisualCard("interior")}
+                            aria-pressed={interiorIsActive}
+                            aria-label="Bring passport interior to front"
+                            animate={
+                                interiorIsActive
+                                    ? {
+                                        x: -54,
+                                        y: [0, -10, 0],
+                                        rotate: -1,
+                                        scale: 1,
+                                        opacity: 1,
+                                    }
+                                    : {
+                                        x: 0,
+                                        y: 42,
+                                        rotate: 2,
+                                        scale: 0.91,
+                                        opacity: 0.7,
+                                    }
+                            }
+                            transition={
+                                interiorIsActive
+                                    ? {
+                                        default: {
+                                            duration: 0.45,
+                                            ease: [0.23, 1, 0.32, 1],
+                                        },
+                                        y: {
+                                            duration: 5.2,
+                                            repeat: Infinity,
+                                            ease: "easeInOut",
+                                        },
+                                    }
+                                    : {
+                                        duration: 0.45,
+                                        ease: [0.23, 1, 0.32, 1],
+                                    }
+                            }
+                            whileHover={{
+                                scale: interiorIsActive ? 1.01 : 0.94,
+                            }}
+                            style={{
+                                zIndex: interiorIsActive ? 4 : 2,
+                            }}
+                        >
                             <div className={styles.interiorHeader}>
                                 <span className={styles.interiorDest}>TOKYO · SHINJUKU · SHIBUYA</span>
                                 <span className={styles.interiorDates}>MAR 12 – MAR 20, 2026</span>
                             </div>
 
-                            <div className={styles.gaugesRow}>
-                                <GaugeCircle score={87} color="#2EC97A" label="Weather" />
-                                <GaugeCircle score={74} color="#F5A623" label="Safety" />
-                                <GaugeCircle score={61} color="#F5A623" label="Scam" />
-                                <GaugeCircle score={78} color="#2EC97A" label="Crowd" />
-                                <GaugeCircle score={91} color="#2EC97A" label="Budget" />
+                            <div className={styles.gaugePanel}>
+                                <div className={styles.interiorSectionRow}>
+                                    <span className={styles.interiorSectionLabel}>
+                                        Live Trip Signals
+                                    </span>
+                                    <span className={styles.interiorSectionValue}>
+                                        Verified
+                                    </span>
+                                </div>
+
+                                <div className={styles.gaugesRow}>
+                                    <GaugeCircle score={87} color="#2EC97A" label="Weather" />
+                                    <GaugeCircle score={74} color="#F5A623" label="Safety" />
+                                    <GaugeCircle score={61} color="#F5A623" label="Scam" />
+                                    <GaugeCircle score={78} color="#2EC97A" label="Crowd" />
+                                    <GaugeCircle score={91} color="#2EC97A" label="Budget" />
+                                </div>
                             </div>
 
                             <div className={styles.compositeRow}>
+                                <span className={styles.interiorSectionLabel}>
+                                    Decision Readout
+                                </span>
                                 <div className={styles.compositeText}>
                                     <span>CONFIDENCE COMPOSITE</span>
                                     <span>82/100</span>
@@ -834,6 +977,10 @@ export default function DecisionPassportPage() {
                                     GUARANTEE: ₹50,000 COVERAGE
                                 </div>
                             </div>
+                        </motion.button>
+
+                        <div className={styles.stackHint}>
+                            Click a card to bring it forward
                         </div>
                     </div>
                 </section>

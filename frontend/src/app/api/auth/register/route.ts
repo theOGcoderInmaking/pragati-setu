@@ -6,7 +6,23 @@ import type { User } from '@/types';
 
 export async function POST(req: NextRequest) {
     try {
-        const { email, password, full_name } = await req.json();
+        const body = await req.json();
+        const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
+        const password = typeof body.password === 'string' ? body.password : '';
+        const full_name = typeof body.full_name === 'string' ? body.full_name.trim() : '';
+        const home_city = typeof body.homeCity === 'string' ? body.homeCity.trim() : null;
+        const nationality = typeof body.nationality === 'string' && body.nationality.trim()
+            ? body.nationality.trim()
+            : 'India';
+        const frequency = typeof body.frequency === 'number' ? body.frequency : null;
+        const styles = Array.isArray(body.styles)
+            ? body.styles.filter((style: unknown): style is string => typeof style === 'string' && style.trim().length > 0)
+            : [];
+        const solo = Boolean(body.solo);
+        const femaleSolo = Boolean(body.femaleSolo);
+        const risk = typeof body.risk === 'number' ? body.risk : 2;
+        const travelFrequencyLabels = ['First trip', 'Yearly', 'Few times', 'Often', 'Every month'];
+        const travel_frequency = frequency !== null ? (travelFrequencyLabels[frequency] ?? String(frequency)) : null;
 
         // Validation
         if (!email || !password || !full_name) {
@@ -25,7 +41,7 @@ export async function POST(req: NextRequest) {
 
         // Check if exists
         const existing = await queryOne<User>(
-            'SELECT id FROM users WHERE email = $1',
+            'SELECT id FROM users WHERE LOWER(email) = LOWER($1)',
             [email]
         );
 
@@ -49,8 +65,26 @@ export async function POST(req: NextRequest) {
 
         // Create empty profile
         await query(
-            `INSERT INTO user_profiles (user_id) VALUES ($1)`,
-            [user.id]
+            `INSERT INTO user_profiles (
+                user_id,
+                home_city,
+                nationality,
+                travel_frequency,
+                is_solo_traveler,
+                is_female_solo,
+                risk_comfort_level,
+                travel_styles
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+            [
+                user.id,
+                home_city,
+                nationality,
+                travel_frequency,
+                solo,
+                femaleSolo,
+                risk,
+                styles
+            ]
         );
 
         // Send welcome email (non-blocking)

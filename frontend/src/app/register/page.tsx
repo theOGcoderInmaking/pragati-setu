@@ -59,6 +59,11 @@ const NATIONALITIES = [
 
 const FREQUENCY_LABELS = ["First trip", "Yearly", "Few times", "Often", "Every month"];
 const RISK_LABELS = ["Very Cautious", "Cautious", "Balanced", "Venturesome", "Adventurous"];
+const SLIDER_MAX = 4;
+
+const getSliderProgress = (value: number) => (value / SLIDER_MAX) * 100;
+const getSliderHandlePosition = (value: number) => `calc(10px + (100% - 20px) * ${value / SLIDER_MAX})`;
+const getRiskAccent = (risk: number) => (risk <= 2 ? "#2EC97A" : "#F5A623");
 
 // ─── Components ──────────────────────────────────────────────────────────────
 
@@ -263,6 +268,8 @@ export default function RegisterPage() {
     const [shake, setShake] = useState(false);
     const [mounted, setMounted] = useState(false);
     const [isLocating, setIsLocating] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState("");
 
     useEffect(() => { setMounted(true); }, []);
 
@@ -287,11 +294,15 @@ export default function RegisterPage() {
     ];
 
     const nextStep = () => {
+        setSubmitError("");
         setCompletedSteps(prev => [...prev, step]);
         setStep(s => s + 1);
     };
 
-    const prevStep = () => setStep(s => s - 1);
+    const prevStep = () => {
+        setSubmitError("");
+        setStep(s => s - 1);
+    };
 
     const detectLocation = () => {
         if (!navigator.geolocation) {
@@ -350,7 +361,11 @@ export default function RegisterPage() {
     };
 
     const handleSubmit = async () => {
-        // Added some basic registration logic
+        if (isSubmitting) return;
+
+        setSubmitError("");
+        setIsSubmitting(true);
+
         try {
             const res = await fetch("/api/auth/register", {
                 method: "POST",
@@ -361,29 +376,40 @@ export default function RegisterPage() {
                 }),
             });
 
-            await res.json();
+            const data = await res.json().catch(() => null);
 
             if (!res.ok) {
-                // For simplicity, we'll just shake for now, in a real app would show specific error
+                setSubmitError(data?.error || "We couldn't create your account. Please try again.");
                 setShake(true);
                 setTimeout(() => setShake(false), 500);
+                setIsSubmitting(false);
                 return;
             }
 
             // After register, sign in immediately
-            await signIn("credentials", {
-                email: formData.email,
+            const signInResult = await signIn("credentials", {
+                email: formData.email.trim().toLowerCase(),
                 password: formData.password,
                 redirect: false
             });
+
+            if (signInResult?.error) {
+                setSubmitError("Your account was created, but automatic sign-in failed. Please sign in manually.");
+                setShake(true);
+                setTimeout(() => setShake(false), 500);
+                setIsSubmitting(false);
+                return;
+            }
 
             setIsSuccess(true);
             setBurst(true);
             setTimeout(() => router.push("/"), 3000);
         } catch (error) {
             console.error("Registration error:", error);
+            setSubmitError("Registration failed. Please try again.");
             setShake(true);
             setTimeout(() => setShake(false), 500);
+            setIsSubmitting(false);
         }
     };
 
@@ -399,6 +425,7 @@ export default function RegisterPage() {
 
     const strengthText = ["Weak", "Fair", "Good", "Strong"][Math.max(0, passwordStrength - 1)] || "Weak";
     const strengthColor = ["bg-score-low", "bg-score-mid", "bg-teal", "bg-score-high"][Math.max(0, passwordStrength - 1)] || "bg-score-low";
+    const riskAccent = getRiskAccent(formData.risk);
 
     return (
         <PageWrapper>
@@ -463,7 +490,7 @@ export default function RegisterPage() {
                     </Link>
                 </motion.div>
 
-                <div className="relative z-10 w-full max-w-[560px] flex flex-col items-center px-6">
+                <div className="relative z-10 w-full max-w-[560px] flex flex-col items-center px-4 sm:px-6">
                     {!isSuccess && <ProgressIndicator currentStep={step} completedSteps={completedSteps} />}
 
                     <motion.div
@@ -483,7 +510,7 @@ export default function RegisterPage() {
                                     key="success"
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    className="p-12 text-center py-20"
+                                    className="px-8 py-16 text-center sm:px-12 sm:py-20"
                                 >
                                     <span className="text-saffron block mb-6">
                                         <NavigationArrow size={40} weight="fill" />
@@ -509,7 +536,7 @@ export default function RegisterPage() {
                                         // Start entering before exit finishes for 0.15s overlap
                                         delay: 0.15
                                     }}
-                                    className="p-12"
+                                    className="p-8 sm:p-12"
                                 >
                                     {step === 0 && (
                                         <div className="flex flex-col">
@@ -621,7 +648,7 @@ export default function RegisterPage() {
                                                     <div className="relative pt-12 pb-2">
                                                         {/* Floating Label */}
                                                         <motion.div
-                                                            animate={{ left: `${(formData.frequency / 4) * 100}%` }}
+                                                            animate={{ left: getSliderHandlePosition(formData.frequency) }}
                                                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                                             className="absolute top-0 -translate-x-1/2 bg-saffron px-2 py-1 rounded text-[10px] font-bold text-white shadow-lg pointer-events-none after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent after:border-t-saffron"
                                                         >
@@ -634,7 +661,7 @@ export default function RegisterPage() {
                                                             value={formData.frequency}
                                                             onChange={e => setFormData({ ...formData, frequency: parseInt(e.target.value) })}
                                                             style={{
-                                                                background: `linear-gradient(to right, var(--saffron) ${(formData.frequency / 4) * 100}%, rgba(255,255,255,0.1) ${(formData.frequency / 4) * 100}%)`
+                                                                background: `linear-gradient(to right, var(--saffron) ${getSliderProgress(formData.frequency)}%, rgba(255,255,255,0.1) ${getSliderProgress(formData.frequency)}%)`
                                                             }}
                                                         />
                                                         <div className="flex justify-between mt-3 px-1">
@@ -686,87 +713,113 @@ export default function RegisterPage() {
                                     )}
 
                                     {step === 2 && (
-                                        <div className="flex flex-col">
-                                            <h1 className="font-display text-4xl text-text-primary mb-2">Safety preferences.</h1>
-                                            <p className="text-text-secondary text-sm mb-7">Your answers protect every journey.</p>
+                                        <div className="flex flex-col gap-8">
+                                            <div>
+                                                <h1 className="font-display text-4xl text-text-primary mb-2">Safety preferences.</h1>
+                                                <p className="text-text-secondary text-sm">Your answers protect every journey.</p>
+                                            </div>
 
-                                            <div className="bg-teal/5 border border-teal/20 rounded-full px-5 py-3 flex gap-3 mb-9">
-                                                <Info size={18} className="text-teal-light shrink-0 mt-0.5" />
-                                                <p className="text-[12px] text-text-secondary leading-relaxed">
+                                            <div className="bg-teal/5 border border-teal/20 rounded-[22px] px-5 py-4 flex items-start gap-3">
+                                                <div className="h-8 w-8 rounded-full border border-teal/20 bg-teal/10 flex items-center justify-center shrink-0 mt-0.5">
+                                                    <Info size={16} className="text-teal-light" />
+                                                </div>
+                                                <p className="text-[12px] text-text-secondary leading-6 max-w-[360px]">
                                                     This information is private and only used to personalize your Confidence Scores.
                                                 </p>
                                             </div>
 
-                                            <div className="space-y-8">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary block">TRAVELING SOLO?</label>
+                                            <div className="space-y-4">
+                                                <div className="rounded-[20px] border border-white/[0.08] bg-white/[0.03] p-5 space-y-5">
+                                                    <div className="flex items-start justify-between gap-4">
+                                                        <div className="pr-4">
+                                                            <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary block">TRAVELING SOLO?</label>
+                                                            <p className="text-[12px] text-text-dim mt-2 max-w-[280px] leading-5">
+                                                                We&apos;ll prioritize safer arrival windows, transfer choices, and neighborhood guidance.
+                                                            </p>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            aria-pressed={formData.solo}
+                                                            onClick={() => setFormData({ ...formData, solo: !formData.solo })}
+                                                            className={`w-12 h-[26px] rounded-full relative transition-all duration-300 shrink-0 mt-1 ${formData.solo ? "bg-teal shadow-[0_0_12px_rgba(11,168,174,0.3)]" : "bg-white/[0.08]"}`}
+                                                        >
+                                                            <motion.div
+                                                                animate={{ x: formData.solo ? 24 : 4 }}
+                                                                className="absolute left-0 top-[4px] w-[18px] h-[18px] bg-white rounded-full shadow-lg"
+                                                            />
+                                                        </button>
                                                     </div>
-                                                    <button
-                                                        onClick={() => setFormData({ ...formData, solo: !formData.solo })}
-                                                        className={`w-12 h-[26px] rounded-full relative transition-all duration-300 ${formData.solo ? "bg-teal shadow-[0_0_12px_rgba(11,168,174,0.3)]" : "bg-white/[0.08]"}`}
-                                                    >
-                                                        <motion.div
-                                                            animate={{ x: formData.solo ? 24 : 4 }}
-                                                            className="absolute top-1/2 -translate-y-1/2 w-[18px] h-[18px] bg-white rounded-full shadow-lg"
-                                                        />
-                                                    </button>
+
+                                                    <AnimatePresence>
+                                                        {formData.solo && (
+                                                            <motion.div
+                                                                initial={{ height: 0, opacity: 0 }}
+                                                                animate={{ height: "auto", opacity: 1 }}
+                                                                exit={{ height: 0, opacity: 0 }}
+                                                                className="overflow-hidden"
+                                                            >
+                                                                <div className="rounded-2xl border border-white/[0.08] bg-[#0E1626]/70 p-4">
+                                                                    <div className="flex items-start justify-between gap-4">
+                                                                        <div className="pr-4">
+                                                                            <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary block">SOLO FEMALE TRAVELER?</label>
+                                                                            <p className="text-[12px] text-text-dim mt-2 max-w-[260px] leading-5">
+                                                                                Adds stronger route and time-of-day weighting where we have destination-specific data.
+                                                                            </p>
+                                                                        </div>
+                                                                        <button
+                                                                            type="button"
+                                                                            aria-pressed={formData.femaleSolo}
+                                                                            onClick={() => setFormData({ ...formData, femaleSolo: !formData.femaleSolo })}
+                                                                            className={`w-12 h-[26px] rounded-full relative transition-all duration-300 shrink-0 mt-1 ${formData.femaleSolo ? "bg-teal shadow-[0_0_12px_rgba(11,168,174,0.3)]" : "bg-white/[0.08]"}`}
+                                                                        >
+                                                                            <motion.div
+                                                                                animate={{ x: formData.femaleSolo ? 24 : 4 }}
+                                                                                className="absolute left-0 top-[4px] w-[18px] h-[18px] bg-white rounded-full shadow-lg"
+                                                                            />
+                                                                        </button>
+                                                                    </div>
+                                                                    {formData.femaleSolo && (
+                                                                        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[11px] text-teal-light font-medium mt-4 leading-5">
+                                                                            Enhanced destination-specific safety scoring is enabled.
+                                                                        </motion.p>
+                                                                    )}
+                                                                </div>
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
                                                 </div>
 
-                                                <AnimatePresence>
-                                                    {formData.solo && (
-                                                        <motion.div
-                                                            initial={{ height: 0, opacity: 0 }}
-                                                            animate={{ height: "auto", opacity: 1 }}
-                                                            exit={{ height: 0, opacity: 0 }}
-                                                            className="space-y-6 overflow-hidden"
-                                                        >
-                                                            <div className="flex items-center justify-between">
-                                                                <div>
-                                                                    <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary block">SOLO FEMALE TRAVELER?</label>
-                                                                </div>
-                                                                <button
-                                                                    onClick={() => setFormData({ ...formData, femaleSolo: !formData.femaleSolo })}
-                                                                    className={`w-12 h-[26px] rounded-full relative transition-all duration-300 ${formData.femaleSolo ? "bg-teal shadow-[0_0_12px_rgba(11,168,174,0.3)]" : "bg-white/[0.08]"}`}
-                                                                >
-                                                                    <motion.div
-                                                                        animate={{ x: formData.femaleSolo ? 24 : 4 }}
-                                                                        className="absolute top-1/2 -translate-y-1/2 w-[18px] h-[18px] bg-white rounded-full shadow-lg"
-                                                                    />
-                                                                </button>
-                                                            </div>
-                                                            {formData.femaleSolo && (
-                                                                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[11px] text-teal-light font-medium italic">
-                                                                    Unlocks enhanced safety scoring for specific routes and times.
-                                                                </motion.p>
-                                                            )}
-                                                        </motion.div>
-                                                    )}
-                                                </AnimatePresence>
-
-                                                <div className="space-y-4">
-                                                    <div className="flex justify-between items-end">
-                                                        <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary">RISK COMFORT</label>
-                                                        <span className={`text-xs font-medium ${formData.risk < 2 ? "text-score-high" : (formData.risk > 3 ? "text-score-mid" : "text-text-primary")}`}>
-                                                            {RISK_LABELS[formData.risk]}
-                                                        </span>
-                                                    </div>
-                                                    <div className="relative pt-12 pb-2">
-                                                        {/* Floating Label */}
-                                                        <motion.div
-                                                            animate={{ left: `${(formData.risk / 4) * 100}%` }}
-                                                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                                            className="absolute top-0 -translate-x-1/2 px-2 py-1 rounded text-[10px] font-bold text-white shadow-lg pointer-events-none transition-colors duration-300 after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent"
+                                                <div className="rounded-[20px] border border-white/[0.08] bg-white/[0.03] p-5">
+                                                    <div className="flex items-start justify-between gap-4 mb-5">
+                                                        <div className="pr-4">
+                                                            <label className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary block">RISK COMFORT</label>
+                                                            <p className="text-[12px] text-text-dim mt-2 max-w-[280px] leading-5">
+                                                                Choose how conservative or adventurous your recommendations should feel.
+                                                            </p>
+                                                        </div>
+                                                        <span
+                                                            className="inline-flex items-center rounded-full border px-3 py-1.5 text-[11px] font-semibold shrink-0"
                                                             style={{
-                                                                backgroundColor: formData.risk <= 2 ? "#2EC97A" : "#F5A623",
-                                                                borderBottomColor: formData.risk <= 2 ? "#2EC97A" : "#F5A623" // Cheat for the arrow color if using absolute after
+                                                                backgroundColor: `${riskAccent}1A`,
+                                                                borderColor: `${riskAccent}33`,
+                                                                color: riskAccent
                                                             }}
                                                         >
                                                             {RISK_LABELS[formData.risk]}
-                                                            {/* CSS Arrow fix */}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="relative pt-12 pb-2">
+                                                        <motion.div
+                                                            animate={{ left: getSliderHandlePosition(formData.risk) }}
+                                                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                                            className="absolute top-0 -translate-x-1/2 px-2 py-1 rounded text-[10px] font-bold text-white shadow-lg pointer-events-none transition-colors duration-300"
+                                                            style={{ backgroundColor: riskAccent }}
+                                                        >
+                                                            {RISK_LABELS[formData.risk]}
                                                             <div
                                                                 className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent"
-                                                                style={{ borderTopColor: formData.risk <= 2 ? "#2EC97A" : "#F5A623" }}
+                                                                style={{ borderTopColor: riskAccent }}
                                                             />
                                                         </motion.div>
 
@@ -776,19 +829,32 @@ export default function RegisterPage() {
                                                             value={formData.risk}
                                                             onChange={e => setFormData({ ...formData, risk: parseInt(e.target.value) })}
                                                             style={{
-                                                                background: `linear-gradient(to right, ${formData.risk <= 2 ? "#2EC97A" : "#F5A623"} ${(formData.risk / 4) * 100}%, rgba(255,255,255,0.1) ${(formData.risk / 4) * 100}%)`
+                                                                background: `linear-gradient(to right, ${riskAccent} ${getSliderProgress(formData.risk)}%, rgba(255,255,255,0.1) ${getSliderProgress(formData.risk)}%)`
                                                             }}
                                                         />
+                                                        <div className="flex justify-between mt-3 px-1">
+                                                            <span className="text-[10px] text-text-dim">More cautious</span>
+                                                            <span className="text-[10px] text-text-dim">More adventurous</span>
+                                                        </div>
                                                     </div>
                                                 </div>
 
-                                                <div className="space-y-1.5 pt-2">
+                                                <div className="rounded-[20px] border border-white/[0.08] bg-white/[0.02]">
                                                     <button
+                                                        type="button"
+                                                        aria-expanded={showMedical}
                                                         onClick={() => setShowMedical(!showMedical)}
-                                                        className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[2px] text-text-secondary hover:text-text-primary transition-colors mb-2"
+                                                        className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-white/[0.02] transition-colors"
                                                     >
-                                                        <CaretDown size={12} className={`transition-transform duration-300 ${showMedical ? "rotate-180" : ""}`} />
-                                                        Any special considerations? (Optional)
+                                                        <span className="flex items-center gap-2 min-w-0">
+                                                            <CaretDown size={12} className={`transition-transform duration-300 shrink-0 ${showMedical ? "rotate-180" : ""}`} />
+                                                            <span className="font-mono text-[9px] uppercase tracking-[2px] text-text-secondary">
+                                                                Any special considerations? (Optional)
+                                                            </span>
+                                                        </span>
+                                                        <span className="text-[11px] text-text-dim shrink-0">
+                                                            {showMedical ? "Hide notes" : "Add notes"}
+                                                        </span>
                                                     </button>
                                                     <AnimatePresence>
                                                         {showMedical && (
@@ -798,35 +864,65 @@ export default function RegisterPage() {
                                                                 exit={{ height: 0, opacity: 0 }}
                                                                 className="overflow-hidden"
                                                             >
-                                                                <textarea
-                                                                    className="glass-input w-full p-4 text-sm min-h-[100px] resize-none"
-                                                                    placeholder="Medical conditions, dietary laws, accessibility needs, anything else we should know..."
-                                                                    value={formData.specialNeeds}
-                                                                    onChange={e => setFormData({ ...formData, specialNeeds: e.target.value })}
-                                                                />
+                                                                <div className="px-5 pb-5 pt-0">
+                                                                    <textarea
+                                                                        className="glass-input w-full p-4 text-sm min-h-[110px] resize-none"
+                                                                        placeholder="Medical conditions, dietary laws, accessibility needs, anything else we should know..."
+                                                                        value={formData.specialNeeds}
+                                                                        onChange={e => setFormData({ ...formData, specialNeeds: e.target.value })}
+                                                                    />
+                                                                </div>
                                                             </motion.div>
                                                         )}
                                                     </AnimatePresence>
                                                 </div>
                                             </div>
 
-                                            <p className="font-display text-[18px] italic text-text-secondary text-center mt-12 px-8 leading-relaxed">
-                                                &quot;Your answers make every Decision Passport more accurate for you.&quot;
-                                            </p>
+                                            <div className="border-t border-white/[0.08] pt-8">
+                                                <p className="font-display text-[18px] italic text-text-secondary text-center px-6 leading-relaxed max-w-[380px] mx-auto">
+                                                    &quot;Your answers make every Decision Passport more accurate for you.&quot;
+                                                </p>
 
-                                            <div className="flex gap-4 mt-8">
-                                                <button onClick={prevStep} className="h-[52px] px-8 rounded-lg border border-white/10 text-text-primary font-medium hover:bg-white/5 transition-all">Back</button>
-                                                <button
-                                                    onClick={handleSubmit}
-                                                    className="shimmer-btn relative flex-1 h-[52px] bg-saffron rounded-lg font-semibold text-white transition-all hover:bg-saffron-bright group"
-                                                >
-                                                    <span className="relative flex items-center justify-center gap-2">
-                                                        Create My Account
-                                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                            <DrawingCheck isHovered={true} />
-                                                        </div>
-                                                    </span>
-                                                </button>
+                                                {submitError && (
+                                                    <div
+                                                        aria-live="polite"
+                                                        className="mt-6 rounded-2xl border border-[#E8453C]/30 bg-[#E8453C]/10 px-4 py-3 text-[13px] text-[#FFB3AD] leading-5"
+                                                    >
+                                                        {submitError}
+                                                        {submitError.includes("already exists") && (
+                                                            <span className="ml-1">
+                                                                <Link href="/login" className="text-white underline underline-offset-4 hover:text-[#FFD7D3]">
+                                                                    Sign in instead
+                                                                </Link>
+                                                                .
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                <div className="flex gap-4 mt-8">
+                                                    <button
+                                                        type="button"
+                                                        disabled={isSubmitting}
+                                                        onClick={prevStep}
+                                                        className="h-[52px] min-w-[132px] px-8 rounded-lg border border-white/10 text-text-primary font-medium hover:bg-white/5 transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    >
+                                                        Back
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        disabled={isSubmitting}
+                                                        onClick={handleSubmit}
+                                                        className="shimmer-btn relative flex-1 h-[52px] bg-saffron rounded-lg font-semibold text-white transition-all hover:bg-saffron-bright group shadow-[0_12px_30px_rgba(212,89,10,0.28)] disabled:opacity-70 disabled:cursor-not-allowed"
+                                                    >
+                                                        <span className="relative flex items-center justify-center gap-2">
+                                                            {isSubmitting ? "Creating account..." : "Create My Account"}
+                                                            <div className={`transition-opacity duration-300 ${isSubmitting ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+                                                                <DrawingCheck isHovered={true} />
+                                                            </div>
+                                                        </span>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     )}

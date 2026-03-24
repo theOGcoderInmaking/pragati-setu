@@ -10,8 +10,6 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ data: [] });
     }
 
-    console.log('API: Supabase cities search called with q:', q);
-
     try {
         // Query Supabase for 67k cities coverage
         const { data, error } = await supabaseAdmin

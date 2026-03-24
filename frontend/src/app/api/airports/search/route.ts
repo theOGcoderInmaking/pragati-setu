@@ -10,14 +10,18 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ data: [] });
     }
 
-    console.log('API: airports search called with q:', q);
     try {
         const queryTerm = `%${q}%`;
         const data = await sql`
-            SELECT a.id, a.name, a.iata_code, a.city_id, c.name as city_name, co.name as country_name
+            SELECT
+                a.id,
+                a.name,
+                a.iata_code,
+                a.city_id,
+                c.name as city_name,
+                NULL::text as country_name
             FROM airports a
             LEFT JOIN cities c ON a.city_id = c.id
-            LEFT JOIN countries co ON c.country_id = co.id
             WHERE a.name ILIKE ${queryTerm} OR a.iata_code ILIKE ${queryTerm}
             LIMIT ${limit}
         `;

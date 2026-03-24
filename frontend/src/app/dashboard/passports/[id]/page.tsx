@@ -152,7 +152,7 @@ export default async function PassportDetailPage({ params }: { params: { id: str
         query<RiskRegister>(
             `SELECT id, risk_title, risk_description, severity,
                     prevention_steps, sort_order
-             FROM risk_registers
+             FROM risk_register_items
              WHERE passport_id = $1
              ORDER BY sort_order ASC`,
             [params.id]

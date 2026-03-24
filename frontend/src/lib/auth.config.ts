@@ -80,7 +80,6 @@ export const authConfig = {
             return preferredBaseUrl;
         },
         async jwt({ token, user }) {
-            console.log('Auth: JWT callback', { hasUser: !!user, tokenEmail: token.email });
             if (user) {
                 token.id = user.id;
                 token.role = (user as User).role;
@@ -88,7 +87,6 @@ export const authConfig = {
             return token;
         },
         async session({ session, token }) {
-            console.log('Auth: Session callback', { hasToken: !!token });
             if (token) {
                 session.user.id = token.id as string;
                 session.user.role = token.role as string;

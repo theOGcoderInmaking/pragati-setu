@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
             const risks = generateRiskRegister(scores, destination_name);
             for (const risk of risks) {
                 await query(
-                    `INSERT INTO risk_registers (
+                    `INSERT INTO risk_register_items (
             passport_id, risk_title, risk_description,
             severity, category, prevention_steps, sort_order
           ) VALUES ($1,$2,$3,$4,$5,$6,$7)`,

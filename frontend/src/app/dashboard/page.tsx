@@ -180,9 +180,8 @@ export default async function DashboardPage() {
             [activeDestinationCity ?? '', activePassport.destination_country ?? '']
         ).catch(() => [] as SafetyAlert[]) : Promise.resolve([] as SafetyAlert[]),
         query<RecommendationRow>(
-            `SELECT c.name, co.name as country_name
+            `SELECT c.name, NULL::text as country_name
              FROM cities c
-             LEFT JOIN countries co ON co.id = c.country_id
              ORDER BY c.id DESC
              LIMIT 8`,
             []

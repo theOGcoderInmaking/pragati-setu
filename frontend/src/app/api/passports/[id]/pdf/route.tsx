@@ -322,7 +322,7 @@ export async function GET(
         ),
         query<RiskRegister>(
             `SELECT id, risk_title, risk_description, severity, prevention_steps
-             FROM risk_registers WHERE passport_id = $1 ORDER BY sort_order ASC`,
+             FROM risk_register_items WHERE passport_id = $1 ORDER BY sort_order ASC`,
             [params.id]
         ),
         query<PassportItem>(

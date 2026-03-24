@@ -92,11 +92,16 @@ const PHILOSOPHIES = [
 export default function PlanYourTripPage() {
     const [activeLabel, setActiveLabel] = useState(0);
     const router = useRouter();
+    const activeDestination = DESTINATIONS[activeLabel] ?? DESTINATIONS[0];
 
     useEffect(() => {
         const labelTimer = setInterval(() => {
             setActiveLabel((prev) => (prev + 1) % DESTINATIONS.length);
         }, 4000);
+
+        if (typeof window === "undefined" || !("IntersectionObserver" in window)) {
+            return () => clearInterval(labelTimer);
+        }
 
         const observer = new IntersectionObserver(
             (entries) => {
@@ -156,7 +161,7 @@ export default function PlanYourTripPage() {
                         />
 
                         <span className={styles.destLabel}>
-                            {DESTINATIONS[activeLabel].label}
+                            {activeDestination.label}
                         </span>
 
                         <div className={styles.heroContent}>

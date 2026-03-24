@@ -1,8 +1,5 @@
 import { neon } from '@neondatabase/serverless';
 
-// Lazily initialise the Neon client so the module can be imported at build
-// time when DATABASE_URL is not yet available (e.g. Vercel static generation).
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _sql: any = null;
 
 function getDb() {
@@ -27,20 +24,20 @@ export const sql: any = new Proxy((() => {}) as any, {
     },
 });
 
-// Type-safe query helper
+// Type-safe query helper — returns rows array
 export async function query<T>(
     queryText: string,
     params?: unknown[]
 ): Promise<T[]> {
     try {
-        console.log(`[DB Query] Executing: ${queryText.substring(0, 50)}...`);
         const db = getDb();
         const result = await db.query(queryText, params ?? []);
-        return result as T[];
+        if (Array.isArray(result)) {
+            return result as T[];
+        }
+        return (result.rows ?? result) as T[];
     } catch (error) {
         console.error('Database query error:', error);
-        console.error('DATABASE_URL length:', process.env.DATABASE_URL?.length);
-        console.error('DATABASE_URL starts with:', process.env.DATABASE_URL?.[0]);
         throw error;
     }
 }

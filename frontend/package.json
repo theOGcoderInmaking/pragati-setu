@@ -16,6 +16,7 @@
     "@react-pdf/renderer": "^4.3.2",
     "@stripe/react-stripe-js": "^5.6.1",
     "@stripe/stripe-js": "^8.9.0",
+    "@supabase/supabase-js": "^2.39.7",
     "@types/three": "0.183.1",
     "amadeus": "^11.0.0",
     "bcryptjs": "^3.0.3",
@@ -26,11 +27,10 @@
     "razorpay": "^2.9.6",
     "react": "^18",
     "react-dom": "^18",
-    "react-email": "^5.2.9",
-    "resend": "^6.9.3",
+    "react-email": "^5.2.10",
+    "resend": "^6.9.4",
     "stripe": "^20.4.0",
     "three": "0.183.1",
-    "@supabase/supabase-js": "^2.39.7",
     "zustand": "5.0.11"
   },
   "devDependencies": {

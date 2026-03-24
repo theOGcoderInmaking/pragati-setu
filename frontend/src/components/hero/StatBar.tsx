@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import type { HomeStat } from "@/lib/home-data";
 
 interface StatItemProps {
-    value: string;
+    value: number;
     label: string;
-    target: number;
+    format: HomeStat["format"];
 }
 
-const StatCounter: React.FC<StatItemProps> = ({ value, label, target }) => {
+const StatCounter: React.FC<StatItemProps> = ({ value, label, format }) => {
     const [count, setCount] = useState(0);
 
     useEffect(() => {
@@ -27,7 +28,7 @@ const StatCounter: React.FC<StatItemProps> = ({ value, label, target }) => {
 
             const progress = Math.min((elapsed - delay) / duration, 1);
             const easedProgress = 1 - Math.pow(1 - progress, 3);
-            setCount(Math.floor(easedProgress * target));
+            setCount(easedProgress * value);
 
             if (progress < 1) {
                 requestAnimationFrame(animate);
@@ -35,35 +36,26 @@ const StatCounter: React.FC<StatItemProps> = ({ value, label, target }) => {
         };
 
         requestAnimationFrame(animate);
-    }, [target]);
-
-    const displayValue = value.includes("%")
-        ? `${count}%`
-        : value.includes("₹")
-            ? `₹${(count / 100).toFixed(2)}L`
-            : count.toLocaleString() + (value.includes("+") ? "+" : "");
+    }, [value]);
 
     return (
         <div className="flex flex-col items-center sm:items-start">
-            <span className="text-2xl font-mono font-bold text-text-primary">{displayValue}</span>
+            <span className="text-2xl font-mono font-bold text-text-primary">
+                {formatStatValue(count, format)}
+            </span>
             <span className="data-label text-[10px] text-text-secondary mt-1">{label}</span>
         </div>
     );
 };
 
-const StatBar: React.FC = () => {
+const StatBar: React.FC<{ stats: HomeStat[] }> = ({ stats }) => {
     return (
         <div
             style={{
-                // NOT absolute — sits naturally
-                // below hero content in flow
                 position: "relative",
                 width: "100%",
-                // Fully opaque — no glow bleed
                 background: "#060A12",
                 borderTop: "1px solid rgba(255,255,255,0.06)",
-                // No backdrop blur needed
-                // since background is solid
                 zIndex: 30,
                 marginTop: "auto",
                 paddingTop: "20px",
@@ -71,13 +63,35 @@ const StatBar: React.FC = () => {
             }}
         >
             <div className="max-w-[1280px] mx-auto h-full px-6 flex flex-wrap sm:flex-nowrap items-center justify-around sm:justify-between gap-4">
-                <StatCounter value="190+" label="Countries" target={190} />
-                <StatCounter value="2,400+" label="Verified Guides" target={2400} />
-                <StatCounter value="99.6%" label="Claim-Free Rate" target={99} />
-                <StatCounter value="₹4.87L" label="Guarantees Paid" target={487} />
+                {stats.map((stat) => (
+                    <StatCounter
+                        key={stat.id}
+                        value={stat.value}
+                        label={stat.label}
+                        format={stat.format}
+                    />
+                ))}
             </div>
         </div>
     );
 };
 
 export default StatBar;
+
+function formatStatValue(value: number, format: HomeStat["format"]): string {
+    if (format === "currency_inr_compact") {
+        const rounded = Math.max(0, value);
+
+        if (rounded >= 100000) {
+            return `₹${(rounded / 100000).toFixed(2)}L`;
+        }
+
+        if (rounded >= 1000) {
+            return `₹${(rounded / 1000).toFixed(1)}K`;
+        }
+
+        return `₹${Math.round(rounded).toLocaleString("en-IN")}`;
+    }
+
+    return Math.round(Math.max(0, value)).toLocaleString("en-IN");
+}

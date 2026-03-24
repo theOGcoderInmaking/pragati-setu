@@ -21,8 +21,8 @@ export interface SidebarBadges {
 
 export default function DashboardSidebar({
     name = "Traveler",
-    stats = { countries: 7, passports: 4, reviews: 12 },
-    badges = { alerts: 2, messages: 5, reviewsDue: 3, passports: 4 }
+    stats = { countries: 0, passports: 0, reviews: 0 },
+    badges = { alerts: 0, messages: 0, reviewsDue: 0, passports: 0 }
 }: {
     name?: string;
     stats?: SidebarStats;
