@@ -14,9 +14,18 @@ import {
 // --- Data ---
 
 const DESTINATIONS = [
-    "🇯🇵 TOKYO, JAPAN",
-    "🇪🇸 BARCELONA, SPAIN",
-    "🇬🇷 SANTORINI, GREECE"
+    {
+        label: " TOKYO, JAPAN",
+        image: "https://source.unsplash.com/1600x900/?tokyo,japan,city"
+    },
+    {
+        label: " BARCELONA, SPAIN",
+        image: "https://source.unsplash.com/1600x900/?barcelona,spain,city"
+    },
+    {
+        label: " SANTORINI, GREECE",
+        image: "https://source.unsplash.com/1600x900/?santorini,greece,island"
+    }
 ];
 
 const PHILOSOPHIES = [
@@ -115,12 +124,39 @@ export default function PlanYourTripPage() {
                 {/* HERO SECTION */}
                 <section className={styles.hero}>
                     <div className={styles.heroLeft}>
-                        <div className={styles.destPhoto1} />
-                        <div className={styles.destPhoto2} />
-                        <div className={styles.destPhoto3} />
+                        {/* Real background images */}
+                        {DESTINATIONS.map((dest, i) => (
+                            <div
+                                key={i}
+                                style={{
+                                    position: "absolute",
+                                    inset: 0,
+                                    backgroundImage: `url(${dest.image})`,
+                                    backgroundSize: "cover",
+                                    backgroundPosition: "center",
+                                    opacity: activeLabel === i ? 1 : 0,
+                                    transition: "opacity 1.2s ease-in-out",
+                                    zIndex: 0
+                                }}
+                            />
+                        ))}
+
+                        {/* Dark overlay on top of image */}
+                        <div
+                            style={{
+                                position: "absolute",
+                                inset: 0,
+                                background:
+                                    "linear-gradient(160deg," +
+                                    "rgba(6,10,18,0.30) 0%," +
+                                    "rgba(6,10,18,0.75) 60%," +
+                                    "#060A12 100%)",
+                                zIndex: 1
+                            }}
+                        />
 
                         <span className={styles.destLabel}>
-                            {DESTINATIONS[activeLabel]}
+                            {DESTINATIONS[activeLabel].label}
                         </span>
 
                         <div className={styles.heroContent}>
@@ -131,19 +167,53 @@ export default function PlanYourTripPage() {
                     </div>
 
                     <div className={styles.heroRight}>
-                        <div className={`${styles.modeCard} ${styles.modeCard1}`}>
+                        <div
+                            className={`${styles.modeCard} ${styles.modeCard1}`}
+                            onClick={() => router.push("/decision-passport")}
+                            style={{ cursor: "pointer" }}
+                        >
                             <span className={styles.modeLabel} style={{ color: '#12A8AE' }}>MODE 1</span>
                             <h2 className={styles.modeTitle}>I&apos;ll Plan, You Perfect</h2>
                             <p className={styles.modeDesc}>
                                 Build your own itinerary. Our AI watches for conflicts, warns of issues, and improves as you go.
                             </p>
+                            <div
+                                style={{
+                                    marginTop: "16px",
+                                    fontFamily: "'Sora', sans-serif",
+                                    fontSize: "12px",
+                                    color: "#12A8AE",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "6px"
+                                }}
+                            >
+                                Start Planning →
+                            </div>
                         </div>
-                        <div className={`${styles.modeCard} ${styles.modeCard2}`}>
+                        <div
+                            className={`${styles.modeCard} ${styles.modeCard2}`}
+                            onClick={() => router.push("/decision-passport")}
+                            style={{ cursor: "pointer" }}
+                        >
                             <span className={styles.modeLabel} style={{ color: '#D4590A' }}>MODE 2</span>
                             <h2 className={styles.modeTitle}>We Plan Everything</h2>
                             <p className={styles.modeDesc}>
                                 Tell us your dream. We build the full trip — flights, hotels, guides, cabs. Guaranteed.
                             </p>
+                            <div
+                                style={{
+                                    marginTop: "16px",
+                                    fontFamily: "'Sora', sans-serif",
+                                    fontSize: "12px",
+                                    color: "#D4590A",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "6px"
+                                }}
+                            >
+                                Let Us Plan →
+                            </div>
                         </div>
                     </div>
                 </section>
